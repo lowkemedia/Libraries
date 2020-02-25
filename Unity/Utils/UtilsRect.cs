@@ -164,7 +164,8 @@ public static class UtilsRect
 
     public static GameObject GetParent(this Object obj)
     {
-        return obj.GetRectTransform().parent.gameObject;
+		Transform parent = obj.GetRectTransform().parent;
+		return parent == null ? null : parent.gameObject;
     }
 
     //
@@ -190,17 +191,15 @@ public static class UtilsRect
         return false;
     }
 
-    public static bool AWithinB(Object objA, Object objB)
+    public static bool AinsideB(Object objA, Object objB)
     {
         return AinsideB(objA.GetRectTransform(), objB.GetRectTransform());
     }
 
-
     public static RectTransform GetCanvasRect(this Object obj)
     {
         Canvas[] canvases = obj.GetRectTransform().GetComponentsInParent<Canvas>();
-        if (canvases.Length != 1)
-        {
+        if (canvases.Length != 1) {
             throw new Exception("Could not find Canvas on obj.");
         }
 

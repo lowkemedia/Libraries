@@ -60,16 +60,11 @@ public static class Utils
     public static GameObject GetGameObject(this Object obj)
     {
         GameObject gameObject;
-        if (obj is Component)
-        {
+        if (obj is Component) {
             gameObject = (obj as Component).gameObject;
-        }
-        else if (obj is GameObject)
-        {
+        } else if (obj is GameObject) {
             gameObject = (obj as GameObject);
-        }
-        else
-        {
+        } else {
             throw new Exception("GetGameObject() called on UnityEngine.Object that is not a Component or GameObject");
         }
 
