@@ -25,23 +25,32 @@
 //
 //
 
-using System;
 using UnityEngine;
 using LocalizerTypes;
+using System;
 
 public class Localizer : MonoBehaviour
 {
-    private static string _language = "en";
+    private static LanguageCode _languageCode = LanguageCode.en;
     private static LocalizationValue _localizationValue;
-
     // TODO: use Dictionary
-    // TODO: enum langue types en, fr, etc
-    // TODO: composit multiple StringKey files?
 
-    public static void Initialize(string language)
+    public static LanguageType Language
     {
-        _language = language;
-        TextAsset textJsonAsset = Resources.Load<TextAsset>("Localization/StringKeys_" + _language);
+        get { return ConvertLanguageCode(_languageCode); }
+        set { Initialize(ConvertLanguageType(value)); }
+    }
+
+    public static LanguageCode LanguageCode
+    {
+        get { return _languageCode; }
+        set { Initialize(value); }
+    }
+
+    public static void Initialize(LanguageCode languageCode)
+    {
+        _languageCode = languageCode;
+        TextAsset textJsonAsset = Resources.Load<TextAsset>("Localization/StringKeys_" + _languageCode);
         string json = textJsonAsset.ToString();
         _localizationValue = LocalizationValue.CreateFromJSON(json);
     }
@@ -49,7 +58,7 @@ public class Localizer : MonoBehaviour
     public static StringKeyValue Key(string key)
     {
         if (_localizationValue == null) {
-            Initialize(_language);
+            Initialize(_languageCode);
         }
 
         // force all keys to lower case
@@ -154,12 +163,13 @@ public class Localizer : MonoBehaviour
         return Key(key).citation;
     }
 
-    public static string Language
+    public static LanguageCode ConvertLanguageType(LanguageType languageType)
     {
-        get { return _language; }
+        return (LanguageCode) (int) languageType;
+    }
 
-        set {
-            Initialize(value);
-        }
+    public static LanguageType ConvertLanguageCode(LanguageCode languageCode)
+    {
+        return (LanguageType) (int) languageCode;
     }
 }

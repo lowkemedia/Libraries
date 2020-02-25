@@ -27,6 +27,37 @@
 
 namespace LocalizerTypes
 {
+    // language codes, see http://www.loc.gov/standards/iso639-2/php/code_list.php
+    // en ENGLISH, pt PORTUGUESE, fr FRENCH, es SPANISH, de GERMAN, 
+    // ja JAPANESE, zh CHINESE, ko KOREAN, ru RUSSIAN
+    public enum LanguageCode
+    {
+        en,
+        pt,
+        fr,
+        es,
+        de,
+        ja,
+        zh,
+        ko,
+        ru,
+        th
+    }
+
+    public enum LanguageType
+    {
+        English,
+        Portuguese,
+        French,
+        Spanish,
+        German,
+        Japanese,
+        Chinese,
+        Korean,
+        Russian,
+        Thai
+    };
+
     public static class LocalizerID
     {
         //
