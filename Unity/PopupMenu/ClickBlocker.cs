@@ -33,19 +33,36 @@ public class ClickBlocker : MonoBehaviour,
     IPointerDownHandler, IPointerEnterHandler
 {
     private PopupMenu _popupMenu;
-
-    public void Initialize(GameObject root, GameObject parent)
+	
+	public void Initialize(GameObject popupMenuGameObject)
     {
-        Image blockerImage = parent.AddComponent<Image>();
-        blockerImage.color = Utils.ConvertColor("#FF000000");
-        RectTransform canvasRect = root.GetCanvasRect();
-        float blockerScale = 1 / root.GetScale();
-        blockerImage.SetSize(canvasRect.sizeDelta);
-        blockerImage.SetScale(blockerScale);
-        blockerImage.SetPosition(root.GetPosition() * -blockerScale);
+        Image blockerImage = gameObject.AddComponent<Image>();
 
-        _popupMenu = gameObject.GetComponentInParent<PopupMenu>();
+		// TODO: Animate blocker's black cover alpha
+
+		blockerImage.color = Utils.ConvertColor("#00000066");        // use black cover
+        // blockerImage.color = Utils.ConvertColor("#FF000000");     // last two 00 are alpha
+
+		// Note: Assumption that all GameObjects are scaled at 100%
+        RectTransform canvasRect = popupMenuGameObject.GetCanvasRect();
+		blockerImage.SetSize(canvasRect.sizeDelta);
+		// blockerImage.SetScale(new Vector3(1f, 1f, 1));
+		Vector3 position = -GetSumOfPositions(popupMenuGameObject);
+		blockerImage.SetPosition(position);
+		_popupMenu = gameObject.GetComponentInParent<PopupMenu>();
     }
+
+	private Vector3 GetSumOfPositions(GameObject obj)
+	{
+		// Note: The root Canvas position not included in sum
+		Vector3 position = Vector3.one;
+		do {
+			position += obj.GetPosition();
+			obj = obj.GetParent();
+		} while (obj.GetParent() != null);	// ignore canvas root
+
+		return position;
+	}
 
     public void OnPointerDown(PointerEventData clickEventData)
     {
@@ -57,11 +74,11 @@ public class ClickBlocker : MonoBehaviour,
         _popupMenu.OnPopupRollout();
     }
 
-    public static ClickBlocker MakeClickBlocker(GameObject root, GameObject parent)
+    public static ClickBlocker MakeClickBlocker(GameObject popupMenuGameObject, GameObject popupGameObject)
     {
-        GameObject gameObjectBlocker = parent.MakeGameObject("Blocker");
-        ClickBlocker clickBlocker = gameObjectBlocker.AddComponent<ClickBlocker>();
-        clickBlocker.Initialize(root, gameObjectBlocker);
+        GameObject blockerGameObject = popupGameObject.MakeGameObject("Blocker");
+        ClickBlocker clickBlocker = blockerGameObject.AddComponent<ClickBlocker>();
+        clickBlocker.Initialize(popupMenuGameObject);
 
         return clickBlocker;
     }

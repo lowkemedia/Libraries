@@ -46,27 +46,21 @@ public class PopupMenu : MonoBehaviour
     public UnityEvent onPopupCanceled;
 
     public float padding = 30;                      // padding around buttons
-    public AudioSource menuOpen;
 
     private GameObject _popupGameObject;
     private GameObject _gameObjectMenu;
     private int _selectedIndex;
     private string[] _labels;
 
-
     public void Initialize(string[] labels,
                            string selected = null)
     {
         _labels = (string[])labels.Clone();
 
-        if (_popupGameObject != null)
-        {
+        if (_popupGameObject != null) {
             Destroy(_popupGameObject);
         }
         _popupGameObject = MakePopupGameObject(popupTextButton, selected);
-
-        // modify audio on button
-        popupTextButton.click = menuOpen;
 
         HidePopup();
     }
@@ -75,14 +69,13 @@ public class PopupMenu : MonoBehaviour
                                            string selected = null)
     {
         // create popup menu
-        GameObject popupGameObject = gameObject.MakeGameObject("PopupMenu");
+        GameObject popupGameObject = gameObject.MakeGameObject("Popup");
 
         // create blocker
         ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(gameObject, popupGameObject);
 
         // create menu
         _gameObjectMenu = popupGameObject.MakeGameObject("Menu");
-
 
         // create background
         GameObject gameObjectBackground = _gameObjectMenu.MakeGameObject("Background");
@@ -98,11 +91,11 @@ public class PopupMenu : MonoBehaviour
         Selected = selected;
 
         // check if popup in within display region
-        if (!UtilsRect.AWithinB(backgroundImage, clickBlocker))
+        if (!UtilsRect.AinsideB(backgroundImage, clickBlocker))
         {
-            // if not, then reverse label order
-            //  causing menu to build in the opposite direction
-            Array.Reverse(_labels);
+			// if not, then reverse label order
+			//  causing menu to build in the opposite direction
+			Array.Reverse(_labels);
             Selected = selected;
         }
 
@@ -122,15 +115,13 @@ public class PopupMenu : MonoBehaviour
         return popupGameObject;
     }
 
-    public string Selected
+	public string Selected
     {
-        get
-        {
+        get {
             return _labels[_selectedIndex];
         }
 
-        set
-        {
+        set {
             SelectedIndex = Array.IndexOf(_labels, value);
         }
     }
@@ -144,8 +135,7 @@ public class PopupMenu : MonoBehaviour
             _selectedIndex = value;
 
             if (_selectedIndex < 0 ||
-                _selectedIndex > _labels.Length - 1)
-            {
+                _selectedIndex > _labels.Length - 1) {
                 _selectedIndex = 0;
             }
 
@@ -160,7 +150,14 @@ public class PopupMenu : MonoBehaviour
 
     private void ShowPopup()
     {
-        _popupGameObject.SetActive(true);
+        // move popup to top of display list
+        gameObject.MoveToTop();
+
+		// TODO: Shouldn't need to reinitialize! just fix popup position, AinsideB() call.
+		Initialize(_labels, Selected);
+
+		// show popup
+		_popupGameObject.SetActive(true);
         popupTextButton.gameObject.SetActive(false);
     }
 
@@ -172,12 +169,9 @@ public class PopupMenu : MonoBehaviour
 
     public void OnClickButton()
     {
-        if (_popupGameObject.activeSelf)
-        {
+        if (_popupGameObject.activeSelf) {
             HidePopup();
-        }
-        else
-        {
+        } else {
             ShowPopup();
         }
     }
@@ -185,8 +179,7 @@ public class PopupMenu : MonoBehaviour
     public void MenuButtonClicked(string label = null)
     {
         Selected = label;
-        if (onMenuSelected != null)
-        {
+        if (onMenuSelected != null) {
             onMenuSelected.Invoke(Selected);
         }
         HidePopup();
@@ -194,8 +187,7 @@ public class PopupMenu : MonoBehaviour
 
     public void MenuButtonRolled(string label)
     {
-        if (onMenuRoll != null)
-        {
+        if (onMenuRoll != null) {
             onMenuRoll.Invoke(label);
         }
     }
@@ -204,16 +196,14 @@ public class PopupMenu : MonoBehaviour
     {
         HidePopup();
 
-        if (onMenuSelected != null)
-        {
+        if (onMenuSelected != null) {
             onPopupCanceled.Invoke();
         }
     }
 
     public void OnPopupRollout()
     {
-        if (onPopupRollout != null)
-        {
+        if (onPopupRollout != null) {
             onPopupRollout.Invoke();
         }
     }
