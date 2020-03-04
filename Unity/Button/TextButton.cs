@@ -1,8 +1,8 @@
 //
 //  TextButton - Button package
-//  Russell Lowke, October 29th 2019
+//  Russell Lowke, March 4th 2020
 //
-//  Copyright (c) 2019 Lowke Media
+//  Copyright (c) 2019-2020 Lowke Media
 //  see http://www.lowkemedia.com for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -31,55 +31,51 @@ using UnityEngine.UI;
 public class TextButton : ClickButton
 {
     public Text textField;
-    public string normalTextColor = "";               // "up"
-    public string highlightedTextColor = "";          // "over"
-    public string pressedTextColor = "";              // "down"
-    public string disabledTextColor = "";
+    public string normalTextColor;               // "up"
+    public string highlightedTextColor;          // "over"
+    public string pressedTextColor;              // "down"
+	public string selectedTextColor;
+	public string disabledTextColor;
 
     private Color _normalColor;
     private Color _highlightedColor;
     private Color _pressedColor;
-    private Color _disabledColor;
+	private Color _selectedColor;
+	private Color _disabledColor;
 
     public override void Initialize()
     {
         base.Initialize();
 
         // ensure Text Color
-        if (normalTextColor == "")
-        {
+        if (string.IsNullOrEmpty(normalTextColor)) {
             _normalColor = textField.color;
-        }
-        else
-        {
+        } else {
             _normalColor = ConvertColor(normalTextColor);
         }
 
-        if (highlightedTextColor == "")
-        {
+        if (string.IsNullOrEmpty(highlightedTextColor)) {
             _highlightedColor = _normalColor;
-        }
-        else
-        {
+        } else {
             _highlightedColor = ConvertColor(highlightedTextColor);
         }
 
-        if (pressedTextColor == "")
-        {
+        if (string.IsNullOrEmpty(pressedTextColor)) {
             _pressedColor = _highlightedColor;
-        }
-        else
-        {
+        } else {
             _pressedColor = ConvertColor(pressedTextColor);
         }
 
-        if (disabledTextColor == "")
-        {
+		if (string.IsNullOrEmpty(selectedTextColor)) {
+			_selectedColor = _pressedColor;
+		} else {
+			_selectedColor = ConvertColor(selectedTextColor);
+		}
+
+		if (string.IsNullOrEmpty(disabledTextColor)) {
             // TODO: Use alpha? or Grey?
             _disabledColor = _normalColor;
-        }
-        else
-        {
+        } else {
             _disabledColor = ConvertColor(disabledTextColor);
         }
     }
@@ -88,25 +84,37 @@ public class TextButton : ClickButton
     {
         base.UpdateButton(showAsClicked);
 
-        if (!_enabled)
-        {
-            // TODO: set alpha?
-            textField.color = _disabledColor;
-        }
-        else if (_pressed && _inside || showAsClicked)
-        {
-            // TODO: Adjust text position (optional)
-            textField.color = _pressedColor;
-        }
-        else if (_inside || _pressed)
-        {
-            textField.color = _highlightedColor;
-        }
-        else
-        {
-            textField.color = _normalColor;
-        }
+		// TODO: deal with clickInWhenPressed
 
+		if (!Enabled) {
+			//
+			// button is disabled
+			textField.color = _disabledColor;
+
+		} else if (showAsClicked) {
+			//
+			// showAsClicked override
+			textField.color = _pressedColor;
+
+		} else if (Selected) {
+			//
+			// selected override
+			textField.color = _selectedColor;
+
+		} else if (_inside && Interactive) {
+			//
+			// if pointer inside, buttons are pressed or highlighted
+			if (_pressed) {
+				textField.color = _pressedColor;
+			} else {
+				textField.color = _highlightedColor;
+			}
+
+		} else {
+			//
+			// otherwise button is normal
+			textField.color = _normalColor;
+		}
     }
 
     public Color ConvertColor(string colorString)

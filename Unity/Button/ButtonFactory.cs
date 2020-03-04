@@ -1,8 +1,8 @@
 //
 //  ButtonFactory - Button package
-//  Russell Lowke, October 29th 2019
+//  Russell Lowke, March 4th 2020
 //
-//  Copyright (c) 2019 Lowke Media
+//  Copyright (c) 2019-2020 Lowke Media
 //  see http://www.lowkemedia.com for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -25,83 +25,86 @@
 //
 //
 
-using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
 public static class ButtonFactory
 {
-    public static ClickButton MakeClickButton(this GameObject parent,
-                                              ClickButton duplicate)
-    {
-        return parent.MakeButton(duplicate);
-    }
+	public static ClickButton MakeClickButton(this GameObject parent,
+											  ClickButton duplicate)
+	{
+		return parent.MakeButton(duplicate);
+	}
 
-    public static TextButton MakeTextButton(this GameObject parent,
-                                            TextButton duplicate,
-                                            string label = null)
-    {
-        TextButton textButton = parent.MakeButton(duplicate);
-        if (!string.IsNullOrEmpty(label))
-        {
-            textButton.textField.text = label;
-            textButton.textField.name = label;
-        }
-        return textButton;
-    }
+	public static TextButton MakeTextButton(this GameObject parent,
+											TextButton duplicate,
+											string label = null)
+	{
+		TextButton textButton = parent.MakeButton(duplicate);
+		if (!string.IsNullOrEmpty(label)) {
+			textButton.textField.text = label;
+			textButton.textField.name = label;
+		}
+		return textButton;
+	}
 
-    private static T MakeButton<T>(this GameObject parent, T duplicate) where T : ClickButton
-    {
-        // create gameObject holder for button
-        GameObject buttonGameObject = parent.MakeGameObject("Button");
+	private static T MakeButton<T>(this GameObject parent, T duplicate) where T : ClickButton
+	{
+		// create gameObject holder for button
+		GameObject buttonGameObject = parent.MakeGameObject("Button");
 
-        // create button
-        T button = buttonGameObject.AddComponent<T>();
+		// create button
+		T button = buttonGameObject.AddComponent<T>();
 
-        // copy ClickButton properties
-        button.normal = duplicate.normal;
-        button.highlighted = duplicate.highlighted;
-        button.pressed = duplicate.pressed;
-        button.disabled = duplicate.disabled;
-        button.click = duplicate.click;
-        button.roll = duplicate.roll;
-        button.invokeWhilePressed = duplicate.invokeWhilePressed;
-        button.invokeInterval = duplicate.invokeInterval;
-        button.clickInWhenPressed = duplicate.clickInWhenPressed;
-        button.onClick = new UnityEvent();
-        button.onRollover = new UnityEvent();
-        button.onRollout = new UnityEvent();
+		// copy ClickButton properties
+		button.normalSprite = duplicate.normalSprite;
+		button.highlightedSprite = duplicate.highlightedSprite;
+		button.pressedSprite = duplicate.pressedSprite;
+		button.selectedSprite = duplicate.selectedSprite;
+		button.disabledSprite = duplicate.disabledSprite;
+		button.click = duplicate.click;
+		button.roll = duplicate.roll;
+		button.enabled = duplicate.enabled;
+		button.selected = duplicate.selected;
+		button.toggleSelected = duplicate.toggleSelected;
+		button.invokeWhilePressed = duplicate.invokeWhilePressed;
+		button.invokeInterval = duplicate.invokeInterval;
+		button.clickInWhenPressed = duplicate.clickInWhenPressed;
+		button.interactive = duplicate.interactive;
+		button.onClick = new UnityEvent();
+		button.onRollover = new UnityEvent();
+		button.onRollout = new UnityEvent();
 
-        // add Image for ClickButton
-        Image image = buttonGameObject.AddComponent<Image>();
-        image.sprite = button.normal;
-        image.gameObject.CopyRectTransform(duplicate.gameObject);
+		// add Image for ClickButton
+		Image image = buttonGameObject.AddComponent<Image>();
+		image.sprite = button.normalSprite;
+		image.gameObject.CopyRectTransform(duplicate.gameObject);
 
-        if (duplicate is TextButton)
-        {
-            // cast as TextButton
-            TextButton textButton = button as TextButton;
-            TextButton duplicateTextButton = duplicate as TextButton;
+		if (duplicate is TextButton) {
+			// cast as TextButton
+			TextButton textButton = button as TextButton;
+			TextButton duplicateTextButton = duplicate as TextButton;
 
-            // add Text for TextButton
-            GameObject textGameObject = buttonGameObject.MakeGameObject();
-            Text textField = textGameObject.AddComponent<Text>();
-            textField.CopyComponent(duplicateTextButton.textField);
-            textField.name = "Text";
-            textButton.textField = textField;
+			// add Text for TextButton
+			GameObject textGameObject = buttonGameObject.MakeGameObject();
+			Text textField = textGameObject.AddComponent<Text>();
+			textField.CopyComponent(duplicateTextButton.textField);
+			textField.name = "Text";
+			textButton.textField = textField;
 
-            // copy TextButton properties
-            textButton.normalTextColor = duplicateTextButton.normalTextColor;
-            textButton.highlightedTextColor = duplicateTextButton.highlightedTextColor;
-            textButton.pressedTextColor = duplicateTextButton.pressedTextColor;
-            textButton.disabledTextColor = duplicateTextButton.disabledTextColor;
+			// copy TextButton properties
+			textButton.normalTextColor = duplicateTextButton.normalTextColor;
+			textButton.highlightedTextColor = duplicateTextButton.highlightedTextColor;
+			textButton.pressedTextColor = duplicateTextButton.pressedTextColor;
+			textButton.selectedTextColor = duplicateTextButton.selectedTextColor;
+			textButton.disabledTextColor = duplicateTextButton.disabledTextColor;
 
-            // copy RectTransform
-            textGameObject.CopyRectTransform(duplicateTextButton.textField.gameObject);
-  
-        }
+			// copy RectTransform
+			textGameObject.CopyRectTransform(duplicateTextButton.textField.gameObject);
 
-        return button;
-    }
+		}
+
+		return button;
+	}
 }

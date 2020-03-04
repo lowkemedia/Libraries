@@ -1,8 +1,8 @@
 //
 //  ClickButton - Button package
-//  Russell Lowke, October 29th 2019
+//  Russell Lowke, March 4th 2020
 //
-//  Copyright (c) 2019 Lowke Media
+//  Copyright (c) 2019-2020 Lowke Media
 //  see http://www.lowkemedia.com for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -29,157 +29,204 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using System;
 
 public class ClickButton : MonoBehaviour,
              IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    public Sprite normal;               // "up"
-    public Sprite highlighted;          // "over"
-    public Sprite pressed;              // "down"
-    public Sprite disabled;
-    public UnityEvent onClick;
-    public UnityEvent onRollover;
-    public UnityEvent onRollout;
-
+    public Sprite normalSprite;               // "up"
+    public Sprite highlightedSprite;          // "over"
+    public Sprite pressedSprite;              // "down"
+	public Sprite selectedSprite;
+	public Sprite disabledSprite;
     public AudioSource click;
     public AudioSource roll;
 
-    protected Image _buttonImage = null;
-    protected bool _enabled = true;
-    protected bool _pressed = false;
-    protected bool _inside = false;
+	public new bool enabled = true;
+	public bool selected;
+	public bool toggleSelected;
 
-    public bool invokeWhilePressed = false;
-    private float _invokedTime = 0f;                    // time of last invoke
-    private float _pressTime = 0f;                      // time of last press
-    public float invokeInterval = 0.15f;                // interval between press invokes, in seconds
+	public bool invokeWhilePressed;
+	private float _invokedTime;							// time of last invoke
+	private float _pressTime;							// time of last press
+	public float invokeInterval = 0.15f;                // interval between press invokes, in seconds
 
-    public bool clickInWhenPressed = false;             // TODO: Fix to be more subtle (or not at all)
-    private Vector3 _position;
-    private Vector3 _positionAdjusted;
+	public bool clickInWhenPressed;                     // TODO: Fix to be more subtle (or not at all)
+	private Vector3 _position;
+	private Vector3 _positionAdjusted;
 
-    void Start()
+	public bool interactive = true;
+
+	public UnityEvent onClick;                  // TODO: pass reference of ClickButton to callback
+	public UnityEvent onRollover;
+	public UnityEvent onRollout;
+
+	// flags maintained keeping track if button is pressed and if pointer inside
+	protected bool _pressed;
+	protected bool _inside;
+	protected Image _buttonImage;	// image currently shown for button
+
+
+	public bool Enabled {
+		get { return enabled; }
+		set {
+			enabled = value;
+			Interactive = enabled;
+		}
+	}
+
+	public bool Selected {
+		get { return selected; }
+		set {
+			selected = value;
+			UpdateButton();
+		}
+	}
+
+	public bool Interactive {
+		get { return interactive; }
+		set {
+			// TODO: Give warning if Interactive set to true while button is !Enabled
+			interactive = Enabled ? value : false;
+			UpdateButton();
+		}
+	}
+
+	void Start()
     {
         UpdateButton();
-        // TODO: check if pointer started inside
+        // TODO: check if pointer started inside button
     }
 
-    void OnDisable()
-    {
-        _pressed = false;
-        _inside = false;
-        UpdateButton();
-    }
+	void OnDisable()
+	{
+		_pressed = false;
+		_inside = false;
+		UpdateButton();
+	}
 
-    public virtual void Initialize()
+	public virtual void Initialize()
     {
         _buttonImage = GetComponent<Image>();
 
         // ensure Sprites
-        if (!normal)
-        {
-            normal = _buttonImage.sprite;
+        if (!normalSprite) {
+            normalSprite = _buttonImage.sprite;
         }
 
-        if (!highlighted)
-        {
-            highlighted = normal;
+        if (!highlightedSprite) {
+            highlightedSprite = normalSprite;
         }
 
-        if (!pressed)
-        {
-            pressed = highlighted;
+        if (!pressedSprite) {
+            pressedSprite = highlightedSprite;
         }
 
-        _position = this.transform.position;
-        _positionAdjusted = this.transform.position;
+		if (!selectedSprite) {
+			selectedSprite = pressedSprite;
+		}
+
+        _position = transform.position;
+        _positionAdjusted = transform.position;
         _positionAdjusted.x += 0.5f;
         _positionAdjusted.y -= 0.5f;
     }
 
     public void OnPointerUp(PointerEventData clickEventData)
     {
-        if (_pressed && _inside)
-        {
+		if (!Interactive) {
+			_pressed = false;
+			return;
+		}
+
+		// special case for invokeWhilePressed
+		if (_pressed && _inside) {
             if (!invokeWhilePressed ||
-                (Time.time - _pressTime < invokeInterval))
-            {
+                (Time.time - _pressTime < invokeInterval)) {
                 Click();
             }
         }
-        _pressed = false;
-        UpdateButton();
+		_pressed = false;
+
+		UpdateButton();
     }
 
     public void OnPointerEnter(PointerEventData clickEventData)
     {
-        _inside = true;
-        if (Enabled)
-        {
-            if (roll != null)
-            {
-                roll.Play();
-            }
+		_inside = true;
+		if (!Interactive) { return; }
 
-            if (onRollover != null)
-            {
-                onRollover.Invoke();
-            }
+        if (roll != null) {
+            roll.Play();
+        }
+
+        if (onRollover != null) {
+            onRollover.Invoke();
         }
         UpdateButton();
     }
 
     public void OnPointerExit(PointerEventData clickEventData)
     {
-        _inside = false;
-        if (Enabled)
-        {
-            if (onRollout != null)
-            {
-                onRollout.Invoke();
-            }
+		_inside = false;
+		if (!Interactive) { return; }
+
+        if (onRollout != null) {
+            onRollout.Invoke();
         }
         UpdateButton();
     }
 
     public void OnPointerDown(PointerEventData clickEventData = null)
     {
-        _pressed = true;
+		_pressed = true;
+		if (!Interactive) { return; }
+
         _pressTime = Time.time;
         UpdateButton();
     }
 
     public virtual void UpdateButton(bool showAsClicked = false)
     {
-        if (!_buttonImage)
-        {
+        if (!_buttonImage) {
             Initialize();
         }
 
-        if (clickInWhenPressed)
-        {
+		/* TODO: deal with clickInWhenPressed
+		if (clickInWhenPressed) {
             transform.position = (_enabled && _pressed && _inside) ? _positionAdjusted : _position;
         }
+		*/
 
-        if (!_enabled)
-        {
-            // TODO: if (!disabled) then set alpha
-            _buttonImage.sprite = disabled;
-        }
-        else if (_pressed && _inside || showAsClicked)
-        {
-            _buttonImage.sprite = pressed;
-        }
-        else if (_inside || _pressed)
-        {
-            _buttonImage.sprite = highlighted;
-        }
-        else
-        {
-            _buttonImage.sprite = normal;
-        }
-    }
+		if (!Enabled) {
+			//
+			// button is disabled
+			_buttonImage.sprite = disabledSprite;
+
+		} else if (showAsClicked) {
+			//
+			// showAsClicked override
+			_buttonImage.sprite = pressedSprite;
+
+		} else if (Selected) {
+			//
+			// selected override
+			_buttonImage.sprite = selectedSprite;
+
+		} else if (_inside && Interactive) {
+			//
+			// if pointer inside, buttons are pressed or highlighted
+			if (_pressed) {
+				_buttonImage.sprite = pressedSprite;
+			} else {
+				_buttonImage.sprite = highlightedSprite;
+			}
+
+		} else {
+			//
+			// otherwise button is normal
+			_buttonImage.sprite = normalSprite;
+		}
+	}
 
     // Update is called once per frame
     private void Update()
@@ -199,23 +246,20 @@ public class ClickButton : MonoBehaviour,
     //
     public bool Click(float pressDuration = 0.33f)
     {
-        if (isActiveAndEnabled && _enabled)
+        if (isActiveAndEnabled && Enabled)
         {
             _invokedTime = Time.time;
-            if (click != null)
-            {
+            if (click != null) {
                 click.Play();
             }
 
             if (!_pressed &&
-                pressed != normal &&
+                pressedSprite != normalSprite &&
                 pressDuration > 0)
             {
                 UpdateButton(true);
                 Animator.Instance.AddEffect(new DelayFX(pressDuration), FinishClick);
-            }
-            else
-            {
+            } else {
                 FinishClick();
             }
             
@@ -227,23 +271,11 @@ public class ClickButton : MonoBehaviour,
 
     private void FinishClick()
     {
-        if (onClick != null)
-        {
+        if (onClick != null) {
+			if (toggleSelected) {
+				Selected = !Selected;
+			}
             onClick.Invoke();
         }
     }
-
-    public bool Enabled
-    {
-        get {
-            return _enabled;
-        }
-
-        set {
-            _enabled = value;
-            UpdateButton();
-        }
-    }
-
-    // TODO: public bool Selected
 }
