@@ -33,17 +33,18 @@ using UnityEngine.UI;
 public class ClickButton : MonoBehaviour,
              IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    public Sprite normalSprite;               // "up"
-    public Sprite highlightedSprite;          // "over"
-    public Sprite pressedSprite;              // "down"
+	public Sprite normalSprite;               // "up"
+	public Sprite highlightedSprite;          // "over"
+	public Sprite pressedSprite;              // "down"
 	public Sprite selectedSprite;
 	public Sprite disabledSprite;
-    public AudioSource click;
+
+	public AudioSource click;
     public AudioSource roll;
 
 	public new bool enabled = true;
 	public bool selected;
-	public bool toggleSelected;
+	public bool interactive = true;
 
 	public bool invokeWhilePressed;
 	private float _invokedTime;							// time of last invoke
@@ -53,8 +54,6 @@ public class ClickButton : MonoBehaviour,
 	public bool clickInWhenPressed;                     // TODO: Fix to be more subtle (or not at all)
 	private Vector3 _position;
 	private Vector3 _positionAdjusted;
-
-	public bool interactive = true;
 
 	public UnityEvent onClick;                  // TODO: pass reference of ClickButton to callback
 	public UnityEvent onRollover;
@@ -110,15 +109,15 @@ public class ClickButton : MonoBehaviour,
 
         // ensure Sprites
         if (!normalSprite) {
-            normalSprite = _buttonImage.sprite;
+			normalSprite = _buttonImage.sprite;
         }
 
         if (!highlightedSprite) {
-            highlightedSprite = normalSprite;
+			highlightedSprite = normalSprite;
         }
 
         if (!pressedSprite) {
-            pressedSprite = highlightedSprite;
+			pressedSprite = highlightedSprite;
         }
 
 		if (!selectedSprite) {
@@ -254,7 +253,7 @@ public class ClickButton : MonoBehaviour,
             }
 
             if (!_pressed &&
-                pressedSprite != normalSprite &&
+				pressedSprite != normalSprite &&
                 pressDuration > 0)
             {
                 UpdateButton(true);
@@ -272,9 +271,6 @@ public class ClickButton : MonoBehaviour,
     private void FinishClick()
     {
         if (onClick != null) {
-			if (toggleSelected) {
-				Selected = !Selected;
-			}
             onClick.Invoke();
         }
     }

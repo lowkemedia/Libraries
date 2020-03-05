@@ -67,7 +67,6 @@ public static class ButtonFactory
 		button.roll = duplicate.roll;
 		button.enabled = duplicate.enabled;
 		button.selected = duplicate.selected;
-		button.toggleSelected = duplicate.toggleSelected;
 		button.invokeWhilePressed = duplicate.invokeWhilePressed;
 		button.invokeInterval = duplicate.invokeInterval;
 		button.clickInWhenPressed = duplicate.clickInWhenPressed;
