@@ -1,8 +1,8 @@
 //
 //  UtilsRect - Utils package
-//  Russell Lowke, October 29th 2019
+//  Russell Lowke, May 11th 2020
 //
-//  Copyright (c) 2019 Lowke Media
+//  Copyright (c) 2019-20 Lowke Media
 //  see http://www.lowkemedia.com for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -35,20 +35,6 @@ using Object = UnityEngine.Object;
 
 public static class UtilsRect
 {
-    //
-    // Copy parts of RectTransform we want
-    //
-    public static void CopyRectTransform(this GameObject target, GameObject duplicate)
-    {
-        // TODO: use CopyComponent(), but we get wierdness
-        RectTransform rectTransform = target.GetComponent<RectTransform>();
-        RectTransform duplicateRectTransform = duplicate.GetComponent<RectTransform>();
-        rectTransform.localPosition = duplicateRectTransform.localPosition;
-        rectTransform.localScale = duplicateRectTransform.localScale;
-        rectTransform.localRotation = duplicateRectTransform.localRotation;
-        rectTransform.sizeDelta = duplicateRectTransform.sizeDelta;
-    }
-
     //
     // Get RectTransform from a UnityEngine Object
     //
@@ -85,6 +71,18 @@ public static class UtilsRect
     public static Vector3 GetPosition(this Object obj)
     {
         return obj.GetRectTransform().localPosition;
+    }
+
+    public static Vector3 GetLocalPosition(this Object obj, Vector3 worldPosition)
+    {
+        RectTransform rectTransform = obj.GetRectTransform();
+        return rectTransform.InverseTransformPoint(worldPosition);
+    }
+
+    public static Vector3 GetWorldPosition(this Object obj, Vector3 localPosition)
+    {
+        RectTransform rectTransform = obj.GetRectTransform();
+        return rectTransform.TransformPoint(localPosition);
     }
 
     public static void SetX(this Object obj, float x)

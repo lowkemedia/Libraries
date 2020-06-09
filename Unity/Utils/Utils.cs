@@ -26,11 +26,9 @@
 //
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 public static class Utils
@@ -45,6 +43,7 @@ public static class Utils
         if (!string.IsNullOrEmpty(name)) {
             child.name = name;
         }
+
         RectTransform rectTransform = child.AddComponent<RectTransform>();
         rectTransform.SetParent(parent.transform);
         rectTransform.sizeDelta = new Vector2(100, 100);    // width 100x100
@@ -86,20 +85,39 @@ public static class Utils
     //
     // Copy Component using reflection
     //
-    public static void CopyComponent<T>(this T target, T duplicate) where T : Component
+    public static void CopyComponent<T>(this T target, T duplicate, string[] ignore = null) where T : Component
     {
-        foreach (PropertyInfo x in typeof(T).GetProperties())
+        foreach (PropertyInfo propertyInfo in typeof(T).GetProperties())
         {
-            if (x.CanWrite)
-            {
-                x.SetValue(target, x.GetValue(duplicate));
+            if (propertyInfo.CanWrite) {
+                if (ignore != null && Array.IndexOf(ignore, propertyInfo.Name) != -1) {
+                    // skip this property as it's on the ignore list
+                    continue;
+                }
+                propertyInfo.SetValue(target, propertyInfo.GetValue(duplicate));
             }
         }
     }
 
+    //
+    // Convert a color string to Color
     public static Color ConvertColor(string colorString)
     {
         ColorUtility.TryParseHtmlString(colorString, out Color returnColor);
         return returnColor;
+    }
+
+    //
+    // Clamp a value
+    public static T Clamp<T>(T value, T min, T max) where T : IComparable
+    {
+        T output = value;
+        if (value.CompareTo(max) > 0) {
+            return max;
+        }
+        if (value.CompareTo(min) < 0) {
+            return min;
+        }
+        return output;
     }
 }
