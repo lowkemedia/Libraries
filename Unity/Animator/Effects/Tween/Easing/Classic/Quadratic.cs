@@ -52,8 +52,7 @@ public static class Quadratic
                                   float range, 
                                   float duration)
     {
-        if ((time /= duration / 2) < 1)
-        {
+        if ((time /= duration / 2) < 1) {
             return range / 2 * time * time + begin;
         }
         

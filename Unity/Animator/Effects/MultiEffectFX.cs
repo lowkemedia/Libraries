@@ -26,7 +26,6 @@
 //
 
 using System.Collections.Generic;
-using UnityEngine;
 using AnimatorTypes;
 
 public class MultiEffectFX : AnimatorEffect
@@ -69,10 +68,8 @@ public class MultiEffectFX : AnimatorEffect
         _doneFlags[index] = true;
 
         // if all effects finished then set _done flag to true
-        foreach (bool flag in _doneFlags)
-        {
-            if (!flag)
-            {
+        foreach (bool flag in _doneFlags) {
+            if (!flag) {
                 return;
             }
         }
@@ -86,8 +83,7 @@ public class MultiEffectFX : AnimatorEffect
 
     protected override void SnapToEnd()
     {
-        foreach (AnimatorEffect effect in _effects)
-        {
+        foreach (AnimatorEffect effect in _effects) {
             effect.SnapEffectToEnd();
         }
         _done = true;
@@ -95,8 +91,7 @@ public class MultiEffectFX : AnimatorEffect
 
     public override void Cleanup()
     {
-        foreach (AnimatorEffect effect in _effects)
-        {
+        foreach (AnimatorEffect effect in _effects) {
             effect.Remove(false, false);
         }
     }

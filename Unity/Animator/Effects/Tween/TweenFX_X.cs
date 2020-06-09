@@ -48,13 +48,9 @@ public class TweenFX_X : TweenFX
     public override float Value
     {
         get { return _trasform.localPosition.x; }
-        set
-        {
+        set {
             base.Value = value;
-
-            Vector3 localPosition = _trasform.localPosition;
-            localPosition.x = value;
-            _trasform.localPosition = localPosition;
+            _trasform.localPosition = new Vector3(value, _trasform.localPosition.y, _trasform.localPosition.z);
         }
     }
 }

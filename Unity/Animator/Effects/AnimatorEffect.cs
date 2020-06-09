@@ -59,14 +59,12 @@ public abstract class AnimatorEffect
 
         // target is usually the anime's target, 
         //  though may have been set to an alternative
-        if (_target == null)
-        {
+        if (_target == null) {
             _target = _anime.Target;
         }
 
         // TimedEffect() may have set the _startTime
-        if (float.IsNaN(_startTime))
-        {
+        if (float.IsNaN(_startTime)) {
             _startTime = _updateTime;
         }
 
@@ -82,8 +80,7 @@ public abstract class AnimatorEffect
         // record time of update
         _updateTime = updateTime;
 
-        if (_updateTime < _startTime)
-        {
+        if (_updateTime < _startTime) {
             // this effect is not ready to trigger yet, exit
             return false;
         }
@@ -97,16 +94,14 @@ public abstract class AnimatorEffect
             if (_cycles != DONT_CYCLE)
             {
                 --_cycles;
-                if (_cycles <= 0)
-                {
+                if (_cycles <= 0) {
                     _type = EffectType.END;
                 }
 
                 // can't cycle end, remove, or destroy types
                 if (_type == EffectType.END ||
                     _type == EffectType.REMOVE ||
-                    _type == EffectType.DESTROY)
-                {
+                    _type == EffectType.DESTROY) {
                     _cycles = DONT_CYCLE;
                 }
             }
@@ -134,8 +129,7 @@ public abstract class AnimatorEffect
             }
 
             // if finished cycles then trigger callback
-            if (_cycles == DONT_CYCLE)
-            {
+            if (_cycles == DONT_CYCLE) {
                 TriggerCallback();
             }
         }
@@ -159,10 +153,7 @@ public abstract class AnimatorEffect
     // called by Anime.as immediately after calling snapToEnd();
     public void TriggerCallback() 
     {
-        if (_callback != null)
-        {
-            _callback();
-        }
+        _callback?.Invoke();
     }
 
     //

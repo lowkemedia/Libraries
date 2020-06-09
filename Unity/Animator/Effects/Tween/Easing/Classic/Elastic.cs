@@ -54,9 +54,7 @@ public static class Elastic
         {
             amplitude = range;
             s = period / 4;
-        }
-        else
-        {
+        } else {
             s = period / (2 * (float)Math.PI) * (float)Math.Asin(range / amplitude);
         }
             
@@ -89,9 +87,7 @@ public static class Elastic
         {
             amplitude = range;
             s = period / 4;
-        }
-        else
-        {
+        } else {
             s = period / (2 * (float)Math.PI) * (float)Math.Asin(range / amplitude);
         }
             
@@ -108,30 +104,28 @@ public static class Elastic
                                   float amplitude = 0, 
                                   float period = 0)
     {
-        if (time == 0)
-        {
+        if (time == 0) {
             return begin;
         }
             
-        if ((time /= duration / 2) == 2)
+        if ((time /= duration / 2) == 2) {
             return begin + range;
-        
-        if (period == 0)
+        }
+
+        if (period == 0) {
             period = duration* (0.3f * 1.5f);
-        
+        }
+
         float s;
         if (amplitude == 0 || amplitude<Math.Abs(range))
         {
             amplitude = range;
             s = period / 4;
-        }
-        else
-        {
+        } else {
             s = period / (2 * (float)Math.PI) * (float)Math.Asin(range / amplitude);
         }
         
-        if (time< 1)
-        {
+        if (time< 1) {
             return -0.5f * (amplitude* (float)Math.Pow(2, 10 * (time -= 1)) *
                (float)Math.Sin((time* duration - s) * (2 * Math.PI) /period)) + begin;
         }

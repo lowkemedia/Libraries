@@ -1,8 +1,8 @@
 ﻿//
 //  Animator v 2.0 - Animator package
-//  Russell Lowke, October 29th 2019
+//  Russell Lowke, May 8th 2020
 //
-//  Copyright (c) 2006-2019 Lowke Media
+//  Copyright (c) 2006-2020 Lowke Media
 //  see http://www.lowkemedia.com for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a 
@@ -31,19 +31,33 @@ using AnimatorTypes;
 
 public class Animator : MonoBehaviour
 {
+    private static Animator _instance;
+
     private Dictionary<GameObject, Anime> _animeDict;   // dictionary of Anime objects, for fast lookup
     private List<Anime> _animeList;                     // List of Anime objects, for fast iteration
     private float _updateTime = 0f;                     // time when update was last called
     private float _timePassed = 0f;                     // time between updates
 
+    public static Animator Instance {
+        get {
+            if (_instance == null) {
+                Logger.Warning("Animator must be attached to the Unity scene to work.", LogID.WARNING_ANIMATOR_NOT_ATTACHED);
+            }
+
+            return _instance;
+        }
+    }
+
     public Animator()
     {
+        _instance = this;
         _animeDict = new Dictionary<GameObject, Anime>();
         _animeList = new List<Anime>();
     }
 
     public void Start()
     {
+        // TODO: WebGL has issues with targetFrameRate = 60
         Application.targetFrameRate = 60;
 
         // change 0.2 into 1/60 ~ 0.01666667. 
@@ -52,7 +66,8 @@ public class Animator : MonoBehaviour
         // https://docs.unity3d.com/Manual/class-TimeManager.html
     }
 
-    // Update is called once per frame
+    // FixedUpdate is a MonoBehaviour alternatuve to Update(),
+    //  and called once per frame
     public void FixedUpdate()
     {
         // Update all Anime objects in Animator, performing all effects attached to Animes.
@@ -64,8 +79,7 @@ public class Animator : MonoBehaviour
         // make a copy, as _animeList can modify during iteration 
         List<Anime> shallowCopy = new List<Anime>(_animeList);
 
-        foreach (Anime anime in shallowCopy)
-        {
+        foreach (Anime anime in shallowCopy) {
             anime.Update(_updateTime);
         }
     }
@@ -79,8 +93,7 @@ public class Animator : MonoBehaviour
     //
     public Anime Anime(GameObject target)
     {
-        if (target == null)
-        {
+        if (target == null) {
             target = gameObject;
         }
 
@@ -122,12 +135,12 @@ public class Animator : MonoBehaviour
 
     //
     // Removes any anime linked to the target GameObject.
-    public void Remove(GameObject target)
+    public void Remove(GameObject target, bool snapToEnd = false)
     {
         Anime anime = GetAnime(target);
         if (anime != null)
         {
-            anime.ClearEffects();
+            anime.ClearEffects(snapToEnd);
             _animeDict.Remove(target);
             _animeList.Remove(anime);
         }
@@ -135,13 +148,21 @@ public class Animator : MonoBehaviour
 
     //
     // Clears all Anime in Animator
-    public void Clear()
+    public void Clear(bool snapToEnd = false)
     {
-        while (_animeList.Count > 0)
-        {
-            Remove(_animeList[0].Target);
+        while (_animeList.Count > 0) {
+            Remove(_animeList[0].Target, snapToEnd);
         }
     }
+
+    // Give warning if _instance is destroyed while animations are pending
+    void OnDestroy()
+    {
+        if (_animeList.Count > 0) {
+            Logger.Warning("Animator destroyed while still animating.", LogID.WARNING_ANIMATOR_DESTROYED_WHILE_ANIMATING);
+        }
+    }
+
 
     public override string ToString()
     {
@@ -151,8 +172,7 @@ public class Animator : MonoBehaviour
     public string DumpAnime()
     {
         string str = "";
-        foreach (Anime anime in _animeList)
-        {
+        foreach (Anime anime in _animeList) {
             str += anime.ToString();
         }
 
@@ -167,10 +187,5 @@ public class Animator : MonoBehaviour
     public float TimePassed
     {
         get { return _timePassed; }
-    }
-
-    public static Animator Instance
-    {
-        get { return GameObject.Find("Animator").GetComponent<Animator>(); }
     }
 }

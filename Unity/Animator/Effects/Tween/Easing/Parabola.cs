@@ -56,13 +56,11 @@ public class Parabola
                              float range,
                              float duration) 
     {
-        if (float.IsNaN(_ctrlValue))
-        {
+        if (float.IsNaN(_ctrlValue)) {
             _ctrlValue = begin + range * _ctrlValuePerc;
         }
         
-        if (float.IsNaN(_ctrlTime)) 
-        {
+        if (float.IsNaN(_ctrlTime)) {
             _ctrlTime = duration * _ctrlTimePerc;
         }
         
@@ -79,13 +77,11 @@ public class Parabola
     private static float Gradient(float rise,
                                   float run)
     {
-        if (rise == 0.0f)
-        {
+        if (rise == 0.0f) {
             return 0;
         }
 
-        if (run == 0.0f)
-        {
+        if (run == 0.0f) {
             return rise;  // infinity
         }
 
@@ -97,8 +93,7 @@ public class Parabola
                       float range,
                       float duration) 
     {
-        if (float.IsNaN(_a) || time == 0) 
-        {
+        if (float.IsNaN(_a) || time == 0) {
             Recalibrate(begin, range, duration);
         }
         
@@ -134,8 +129,7 @@ public class Parabola
 
     public static EasingFunct EaseIn
     {
-        get
-        {
+        get {
             return GetEasing(0.25f, 0.5f);     // be 25% done at half time.
         }
     }

@@ -44,18 +44,15 @@ public static class Bounce
                                 float range, 
                                 float duration)
     {
-        if ((time /= duration) < (1 / 2.75))
-        {
+        if ((time /= duration) < (1 / 2.75)) {
             return range * (7.5625f * time * time) + begin;
         }
 
-        if (time < (2 / 2.75))
-        {
+        if (time < (2 / 2.75)) {
             return range * (7.5625f * (time -= (1.5f / 2.75f)) * time + 0.75f) + begin;
         }
 
-        if (time < (2.5 / 2.75))
-        {
+        if (time < (2.5 / 2.75)) {
             return range * (7.5625f * (time -= (2.25f / 2.75f)) * time + 0.9375f) + begin;
         }
 
@@ -70,8 +67,7 @@ public static class Bounce
                                   float range, 
                                   float duration)
     {
-        if (time < duration / 2.0f)
-        {
+        if (time < duration / 2.0f) {
             return (EaseIn(time * 2.0f, 0, range, duration) * 0.5f + begin);
         }
 

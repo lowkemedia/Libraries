@@ -1,8 +1,8 @@
 ﻿//
 //  Anime v 2.0 - Animator package
-//  Russell Lowke, October 29th 2019
+//  Russell Lowke, May 8th 2020
 //
-//  Copyright (c) 2006-2019 Lowke Media
+//  Copyright (c) 2006-2020 Lowke Media
 //  see http://www.lowkemedia.com for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a 
@@ -30,6 +30,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using AnimatorTypes;
 
+// TODO: Anime should be a Coroutine for better performance
+
 public class Anime
 {
     private Animator _animator;
@@ -48,16 +50,13 @@ public class Anime
     public void Update(float updatetime)
     {
         // if there are no effects on anime then remove the anime
-        if (_effects.Count == 0 && !_persist)
-        {
+        if (_effects.Count == 0 && !_persist) {
             Remove();
-        }
-        else
+        } else
         {
             // iterate through effects
             List<AnimatorEffect> shallowCopy = new List<AnimatorEffect>(_effects);
-            foreach(AnimatorEffect effect in shallowCopy)
-            {
+            foreach(AnimatorEffect effect in shallowCopy) {
                 effect.Update(updatetime);
             }
         }
@@ -98,14 +97,12 @@ public class Anime
                 // remove existing effect so no conflict occurs
                 RemoveEffect(existingEffect, (name == EffectString.SNAP_REPLACE));
                 
-            } 
-            else if (name == EffectString.AUTO_RENAME) 
+            } else if (name == EffectString.AUTO_RENAME) 
             {
                 // rename effect so no conflict occurs
                 int counter = 1;
                 string newName;
-                do 
-                {
+                do {
                     ++counter;
                     newName = effect.Name + "_" + counter;
                 } while (GetEffect(newName, false) != null);
@@ -134,8 +131,8 @@ public class Anime
                                       Callback callback = null,
                                       string name = EffectString.REPLACE)
     {
-            effect.StartTime = timestamp;
-            return AddEffect(effect, callback, name);
+        effect.StartTime = timestamp;
+        return AddEffect(effect, callback, name);
     }
 
     // add effect to anime that cycles a number of times.
@@ -154,16 +151,13 @@ public class Anime
     public AnimatorEffect GetEffect(string effectName,
                                     bool giveWarning = true) 
     {
-        foreach(AnimatorEffect effect in _effects)
-        {
-            if (effect.Name == effectName)
-            {
+        foreach(AnimatorEffect effect in _effects) {
+            if (effect.Name == effectName) {
                 return effect;
             }
         }
             
-        if (giveWarning) 
-        {
+        if (giveWarning) {
             Logger.Warning("Could not find effect \"" + effectName + "\" on " + _target + ".\n" +
                          "Effects that were found were the following: " + DumpEffects() + ".", LogID.WARNING_CANT_FIND_EFFECT);
         }
@@ -178,17 +172,13 @@ public class Anime
     public void RemoveEffects(string str = null,
                               bool snapToEnd = false)
     {   
-        if (str == null) 
-        {
+        if (str == null) {
             ClearEffects(snapToEnd);
-        } 
-        else 
+        } else 
         {
             List<AnimatorEffect> shallowCopy = new List<AnimatorEffect>(_effects);
-            foreach (AnimatorEffect effect in shallowCopy)
-            {
-                if (effect.Name.IndexOf(str, StringComparison.Ordinal) != -1)
-                {
+            foreach (AnimatorEffect effect in shallowCopy) {
+                if (effect.Name.IndexOf(str, StringComparison.Ordinal) != -1) {
                     RemoveEffect(effect, snapToEnd);
                 }
             }
@@ -201,8 +191,7 @@ public class Anime
                              bool giveWarning = true)
     {
         AnimatorEffect effect = GetEffect(effectName, giveWarning);
-        if (effect != null) 
-        {
+        if (effect != null) {
             RemoveEffect(effect, snapToEnd);
         }
     }
@@ -217,8 +206,7 @@ public class Anime
         int index = _effects.IndexOf(effect);
         if (index != -1)
         {
-            if (snapToEnd)
-            {
+            if (snapToEnd) {
                 effect.SnapEffectToEnd();
             }
 
@@ -227,9 +215,7 @@ public class Anime
             // delete from _effects list
             _effects.Remove(effect);
 
-        }
-        else if (giveWarning)
-        {
+        } else if (giveWarning) {
             Logger.Warning("Could not remove effect \"" + effect.Name + "\" on " + _target + ".\n" +
                            "Effects that were found were the following: " + DumpEffects() + ".", LogID.WARNING_CANT_REMOVE_EFFECT);
         }
@@ -241,8 +227,7 @@ public class Anime
     public void ClearEffects(bool snapToEnd = false) 
     {
         // remove all effects
-        while (_effects.Count > 0) 
-        {
+        while (_effects.Count > 0) {
             RemoveEffect(_effects[0], snapToEnd);
         }
     }

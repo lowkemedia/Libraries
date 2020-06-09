@@ -61,8 +61,7 @@ public static class Back
                                   float duration, 
                                   float overshoot = 1.70158f)
     {   
-        if ((time /= duration / 2) < 1) 
-        {
+        if ((time /= duration / 2) < 1) {
             return range / 2 * (time * time * (((overshoot *= (1.525f)) + 1) * time - overshoot)) + begin;
         }
         return range / 2 * ((time -= 2) * time * (((overshoot *= (1.525f)) + 1) * time + overshoot) + 2) + begin;

@@ -1,8 +1,8 @@
 ﻿//
 //  AnimatorTypes - Animator package
-//  Russell Lowke, October 29th 2019
+//  Russell Lowke, May 8th 2020
 //
-//  Copyright (c) 2006-2019 Lowke Media
+//  Copyright (c) 2006-2020 Lowke Media
 //  see http://www.lowkemedia.com for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a 
@@ -64,10 +64,12 @@ namespace AnimatorTypes
         //
         // error, warning and info IDs
         public const string LOG_PREFIX = "ANI";
-        public const string WARNING_CANT_FIND_EFFECT = LOG_PREFIX + "00";
-        public const string WARNING_CANT_REMOVE_EFFECT = LOG_PREFIX + "01";
-        public const string WARNING_CYCLE_NOT_SUPPORTED = LOG_PREFIX + "02";
-        public const string WARNING_REVERSE_NOT_SUPPORTED = LOG_PREFIX + "03";
-        public const string DEBUG_EFFECT_BEING_REPLACED = LOG_PREFIX + "04";
+        public const string WARNING_ANIMATOR_NOT_ATTACHED = LOG_PREFIX + "00";
+        public const string WARNING_ANIMATOR_DESTROYED_WHILE_ANIMATING = LOG_PREFIX + "01";
+        public const string WARNING_CANT_FIND_EFFECT = LOG_PREFIX + "02";
+        public const string WARNING_CANT_REMOVE_EFFECT = LOG_PREFIX + "03";
+        public const string WARNING_CYCLE_NOT_SUPPORTED = LOG_PREFIX + "04";
+        public const string WARNING_REVERSE_NOT_SUPPORTED = LOG_PREFIX + "05";
+        public const string DEBUG_EFFECT_BEING_REPLACED = LOG_PREFIX + "06";
     }
 }

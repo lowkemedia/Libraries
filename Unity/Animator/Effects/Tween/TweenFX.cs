@@ -54,8 +54,7 @@ public class TweenFX : AnimatorEffect
         _duration = duration;
         _easingFunct = easingFunct;
 
-        if (_easingFunct == null)
-        {
+        if (_easingFunct == null) {
             _easingFunct = NoEasing.EaseNone;
         }
     }
