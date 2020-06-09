@@ -41,7 +41,11 @@ namespace LocalizerTypes
         zh,
         ko,
         ru,
-        th
+        th,
+        tr,
+        id,
+        ar,
+        hi
     }
 
     public enum LanguageType
@@ -55,7 +59,11 @@ namespace LocalizerTypes
         Chinese,
         Korean,
         Russian,
-        Thai
+        Thai,
+        Turkish,
+        Indonesian,
+        Arabic,
+        Hindi
     };
 
     public static class LocalizerID
