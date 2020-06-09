@@ -37,6 +37,7 @@ public class IndexedUnityEvent : UnityEvent<string> { }
 public class PopupMenu : MonoBehaviour
 {
     // TODO: device version needs to behave differenetly from desktop
+    // TODO: Add accessor to any additional labal textfield
 
     public Sprite popupBgSprite;                    // TODO: use sliced sprite (9-slice scaling)
     public TextButton popupTextButton;
@@ -56,6 +57,10 @@ public class PopupMenu : MonoBehaviour
                            string selected = null)
     {
         _labels = (string[])labels.Clone();
+
+        //TODO: initialize the popupTextButton to defaults? initial values?
+        //  Is Enabled = true enough?
+        popupTextButton.Enabled = true; 
 
         if (_popupGameObject != null) {
             Destroy(_popupGameObject);
