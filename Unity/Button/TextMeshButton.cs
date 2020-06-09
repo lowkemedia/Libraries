@@ -1,8 +1,8 @@
 //
-//  TextButton - Button package
+//  TextMeshButton - Button package
 //  Russell Lowke, April 27th 2020
 //
-//  Copyright (c) 2019-2020 Lowke Media
+//  Copyright (c) 2020 Lowke Media
 //  see http://www.lowkemedia.com for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -25,12 +25,12 @@
 //
 //
 
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class TextButton : ClickButton
+public class TextMeshButton : ClickButton
 {
-    public Text textField;
+    public TextMeshProUGUI textField;
     public string normalTextColor;               // "up"
     public string highlightedTextColor;          // "over"
     public string pressedTextColor;              // "down"
@@ -94,11 +94,11 @@ public class TextButton : ClickButton
         } else if (!Enabled) {
 			//
 			// button is disabled
-			textField.color = _disabledColor;
+            textField.color = _disabledColor;
 
 		} else if (showAsPressed) {
 			//
-			// showAsPressed override
+			// showAsClicked override
 			textField.color = _pressedColor;
 
 		} else if (_inside) {

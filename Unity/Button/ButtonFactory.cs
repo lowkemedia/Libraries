@@ -1,6 +1,6 @@
 //
 //  ButtonFactory - Button package
-//  Russell Lowke, March 4th 2020
+//  Russell Lowke, April 28th 2020
 //
 //  Copyright (c) 2019-2020 Lowke Media
 //  see http://www.lowkemedia.com for more information
@@ -28,6 +28,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using TMPro;
 
 public static class ButtonFactory
 {
@@ -37,11 +38,23 @@ public static class ButtonFactory
 		return parent.MakeButton(duplicate);
 	}
 
-	public static TextButton MakeTextButton(this GameObject parent,
-											TextButton duplicate,
-											string label = null)
+    public static TextButton MakeTextButton(this GameObject parent,
+                                            TextButton duplicate,
+                                            string label = null)
+    {
+        TextButton textButton = parent.MakeButton(duplicate);
+        if (!string.IsNullOrEmpty(label)) {
+            textButton.textField.text = label;
+            textButton.textField.name = label;
+        }
+        return textButton;
+    }
+
+    public static TextMeshButton MakeTextMeshButton(this GameObject parent,
+							                        TextMeshButton duplicate,
+								                    string label = null)
 	{
-		TextButton textButton = parent.MakeButton(duplicate);
+		TextMeshButton textButton = parent.MakeButton(duplicate);
 		if (!string.IsNullOrEmpty(label)) {
 			textButton.textField.text = label;
 			textButton.textField.name = label;
@@ -70,7 +83,6 @@ public static class ButtonFactory
 		button.invokeWhilePressed = duplicate.invokeWhilePressed;
 		button.invokeInterval = duplicate.invokeInterval;
 		button.clickInWhenPressed = duplicate.clickInWhenPressed;
-		button.interactive = duplicate.interactive;
 		button.onClick = new UnityEvent();
 		button.onRollover = new UnityEvent();
 		button.onRollout = new UnityEvent();
@@ -78,32 +90,71 @@ public static class ButtonFactory
 		// add Image for ClickButton
 		Image image = buttonGameObject.AddComponent<Image>();
 		image.sprite = button.normalSprite;
-		image.gameObject.CopyRectTransform(duplicate.gameObject);
+		CopyRectTransform(image.gameObject, duplicate.gameObject);
 
-		if (duplicate is TextButton) {
-			// cast as TextButton
-			TextButton textButton = button as TextButton;
-			TextButton duplicateTextButton = duplicate as TextButton;
+        if (duplicate is TextMeshButton)
+        {
+            // cast as TextButton
+            TextMeshButton textMeshButton = button as TextMeshButton;
+            TextMeshButton duplicateTextMeshButton = duplicate as TextMeshButton;
 
-			// add Text for TextButton
-			GameObject textGameObject = buttonGameObject.MakeGameObject();
-			Text textField = textGameObject.AddComponent<Text>();
-			textField.CopyComponent(duplicateTextButton.textField);
-			textField.name = "Text";
-			textButton.textField = textField;
+            // add Text for TextButton
+            GameObject textMeshGameObject = buttonGameObject.MakeGameObject();
+            TextMeshProUGUI textMeshField = textMeshGameObject.AddComponent<TextMeshProUGUI>();
+            textMeshField.CopyComponent(duplicateTextMeshButton.textField);
+            textMeshField.name = "Text";
+            textMeshButton.textField = textMeshField;
 
-			// copy TextButton properties
-			textButton.normalTextColor = duplicateTextButton.normalTextColor;
-			textButton.highlightedTextColor = duplicateTextButton.highlightedTextColor;
-			textButton.pressedTextColor = duplicateTextButton.pressedTextColor;
-			textButton.selectedTextColor = duplicateTextButton.selectedTextColor;
-			textButton.disabledTextColor = duplicateTextButton.disabledTextColor;
+            // copy TextButton properties
+            textMeshButton.normalTextColor = duplicateTextMeshButton.normalTextColor;
+            textMeshButton.highlightedTextColor = duplicateTextMeshButton.highlightedTextColor;
+            textMeshButton.pressedTextColor = duplicateTextMeshButton.pressedTextColor;
+            textMeshButton.selectedTextColor = duplicateTextMeshButton.selectedTextColor;
+            textMeshButton.disabledTextColor = duplicateTextMeshButton.disabledTextColor;
 
-			// copy RectTransform
-			textGameObject.CopyRectTransform(duplicateTextButton.textField.gameObject);
+            // copy RectTransform
+            CopyRectTransform(textMeshGameObject, duplicateTextMeshButton.textField.gameObject);
+        }
 
-		}
+        if (duplicate is TextButton)
+        {
+            // cast as TextButton
+            TextButton textButton = button as TextButton;
+            TextButton duplicateTextButton = duplicate as TextButton;
+
+            // add Text for TextButton
+            GameObject textGameObject = buttonGameObject.MakeGameObject();
+            Text textField = textGameObject.AddComponent<Text>();
+            textField.CopyComponent(duplicateTextButton.textField);
+            textField.name = "Text";
+            textButton.textField = textField;
+
+            // copy TextButton properties
+            textButton.normalTextColor = duplicateTextButton.normalTextColor;
+            textButton.highlightedTextColor = duplicateTextButton.highlightedTextColor;
+            textButton.pressedTextColor = duplicateTextButton.pressedTextColor;
+            textButton.selectedTextColor = duplicateTextButton.selectedTextColor;
+            textButton.disabledTextColor = duplicateTextButton.disabledTextColor;
+
+            // copy RectTransform
+            CopyRectTransform(textGameObject, duplicateTextButton.textField.gameObject);
+        }
 
 		return button;
 	}
+
+    //
+    // Copy parts of RectTransform we want
+    //
+    public static void CopyRectTransform(GameObject target, GameObject duplicate)
+    {
+        // TODO: use Utils.CopyComponent() on RectTransform?
+        //  try target.rectTransform.CopyComponent(duplicate.rectTransform);
+        RectTransform rectTransform = target.GetComponent<RectTransform>();
+        RectTransform duplicateRectTransform = duplicate.GetComponent<RectTransform>();
+        rectTransform.localPosition = duplicateRectTransform.localPosition;
+        rectTransform.localScale = duplicateRectTransform.localScale;
+        rectTransform.localRotation = duplicateRectTransform.localRotation;
+        rectTransform.sizeDelta = duplicateRectTransform.sizeDelta;
+    }
 }

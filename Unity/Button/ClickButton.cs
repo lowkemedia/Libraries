@@ -1,6 +1,6 @@
 //
 //  ClickButton - Button package
-//  Russell Lowke, March 4th 2020
+//  Russell Lowke, April 28th 2020
 //
 //  Copyright (c) 2019-2020 Lowke Media
 //  see http://www.lowkemedia.com for more information
@@ -44,7 +44,6 @@ public class ClickButton : MonoBehaviour,
 
 	public new bool enabled = true;
 	public bool selected;
-	public bool interactive = true;
 
 	public bool invokeWhilePressed;
 	private float _invokedTime;							// time of last invoke
@@ -62,30 +61,22 @@ public class ClickButton : MonoBehaviour,
 	// flags maintained keeping track if button is pressed and if pointer inside
 	protected bool _pressed;
 	protected bool _inside;
-	protected Image _buttonImage;	// image currently shown for button
+	protected Image _buttonImage;   // image currently shown for button
 
-
-	public bool Enabled {
+    public bool Enabled {
 		get { return enabled; }
 		set {
 			enabled = value;
-			Interactive = enabled;
-		}
+            UpdateButton();
+        }
 	}
 
-	public bool Selected {
+    // Note: Disabled buttons (Enabled == false)
+    //  that are Selected == true, show as Selected 
+    public bool Selected {
 		get { return selected; }
 		set {
 			selected = value;
-			UpdateButton();
-		}
-	}
-
-	public bool Interactive {
-		get { return interactive; }
-		set {
-			// TODO: Give warning if Interactive set to true while button is !Enabled
-			interactive = Enabled ? value : false;
 			UpdateButton();
 		}
 	}
@@ -132,7 +123,7 @@ public class ClickButton : MonoBehaviour,
 
     public void OnPointerUp(PointerEventData clickEventData)
     {
-		if (!Interactive) {
+		if (!Enabled) {
 			_pressed = false;
 			return;
 		}
@@ -152,7 +143,7 @@ public class ClickButton : MonoBehaviour,
     public void OnPointerEnter(PointerEventData clickEventData)
     {
 		_inside = true;
-		if (!Interactive) { return; }
+		if (!Enabled) { return; }
 
         if (roll != null) {
             roll.Play();
@@ -167,7 +158,7 @@ public class ClickButton : MonoBehaviour,
     public void OnPointerExit(PointerEventData clickEventData)
     {
 		_inside = false;
-		if (!Interactive) { return; }
+		if (!Enabled) { return; }
 
         if (onRollout != null) {
             onRollout.Invoke();
@@ -178,53 +169,53 @@ public class ClickButton : MonoBehaviour,
     public void OnPointerDown(PointerEventData clickEventData = null)
     {
 		_pressed = true;
-		if (!Interactive) { return; }
+		if (!Enabled) { return; }
 
         _pressTime = Time.time;
         UpdateButton();
     }
 
-    public virtual void UpdateButton(bool showAsClicked = false)
+    public virtual void UpdateButton(bool showAsPressed = false)
     {
         if (!_buttonImage) {
             Initialize();
         }
 
-		/* TODO: deal with clickInWhenPressed
+        /* TODO: deal with clickInWhenPressed
 		if (clickInWhenPressed) {
             transform.position = (_enabled && _pressed && _inside) ? _positionAdjusted : _position;
         }
 		*/
 
-		if (!Enabled) {
-			//
-			// button is disabled
-			_buttonImage.sprite = disabledSprite;
+        if (Selected) {
+            //
+            // selected override
+            _buttonImage.sprite = selectedSprite;
 
-		} else if (showAsClicked) {
-			//
-			// showAsClicked override
-			_buttonImage.sprite = pressedSprite;
+        } else if (!Enabled) {
+            //
+            // button is disabled
+            _buttonImage.sprite = disabledSprite;
 
-		} else if (Selected) {
-			//
-			// selected override
-			_buttonImage.sprite = selectedSprite;
+        } else if (showAsPressed) {
+            //
+            // showAsPressed override
+            _buttonImage.sprite = pressedSprite;
 
-		} else if (_inside && Interactive) {
-			//
-			// if pointer inside, buttons are pressed or highlighted
-			if (_pressed) {
-				_buttonImage.sprite = pressedSprite;
-			} else {
-				_buttonImage.sprite = highlightedSprite;
-			}
+        } else if (_inside) {
+            //
+            // if pointer inside, buttons are pressed or highlighted
+            if (_pressed) {
+                _buttonImage.sprite = pressedSprite;
+            } else {
+                _buttonImage.sprite = highlightedSprite;
+            }
 
-		} else {
-			//
-			// otherwise button is normal
-			_buttonImage.sprite = normalSprite;
-		}
+        } else {
+            //
+            // otherwise button is normal
+            _buttonImage.sprite = normalSprite;
+        }
 	}
 
     // Update is called once per frame
@@ -243,23 +234,20 @@ public class ClickButton : MonoBehaviour,
     //
     // Click for pressDuration in seconds
     //
-    public bool Click(float pressDuration = 0.33f)
+    public bool Click(float pressDuration = 0.2f)
     {
         if (isActiveAndEnabled && Enabled)
         {
             _invokedTime = Time.time;
-            if (click != null) {
-                click.Play();
-            }
 
             if (!_pressed &&
 				pressedSprite != normalSprite &&
                 pressDuration > 0)
             {
                 UpdateButton(true);
-                Animator.Instance.AddEffect(new DelayFX(pressDuration), FinishClick);
+                Delayer.Delay(pressDuration, DoClick);
             } else {
-                FinishClick();
+                DoClick();
             }
             
             return true;
@@ -268,10 +256,26 @@ public class ClickButton : MonoBehaviour,
         return false;
     }
 
-    private void FinishClick()
+    private void DoClick()
     {
-        if (onClick != null) {
-            onClick.Invoke();
+        // if there is no click sound then invoke
+        if (click == null) {
+            onClick?.Invoke();
+            return;
         }
+
+        // don't wait for click sound to finish if invokeWhilePressed
+        if (invokeWhilePressed) {
+            click.Play();
+            onClick?.Invoke();
+            return;
+        }
+
+        // TODO: option not to wait for sound to end before triggering callback?
+
+        // otherwsie wait for click sound to finish before invoke
+        SoundHelper.SoundCallback(click, delegate() {
+            onClick?.Invoke();
+        }, false);
     }
 }
