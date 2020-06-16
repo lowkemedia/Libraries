@@ -35,13 +35,32 @@ public class VideoController : MonoBehaviour
     public delegate void Callback();
 
     public VideoPlayer videoPlayer;
+    public RenderTexture renderTexture;
     public GameObject pauseButton;
     public GameObject playButton;
+	public Slider videoSeekSlider;
 
-    private bool _videoPrepared;
-    private Callback _videoPreparedCallback;        // TODO: use an event rather than callback
+	private bool _videoPrepared;					// true if the video is prepared and ready to play
+	private long _pauseFrame;                       // frame the video was last paused on
 
-    private void Start()
+	//
+	// easy to use callbacks
+	public Callback VideoPreparedCallback { get; set; }
+	public Callback VideoFinishedCallback { get; set; }
+
+	//
+	// video frame as a percentage
+	private float VideoValue {
+		get { return (float)videoPlayer.frame/videoPlayer.frameCount; }
+	}
+
+	//
+	// slider percentage as a frame
+	private long SliderFrame {
+		get { return (long)(videoSeekSlider.value * videoPlayer.frameCount); }
+	}
+
+	private void Start()
     {
         if (videoPlayer == null) {
             // if no video player declared, then find one
@@ -54,16 +73,19 @@ public class VideoController : MonoBehaviour
             throw new Exception("Video Player not assigned.");
         }
 
-        pauseButton.SetActive(true);
+		pauseButton.SetActive(true);
         playButton.SetActive(false);
     }
 
-    public void SetVideoPreparedCallback(Callback videoPreparedCallback = null)
-    {
-        _videoPreparedCallback = videoPreparedCallback;
-    }
+	private void Update()
+	{
+		if (videoPlayer.isPlaying &&
+			videoPlayer.frame != _pauseFrame) {         // fix for videoPlayer.frame latency lingers on old _pauseFrame
+			videoSeekSlider.value = VideoValue;         // update position of slider
+		}
+	}
 
-    public void Play(VideoClip clip)
+	public void Play(VideoClip clip)
     {
         if (videoPlayer.clip != clip) {
             _videoPrepared = false;
@@ -92,37 +114,72 @@ public class VideoController : MonoBehaviour
 
         videoPlayer.Play();
 
-        pauseButton.SetActive(true);
+		pauseButton.SetActive(true);
         playButton.SetActive(false);
-    }
+	}
 
     private void PrepareVideo()
     {
-        videoPlayer.isLooping = true;       // TODO: Move this call
         videoPlayer.prepareCompleted += OnVideoPrepared;
-        videoPlayer.Prepare();
+		videoPlayer.loopPointReached += OnVideoFinished;
+		videoPlayer.Prepare();
     }
 
-    private void OnVideoPrepared(VideoPlayer videoPlayer)
+    private void OnVideoPrepared(VideoPlayer value)
     {
+        Logger.Print("Video ready (URL):" + videoPlayer.url);
+        Logger.Print("Height:" + videoPlayer.height + " Width:" + videoPlayer.width);
+
+        //  VideoPlayer set to AspectRatio = "Stretch", no need for sized render texture
+
+        // Logger.Print(">> Render Texture:" + renderTexture.height + " Width:" + renderTexture.width);
+        /* create new render texture for specific sizing
+        renderTexture.height = (int) videoPlayer.height;
+        renderTexture.width = (int) videoPlayer.width;
+        videoPlayer.targetTexture = renderTexture
+        */
+
         _videoPrepared = true;
-        _videoPreparedCallback?.Invoke();
-        _videoPreparedCallback = null;
+		VideoPreparedCallback?.Invoke();
+		VideoPreparedCallback = null;
+
         Play();
     }
 
-    public void Pause()
+	private void OnVideoFinished(VideoPlayer value)
+	{
+		VideoFinishedCallback?.Invoke();
+		VideoFinishedCallback = null;
+	}
+
+	public void Pause()
     {
         videoPlayer.Pause();
-
-        pauseButton.SetActive(false);
+		_pauseFrame = videoPlayer.frame;
+		pauseButton.SetActive(false);
         playButton.SetActive(true);
-    }
+	}
 
-    /*
     public void Stop()
     {
-        videoPlayer.Stop();
+		// stop causes videoPlayer.frame to revert to the begining
+		videoPlayer.Stop();
     }
-    */
+
+	public void OnSliderBeginDrag()
+	{
+		Pause();
+	}
+
+	public void OnSliderChanged()
+	{
+		if (! videoPlayer.isPlaying) {
+			videoPlayer.frame = SliderFrame;        // scrub video
+		}
+	}
+
+	public void OnSliderEndDrag()
+	{
+		Play();
+	}
 }
