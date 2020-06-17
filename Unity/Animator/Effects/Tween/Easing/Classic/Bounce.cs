@@ -3,7 +3,7 @@
 //  Russell Lowke, October 29th 2019
 //
 //  Copyright (c) 2006-2019 Lowke Media
-//  see http://www.lowkemedia.com for more information
+//  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
 //  copy of this software and associated documentation files (the "Software"),
