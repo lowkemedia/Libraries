@@ -1,6 +1,6 @@
 //
 //  ButtonFactory - Button package
-//  Russell Lowke, April 27th 2020
+//  Russell Lowke, April 28th 2020
 //
 //  Copyright (c) 2019-2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -28,21 +28,20 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using TMPro;
 
-public static class ButtonFactory
+public static class ButtonFactoryOld
 {
-	public static ClickButton MakeClickButton(this GameObject parent,
-											  ClickButton duplicate)
+	public static ClickButtonOld MakeClickButton(this GameObject parent,
+											  ClickButtonOld duplicate)
 	{
 		return parent.MakeButton(duplicate);
 	}
 
-	public static TextButton MakeTextButton(this GameObject parent,
-											TextButton duplicate,
+	public static TextButtonOld MakeTextButton(this GameObject parent,
+											TextButtonOld duplicate,
 											string label = null)
 	{
-		TextButton textButton = parent.MakeButton(duplicate);
+		TextButtonOld textButton = parent.MakeButton(duplicate);
 		if (!string.IsNullOrEmpty(label)) {
 			textButton.textField.text = label;
 			textButton.textField.name = label;
@@ -50,7 +49,7 @@ public static class ButtonFactory
 		return textButton;
 	}
 
-	private static T MakeButton<T>(this GameObject parent, T duplicate) where T : ClickButton
+	private static T MakeButton<T>(this GameObject parent, T duplicate) where T : ClickButtonOld
 	{
 		// create gameObject holder for button
 		GameObject buttonGameObject = parent.MakeGameObject("Button");
@@ -80,14 +79,14 @@ public static class ButtonFactory
 		image.sprite = button.normalSprite;
 		CopyRectTransform(image.gameObject, duplicate.gameObject);
 
-		if (duplicate is TextButton) {
+		if (duplicate is TextButtonOld) {
 			// cast as TextButton
-			TextButton textButton = button as TextButton;
-			TextButton duplicateTextButton = duplicate as TextButton;
+			TextButtonOld textButton = button as TextButtonOld;
+			TextButtonOld duplicateTextButton = duplicate as TextButtonOld;
 
 			// add Text for TextButton
 			GameObject textGameObject = buttonGameObject.MakeGameObject();
-			TextMeshProUGUI textField = textGameObject.AddComponent<TextMeshProUGUI>();
+			Text textField = textGameObject.AddComponent<Text>();
 			textField.CopyComponent(duplicateTextButton.textField);
 			textField.name = "Text";
 			textButton.textField = textField;
@@ -101,7 +100,6 @@ public static class ButtonFactory
 
 			// copy RectTransform
 			CopyRectTransform(textGameObject, duplicateTextButton.textField.gameObject);
-
 		}
 
 		return button;

@@ -30,98 +30,90 @@ using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class ClickButton : MonoBehaviour,
+public class ClickButtonOld : MonoBehaviour,
              IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    public Sprite normalSprite;               // "up"
-    public Sprite highlightedSprite;          // "over"
-    public Sprite pressedSprite;              // "down"
-    public Sprite selectedSprite;
-    public Sprite disabledSprite;
+	public Sprite normalSprite;               // "up"
+	public Sprite highlightedSprite;          // "over"
+	public Sprite pressedSprite;              // "down"
+	public Sprite selectedSprite;
+	public Sprite disabledSprite;
 
-    public AudioSource click;
+	public AudioSource click;
     public AudioSource roll;
 
-    public new bool enabled = true;
-    public bool selected;
+	public new bool enabled = true;
+	public bool selected;
 
-    // TODO: Move invokeWhilePressed into an extending class
-    public bool invokeWhilePressed;
-    private float _invokedTime;                         // time of last invoke
-    private float _pressTime;                           // time of last press
-    public float invokeInterval = 0.15f;                // interval between press invokes, in seconds
+	public bool invokeWhilePressed;
+	private float _invokedTime;							// time of last invoke
+	private float _pressTime;							// time of last press
+	public float invokeInterval = 0.15f;                // interval between press invokes, in seconds
 
-    public bool clickInWhenPressed;                     // TODO: Fix to be more subtle (or not at all)
-    private Vector3 _position;
-    private Vector3 _positionAdjusted;
+	public bool clickInWhenPressed;                     // TODO: Fix to be more subtle (or not at all)
+	private Vector3 _position;
+	private Vector3 _positionAdjusted;
 
-    public UnityEvent onClick;                          // TODO: pass reference of ClickButton to callback
-    public UnityEvent onRollover;
-    public UnityEvent onRollout;
+	public UnityEvent onClick;                  // TODO: pass reference of ClickButton to callback
+	public UnityEvent onRollover;
+	public UnityEvent onRollout;
 
-    // flags maintained keeping track if button is pressed and if pointer inside
-    protected bool _pressed;
-    protected bool _inside;
-    protected Image _buttonImage;   // image currently shown for button
+	// flags maintained keeping track if button is pressed and if pointer inside
+	protected bool _pressed;
+	protected bool _inside;
+	protected Image _buttonImage;   // image currently shown for button
 
     public bool Enabled {
-        get { return enabled; }
-        set {
-            enabled = value;
+		get { return enabled; }
+		set {
+			enabled = value;
             UpdateButton();
         }
-    }
+	}
 
-    // TODO: Add a "toggle selected" option for use with check boxes and radio buttons
-
-    // Note: disabled buttons (Enabled == false) that are Selected == true, show as Selected.
-    // This is useful for tab menus where the selected tab is not enabled
+    // Note: Disabled buttons (Enabled == false)
+    //  that are Selected == true, show as Selected 
     public bool Selected {
-        get { return selected; }
-        set {
-            selected = value;
-            UpdateButton();
-        }
-    }
+		get { return selected; }
+		set {
+			selected = value;
+			UpdateButton();
+		}
+	}
 
-    private void Awake()
-	{
-        Initialize();
-    }
-
-    private void Start()
+	void Start()
     {
         UpdateButton();
         // TODO: check if pointer started inside button
     }
 
-    void OnDisable()
-    {
-        _pressed = false;
-        _inside = false;
-        UpdateButton();
-    }
+	void OnDisable()
+	{
+		_pressed = false;
+		_inside = false;
+		UpdateButton();
+	}
 
-    public virtual void Initialize()
+	public virtual void Initialize()
     {
         _buttonImage = GetComponent<Image>();
 
         // ensure Sprites
         if (!normalSprite) {
-            normalSprite = _buttonImage.sprite;
+			normalSprite = _buttonImage.sprite;
         }
 
         if (!highlightedSprite) {
-            highlightedSprite = normalSprite;
+			highlightedSprite = normalSprite;
         }
 
         if (!pressedSprite) {
-			pressedSprite = (!selectedSprite) ? highlightedSprite : selectedSprite;
+			pressedSprite = highlightedSprite;
         }
 
-        if (!selectedSprite) {
-            selectedSprite = pressedSprite;
-        }
+		if (!selectedSprite) {
+			selectedSprite = pressedSprite;
+		}
 
         _position = transform.position;
         _positionAdjusted = transform.position;
@@ -129,53 +121,55 @@ public class ClickButton : MonoBehaviour,
         _positionAdjusted.y -= 0.5f;
     }
 
-    public virtual void OnPointerUp(PointerEventData clickEventData)
+    public void OnPointerUp(PointerEventData clickEventData)
     {
-        if (!Enabled) {
-            _pressed = false;
-            return;
-        }
+		if (!Enabled) {
+			_pressed = false;
+			return;
+		}
 
-        // TODO: Move invokeWhilePressed into an extending class
-        //  special case issues due to invokeWhilePressed
-        if (_pressed && _inside) {
+		// special case for invokeWhilePressed
+		if (_pressed && _inside) {
             if (!invokeWhilePressed ||
                 (Time.time - _pressTime < invokeInterval)) {
                 Click();
             }
         }
-        _pressed = false;
+		_pressed = false;
 
-        UpdateButton();
+		UpdateButton();
     }
 
-    public virtual void OnPointerEnter(PointerEventData clickEventData)
+    public void OnPointerEnter(PointerEventData clickEventData)
     {
-        _inside = true;
-        if (!Enabled) { return; }
+		_inside = true;
+		if (!Enabled) { return; }
 
         if (roll != null) {
             roll.Play();
         }
 
-        onRollover?.Invoke();
-
+        if (onRollover != null) {
+            onRollover.Invoke();
+        }
         UpdateButton();
     }
 
-    public virtual void OnPointerExit(PointerEventData clickEventData)
+    public void OnPointerExit(PointerEventData clickEventData)
     {
-        _inside = false;
-        if (!Enabled) { return; }
+		_inside = false;
+		if (!Enabled) { return; }
 
-        onRollout?.Invoke();
+        if (onRollout != null) {
+            onRollout.Invoke();
+        }
         UpdateButton();
     }
 
-    public virtual void OnPointerDown(PointerEventData clickEventData = null)
+    public void OnPointerDown(PointerEventData clickEventData = null)
     {
-        _pressed = true;
-        if (!Enabled) { return; }
+		_pressed = true;
+		if (!Enabled) { return; }
 
         _pressTime = Time.time;
         UpdateButton();
@@ -222,16 +216,17 @@ public class ClickButton : MonoBehaviour,
             // otherwise button is normal
             _buttonImage.sprite = normalSprite;
         }
-    }
+	}
 
     // Update is called once per frame
     private void Update()
     {
         float timeNow = Time.time;
         if (invokeWhilePressed &&
-            _pressed && _inside &&
-            (timeNow - _pressTime >= invokeInterval) &&
-            (timeNow - _invokedTime >= invokeInterval)) {
+            _pressed && _inside && 
+            (timeNow - _pressTime >= invokeInterval) && 
+            (timeNow - _invokedTime >= invokeInterval))
+        {
             Click();
         }
     }
@@ -239,37 +234,47 @@ public class ClickButton : MonoBehaviour,
     //
     // Click for pressDuration in seconds
     //
-    public bool Click(float pressDuration = 0.33f)
+    public bool Click(float pressDuration = 0.2f)
     {
-        if (isActiveAndEnabled && Enabled) {
+        if (isActiveAndEnabled && Enabled)
+        {
             _invokedTime = Time.time;
 
             if (!_pressed &&
-                pressedSprite != normalSprite &&
-                pressDuration > 0) {
+				pressedSprite != normalSprite &&
+                pressDuration > 0)
+            {
                 UpdateButton(true);
                 Delayer.Delay(pressDuration, DoClick);
             } else {
                 DoClick();
             }
+            
             return true;
         }
+
         return false;
     }
 
     private void DoClick()
     {
-        // shouldn't wait for click sound to finish
-        //  when invokeWhilePressed is used
+        // if there is no click sound then invoke
+        if (click == null) {
+            onClick?.Invoke();
+            return;
+        }
+
+        // don't wait for click sound to finish if invokeWhilePressed
         if (invokeWhilePressed) {
             click.Play();
             onClick?.Invoke();
             return;
         }
 
-        // TODO: onClick option not to wait for sound to end before triggering callback
-        SoundHelper.SoundCallback(click, delegate ()
-        {
+        // TODO: option not to wait for sound to end before triggering callback?
+
+        // otherwsie wait for click sound to finish before invoke
+        SoundHelper.SoundCallback(click, delegate() {
             onClick?.Invoke();
         }, false);
     }

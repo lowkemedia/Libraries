@@ -1,6 +1,6 @@
 ﻿//
 //  VideoController - Video package
-//  Russell Lowke, April 28th 2020
+//  Russell Lowke, June 16th 2020
 //
 //  Copyright (c) 2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -36,8 +36,13 @@ public class VideoController : MonoBehaviour
 
     public VideoPlayer videoPlayer;
     public RenderTexture renderTexture;
-    public GameObject pauseButton;
-    public GameObject playButton;
+
+    public ClickButton pauseButton;
+    public ClickButton playButton;
+
+	public ClickButton muteButton;
+	public ClickButton soundButton;
+
 	public Slider videoSeekSlider;
 
 	private bool _videoPrepared;					// true if the video is prepared and ready to play
@@ -45,8 +50,10 @@ public class VideoController : MonoBehaviour
 
 	//
 	// easy to use callbacks
-	public Callback VideoPreparedCallback { get; set; }
+	public Callback VideoPreparedCallback { get; set; }         // TODO: use UnityEvent? e.g. see ClickButton
 	public Callback VideoFinishedCallback { get; set; }
+
+	public bool IsPaused { get; private set; }
 
 	//
 	// video frame as a percentage
@@ -73,9 +80,18 @@ public class VideoController : MonoBehaviour
             throw new Exception("Video Player not assigned.");
         }
 
-		pauseButton.SetActive(true);
-        playButton.SetActive(false);
-    }
+		// setup pause/play toggle buttons
+		pauseButton.gameObject.SetActive(true);
+        playButton.gameObject.SetActive(false);
+
+		// setup mute/sound toggle buttons
+		if (!videoPlayer.canSetDirectAudioVolume) {
+			muteButton.gameObject.SetActive(false);
+		} else {
+			muteButton.gameObject.SetActive(true);
+		}
+		soundButton.gameObject.SetActive(false);
+	}
 
 	private void Update()
 	{
@@ -107,18 +123,26 @@ public class VideoController : MonoBehaviour
 
     public void Play()
     {
-        if (!_videoPrepared) {
-            PrepareVideo();
-            return;
-        }
-
-        videoPlayer.Play();
-
-		pauseButton.SetActive(true);
-        playButton.SetActive(false);
+		VideoPlayerPlay();
+		SetIsPaused(false);
 	}
 
-    private void PrepareVideo()
+	private void VideoPlayerPlay()
+	{
+		if (!_videoPrepared) {
+			VideoPlayerPrepare();
+			return;
+		}
+
+		if (SliderFrame == (long)videoPlayer.frameCount) {
+			// fix for issue where video played at end loops to start
+			return;
+		}
+	
+		videoPlayer.Play();
+	}
+
+    private void VideoPlayerPrepare()
     {
         videoPlayer.prepareCompleted += OnVideoPrepared;
 		videoPlayer.loopPointReached += OnVideoFinished;
@@ -128,7 +152,7 @@ public class VideoController : MonoBehaviour
     private void OnVideoPrepared(VideoPlayer value)
     {
         Logger.Print("Video ready (URL):" + videoPlayer.url);
-        Logger.Print("Height:" + videoPlayer.height + " Width:" + videoPlayer.width);
+        // Logger.Print("Height:" + videoPlayer.height + " Width:" + videoPlayer.width);
 
         //  VideoPlayer set to AspectRatio = "Stretch", no need for sized render texture
 
@@ -143,7 +167,7 @@ public class VideoController : MonoBehaviour
 		VideoPreparedCallback?.Invoke();
 		VideoPreparedCallback = null;
 
-        Play();
+		VideoPlayerPlay();
     }
 
 	private void OnVideoFinished(VideoPlayer value)
@@ -154,21 +178,49 @@ public class VideoController : MonoBehaviour
 
 	public void Pause()
     {
-        videoPlayer.Pause();
-		_pauseFrame = videoPlayer.frame;
-		pauseButton.SetActive(false);
-        playButton.SetActive(true);
+		VideoPlayerPause();
+		SetIsPaused(true);
 	}
 
+	private void SetIsPaused(bool isPaused)
+	{
+		IsPaused = isPaused;
+		pauseButton.gameObject.SetActive(!isPaused);
+		playButton.gameObject.SetActive(isPaused);
+	}
+
+	private void VideoPlayerPause()
+	{
+		videoPlayer.Pause();
+		_pauseFrame = videoPlayer.frame;
+	}
+
+	/*
     public void Stop()
     {
 		// stop causes videoPlayer.frame to revert to the begining
 		videoPlayer.Stop();
     }
+	*/
+
+	public void ToggleSound()
+	{
+		// muteButton.Selected = !muteButton.Selected;
+		Mute(muteButton.gameObject.activeSelf);
+	}
+
+	public void Mute(bool mute)
+	{
+		if (videoPlayer.canSetDirectAudioVolume) {
+			videoPlayer.SetDirectAudioMute(0, mute);
+			muteButton.gameObject.SetActive(!mute);
+			soundButton.gameObject.SetActive(mute);
+		}
+	}
 
 	public void OnSliderBeginDrag()
 	{
-		Pause();
+		VideoPlayerPause();
 	}
 
 	public void OnSliderChanged()
@@ -180,6 +232,34 @@ public class VideoController : MonoBehaviour
 
 	public void OnSliderEndDrag()
 	{
-		Play();
+		if (IsPaused) {
+			VideoPlayerPause();
+			return;
+		}
+
+		VideoPlayerPlay();
 	}
 }
+
+
+/* detecting for buffering video
+ *
+ * see also https://docs.unity3d.com/Manual/profiler-video-profiler-module.html
+
+private void Update()
+{
+	//when the video is playing, check each time that the video image get update based in the video's frame rate
+	if (videoPlayer.isPlaying && (Time.frameCount % (int)(videoPlayer.frameRate + 1)) == 0) {
+		//if the video time is the same as the previous check, that means it's buffering cuz the video is Playing.
+		if (lastTimePlayed == videoPlayer.time)//buffering
+		{
+			Debug.Log("buffering");
+		} else//not buffering
+		  {
+			Debug.Log("Not buffering");
+		}
+		lastTimePlayed = videoPlayer.time;
+	}
+}
+
+*/

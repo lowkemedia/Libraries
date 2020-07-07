@@ -25,13 +25,13 @@
 //
 //
 
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class TextButton : ClickButton
 {
-    public Text textField;
-    public string normalTextColor;               // "up"
+    public TextMeshProUGUI textField;
+    public string normalTextColor;               // "up"                // TODO: store these as Color, not as string
     public string highlightedTextColor;          // "over"
     public string pressedTextColor;              // "down"
 	public string selectedTextColor;
@@ -61,7 +61,11 @@ public class TextButton : ClickButton
         }
 
         if (string.IsNullOrEmpty(pressedTextColor)) {
-            _pressedColor = _highlightedColor;
+            if (string.IsNullOrEmpty(selectedTextColor)) {              // TODO: Messy, clean up
+                _pressedColor = _highlightedColor;
+            } else {
+                _pressedColor = ConvertColor(selectedTextColor);
+            }
         } else {
             _pressedColor = ConvertColor(pressedTextColor);
         }
@@ -94,11 +98,11 @@ public class TextButton : ClickButton
         } else if (!Enabled) {
 			//
 			// button is disabled
-			textField.color = _disabledColor;
+            textField.color = _disabledColor;
 
 		} else if (showAsPressed) {
 			//
-			// showAsPressed override
+			// showAsClicked override
 			textField.color = _pressedColor;
 
 		} else if (_inside) {

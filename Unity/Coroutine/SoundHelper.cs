@@ -89,3 +89,52 @@ public class SoundHelper : MonoBehaviour
         callback?.Invoke();
     }
 }
+
+
+
+
+/* ClickSound
+//
+using UnityEngine;
+using UnityEngine.UI;
+
+[RequireComponent(typeof(Button))]
+public class ClickSound : MonoBehaviour
+
+{
+    public AudioClip sound;
+    private Button button { get { return GetComponent<Button>(); } }
+    private AudioSource source { get { return GetComponent<AudioSource>(); } }
+
+    // public delegate void Callback();
+    // public event Callback OnClicked;
+
+
+    void Start()
+    {
+        gameObject.AddComponent<AudioSource>();
+        source.clip = sound;
+        source.playOnAwake = false;
+        button.onClick.AddListener(PlaySound);
+        // button.onClick += PlaySound;
+        // button.onClick.AddListener(() => PlaySoundParam(1));
+        // button.onClick.AddListener(delegate { PlaySoundParam(1); });
+    }
+
+    void PlaySound()
+    {
+        source.PlayOneShot(sound);
+    }
+
+    void PlaySoundParam(int i)
+    {
+        source.PlayOneShot(sound);
+    }
+
+    void Destroy()
+    {
+        button.onClick.RemoveListener(PlaySound);
+        // button.onClick -= PlaySound;
+    }
+}
+*/

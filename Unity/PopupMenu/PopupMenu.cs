@@ -36,180 +36,175 @@ public class IndexedUnityEvent : UnityEvent<string> { }
 
 public class PopupMenu : MonoBehaviour
 {
-    // TODO: device version needs to behave differenetly from desktop
-    // TODO: Add accessor to any additional labal textfield
+	// TODO: device version needs to behave differenetly from desktop
+	// TODO: Add accessor to any additional labal textfield
 
-    public Sprite popupBgSprite;                    // TODO: use sliced sprite (9-slice scaling)
-    public TextButton popupTextButton;
-    public IndexedUnityEvent onMenuSelected;
-    public IndexedUnityEvent onMenuRoll;
-    public UnityEvent onPopupRollout;
-    public UnityEvent onPopupCanceled;
+	public Sprite popupBgSprite;                    // TODO: use sliced sprite (9-slice scaling)
+	public TextButtonOld popupTextButton;
+	public IndexedUnityEvent onMenuSelected;
+	public IndexedUnityEvent onMenuRoll;
+	public UnityEvent onPopupRollout;
+	public UnityEvent onPopupCanceled;
 
-    public float padding = 30;                      // padding around buttons
+	public float padding = 30;                      // padding around buttons
 
-    private GameObject _popupGameObject;
-    private GameObject _gameObjectMenu;
-    private int _selectedIndex;
-    private string[] _labels;
+	private GameObject _popupGameObject;
+	private GameObject _gameObjectMenu;
+	private int _selectedIndex;
+	private string[] _labels;
 
-    public void Initialize(string[] labels,
-                           string selected = null)
-    {
-        _labels = (string[])labels.Clone();
+	public void Initialize(string[] labels,
+						   string selected = null)
+	{
+		_labels = (string[])labels.Clone();
 
-        //TODO: initialize the popupTextButton to defaults? initial values?
-        //  Is Enabled = true enough?
-        popupTextButton.Enabled = true; 
+		//TODO: initialize the popupTextButton to defaults? initial values?
+		//  Is Enabled = true enough?
+		popupTextButton.Enabled = true;
 
-        if (_popupGameObject != null) {
-            Destroy(_popupGameObject);
-        }
-        _popupGameObject = MakePopupGameObject(popupTextButton, selected);
+		if (_popupGameObject != null) {
+			Destroy(_popupGameObject);
+		}
+		_popupGameObject = MakePopupGameObject(popupTextButton, selected);
 
-        HidePopup();
-    }
+		HidePopup();
+	}
 
-    private GameObject MakePopupGameObject(TextButton templateButton,
-                                           string selected = null)
-    {
-        // create popup menu
-        GameObject popupGameObject = gameObject.MakeGameObject("Popup");
+	private GameObject MakePopupGameObject(TextButtonOld templateButton,
+										   string selected = null)
+	{
+		// create popup menu
+		GameObject popupGameObject = gameObject.MakeGameObject("Popup");
 
-        // create blocker
-        ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(gameObject, popupGameObject);
+		// create blocker
+		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(gameObject, popupGameObject);
 
-        // create menu
-        _gameObjectMenu = popupGameObject.MakeGameObject("Menu");
+		// create menu
+		_gameObjectMenu = popupGameObject.MakeGameObject("Menu");
 
-        // create background
-        GameObject gameObjectBackground = _gameObjectMenu.MakeGameObject("Background");
-        Image backgroundImage = gameObjectBackground.AddComponent<Image>();
-        backgroundImage.sprite = popupBgSprite;
-        float btnWidth = popupTextButton.GetWidth() + padding * 2;
-        float btnHeight = popupTextButton.GetHeight() + padding * 2;
-        float bgHeight = (btnHeight - padding) * _labels.Length + padding;
-        backgroundImage.SetSize(btnWidth, bgHeight);
-        backgroundImage.SetY(backgroundImage.GetHeight() / 2 - btnHeight / 2);
+		// create background
+		GameObject gameObjectBackground = _gameObjectMenu.MakeGameObject("Background");
+		Image backgroundImage = gameObjectBackground.AddComponent<Image>();
+		backgroundImage.sprite = popupBgSprite;
+		float btnWidth = popupTextButton.GetWidth() + padding * 2;
+		float btnHeight = popupTextButton.GetHeight() + padding * 2;
+		float bgHeight = (btnHeight - padding) * _labels.Length + padding;
+		backgroundImage.SetSize(btnWidth, bgHeight);
+		backgroundImage.SetY(backgroundImage.GetHeight() / 2 - btnHeight / 2);
 
-        // set selected, this will move the background
-        Selected = selected;
+		// set selected, this will move the background
+		Selected = selected;
 
-        // check if popup in within display region
-        if (!UtilsRect.AinsideB(backgroundImage, clickBlocker))
-        {
+		// check if popup in within display region
+		if (!UtilsRect.AinsideB(backgroundImage, clickBlocker)) {
 			// if not, then reverse label order
 			//  causing menu to build in the opposite direction
 			Array.Reverse(_labels);
-            Selected = selected;
-        }
+			Selected = selected;
+		}
 
-        // create selection buttons
-        float yLoc = 0;
-        int counter = 0;
-        foreach (string label in _labels)
-        {
-            int index = counter++;
-            TextButton textButton = _gameObjectMenu.MakeTextButton(templateButton, label);
-            textButton.SetY(yLoc);
-            textButton.onClick.AddListener(delegate { MenuButtonClicked(label); });
-            textButton.onRollover.AddListener(delegate { MenuButtonRolled(label); });
-            yLoc += textButton.GetHeight() + padding;
-        }
+		// create selection buttons
+		float yLoc = 0;
+		int counter = 0;
+		foreach (string label in _labels) {
+			int index = counter++;
+			TextButtonOld textButton = _gameObjectMenu.MakeTextButton(templateButton, label);
+			textButton.SetY(yLoc);
+			textButton.onClick.AddListener(delegate { MenuButtonClicked(label); });
+			textButton.onRollover.AddListener(delegate { MenuButtonRolled(label); });
+			yLoc += textButton.GetHeight() + padding;
+		}
 
-        return popupGameObject;
-    }
+		return popupGameObject;
+	}
 
-	public string Selected
-    {
-        get {
-            return _labels[_selectedIndex];
-        }
+	public string Selected {
+		get {
+			return _labels[_selectedIndex];
+		}
 
-        set {
-            SelectedIndex = Array.IndexOf(_labels, value);
-        }
-    }
+		set {
+			SelectedIndex = Array.IndexOf(_labels, value);
+		}
+	}
 
-    public int SelectedIndex
-    {
-        get { return _selectedIndex; }
+	public int SelectedIndex {
+		get { return _selectedIndex; }
 
-        set
-        {
-            _selectedIndex = value;
+		set {
+			_selectedIndex = value;
 
-            if (_selectedIndex < 0 ||
-                _selectedIndex > _labels.Length - 1) {
-                _selectedIndex = 0;
-            }
+			if (_selectedIndex < 0 ||
+				_selectedIndex > _labels.Length - 1) {
+				_selectedIndex = 0;
+			}
 
-            // show correct label on button
-            popupTextButton.textField.text = Selected;
+			// show correct label on button
+			popupTextButton.textField.text = Selected;
 
-            // move popup according to location of selected item
-            float yPos = -_selectedIndex * (popupTextButton.GetHeight() + padding);
-            _gameObjectMenu.SetY(yPos);
-        }
-    }
+			// move popup according to location of selected item
+			float yPos = -_selectedIndex * (popupTextButton.GetHeight() + padding);
+			_gameObjectMenu.SetY(yPos);
+		}
+	}
 
-    private void ShowPopup()
-    {
-        // move popup to top of display list
-        gameObject.MoveToTop();
+	private void ShowPopup()
+	{
+		// move popup to top of display list
+		gameObject.MoveToTop();
 
 		// TODO: Shouldn't need to reinitialize! just fix popup position, AinsideB() call.
 		Initialize(_labels, Selected);
 
 		// show popup
 		_popupGameObject.SetActive(true);
-        popupTextButton.gameObject.SetActive(false);
-    }
+		popupTextButton.gameObject.SetActive(false);
+	}
 
-    private void HidePopup()
-    {
-        _popupGameObject.SetActive(false);
-        popupTextButton.gameObject.SetActive(true);
-    }
+	private void HidePopup()
+	{
+		_popupGameObject.SetActive(false);
+		popupTextButton.gameObject.SetActive(true);
+	}
 
-    public void OnClickButton()
-    {
-        if (_popupGameObject.activeSelf) {
-            HidePopup();
-        } else {
-            ShowPopup();
-        }
-    }
+	public void OnClickButton()
+	{
+		if (_popupGameObject.activeSelf) {
+			HidePopup();
+		} else {
+			ShowPopup();
+		}
+	}
 
-    public void MenuButtonClicked(string label = null)
-    {
-        Selected = label;
-        if (onMenuSelected != null) {
-            onMenuSelected.Invoke(Selected);
-        }
-        HidePopup();
-    }
+	public void MenuButtonClicked(string label = null)
+	{
+		Selected = label;
+		if (onMenuSelected != null) {
+			onMenuSelected.Invoke(Selected);
+		}
+		HidePopup();
+	}
 
-    public void MenuButtonRolled(string label)
-    {
-        if (onMenuRoll != null) {
-            onMenuRoll.Invoke(label);
-        }
-    }
+	public void MenuButtonRolled(string label)
+	{
+		if (onMenuRoll != null) {
+			onMenuRoll.Invoke(label);
+		}
+	}
 
-    public void OnPopupCancelled()
-    {
-        HidePopup();
+	public void OnPopupCancelled()
+	{
+		HidePopup();
 
-        if (onMenuSelected != null) {
-            onPopupCanceled.Invoke();
-        }
-    }
+		if (onMenuSelected != null) {
+			onPopupCanceled.Invoke();
+		}
+	}
 
-    public void OnPopupRollout()
-    {
-        if (onPopupRollout != null) {
-            onPopupRollout.Invoke();
-        }
-    }
+	public void OnPopupRollout()
+	{
+		if (onPopupRollout != null) {
+			onPopupRollout.Invoke();
+		}
+	}
 }

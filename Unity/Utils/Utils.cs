@@ -101,6 +101,8 @@ public static class Utils
 
     //
     // Convert a color string to Color
+    //  e.g. Utils.ConvertColor("#00000066");
+    //  use black cover, last two values are alpha
     public static Color ConvertColor(string colorString)
     {
         ColorUtility.TryParseHtmlString(colorString, out Color returnColor);
