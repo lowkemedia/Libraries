@@ -9,16 +9,16 @@ public class TintOverlayButton : ClickButton, IPointerClickHandler
     private Color _tintPressed;               // "down" tint
     private Image _tintImage;
 
-    public override void Initialize()
+    protected override void Start()
     {
-        base.Initialize();
+        base.Start();
         
-        _tintHighlight = Utils.ConvertColor("#00000033");
-        _tintPressed = Utils.ConvertColor("#e9552575");             // e9552575         // ef805cbf
+        _tintHighlight = UtilsColor.ConvertColor("#00000033");
+        _tintPressed = UtilsColor.ConvertColor("#e9552575");             // e9552575         // ef805cbf
 
         GameObject child = gameObject.MakeGameObject("Tint");
         _tintImage = child.AddComponent<Image>();
-        _tintImage.SetSize(_buttonImage.GetWidth(), _buttonImage.GetHeight());
+        _tintImage.SetSize(ButtonImage.GetWidth(), ButtonImage.GetHeight());
         _tintImage.color = Color.clear;
     }
 

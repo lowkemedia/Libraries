@@ -32,9 +32,24 @@ public class SoundHelper : MonoBehaviour
 {
     public delegate void Callback();
 
+    public AudioSource click;                       // default click sound
+    public AudioSource roll;                        // default roll sound
+
     private static SoundHelper _instance;
 
-    public void Start()
+    public static bool IsAvalable {
+        get { return _instance != null; }
+	}
+
+    public static AudioSource ClickSound {
+        get { return Instance.click; }
+	}
+
+    public static AudioSource RollSound {
+        get { return Instance.roll; }
+    }
+
+    private void Awake()
     {
         _instance = this;
     }
@@ -55,7 +70,6 @@ public class SoundHelper : MonoBehaviour
         }
     }
 
-    // TODO: Make callback a UnityEvent ?
     public static void SoundCallback(AudioSource sound, Callback callback, bool giveWarning = true)
     {
         if (giveWarning) {

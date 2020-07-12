@@ -51,12 +51,12 @@ using UnityEngine;
 
 public class DelegateEventExample : MonoBehaviour
 {
-    public delegate void Callback();
-    public delegate void MyIntCallback(int value);
+    public delegate void CallbackEvent();
+    public delegate void MyIntEvent(int value);
 
     // Note: Delegate events are not serializable with [System.Serializable]
-    public event Callback OnStartEvent;
-    public event MyIntCallback OnMyIntEvent;
+    public event CallbackEvent OnStartEvent;
+    public event MyIntEvent OnMyIntEvent;
 
     /*
     public event Callback OnStartEvent
@@ -79,11 +79,11 @@ public class DelegateEventExample : MonoBehaviour
 
     private void AddListeners()
 	{
-        OnStartEvent += MyCallback;                         // Note: NOT OnStart.AddListener(MyCallback);
-        OnStartEvent += delegate { MyCallbackInt(0); };
+        OnStartEvent += OnMyCallback;                         // Note: NOT OnStart.AddListener(MyCallback);
+        OnStartEvent += delegate { OnMyCallbackInt(0); };
         // OnStartEvent += () => MyCallbackB(0);            // Lambda Expression for delegate { MyCallbackB(0); };
 
-        OnMyIntEvent += MyCallbackInt;
+        OnMyIntEvent += OnMyCallbackInt;
     }
 
     // Start is called before the first frame update
@@ -100,9 +100,9 @@ public class DelegateEventExample : MonoBehaviour
 
     private void RemoveListeners()
     {
-        OnStartEvent -= MyCallback;                         // Note: NOT OnStart.RemoveListener(MyCallback);
+        OnStartEvent -= OnMyCallback;                         // Note: NOT OnStart.RemoveListener(MyCallback);
         // OnStart -= MyCallbackInt;                        // Note: issues removing anonymous function
-        OnMyIntEvent -= MyCallbackInt;
+        OnMyIntEvent -= OnMyCallbackInt;
 
         // remove all listeners
         OnStartEvent = null;
@@ -111,12 +111,12 @@ public class DelegateEventExample : MonoBehaviour
         Logger.Print(">> Remove Listeners");
     }
 
-    private void MyCallback()
+    private void OnMyCallback()
 	{
         Logger.Print(">> Got MyCallback()");
 	}
 
-    private void MyCallbackInt(int value)
+    private void OnMyCallbackInt(int value)
     {
         Logger.Print(">> Got MyCallbackInt(" + value + ")");
     }

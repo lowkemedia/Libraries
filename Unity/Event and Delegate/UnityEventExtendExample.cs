@@ -7,12 +7,12 @@ public class UnityEventExtendExample : MonoBehaviour
 
     private void Awake()
     {
-        Example.onStartEvent.AddListener(MyCallback);
+        Example.onStartEvent.AddListener(OnMyCallback);
     }
 
-    private void MyCallback()
+    private void OnMyCallback()
     {
         Logger.Print(">>> Got Extended MyCallback()");
-        Example.onStartEvent.RemoveListener(MyCallback);
+        Example.onStartEvent.RemoveListener(OnMyCallback);
     }
 }

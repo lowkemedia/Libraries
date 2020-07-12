@@ -1,6 +1,6 @@
-//
+﻿//
 //  TextButton - Button package
-//  Russell Lowke, April 27th 2020
+//  Russell Lowke, July 12th 2020
 //
 //  Copyright (c) 2019-2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -28,103 +28,125 @@
 using TMPro;
 using UnityEngine;
 
-public class TextButton : ClickButton
+[RequireComponent(typeof(ClickButton))]
+public class TextButton : MonoBehaviour
 {
     public TextMeshProUGUI textField;
-    public string normalTextColor;               // "up"                // TODO: store these as Color, not as string
-    public string highlightedTextColor;          // "over"
-    public string pressedTextColor;              // "down"
-	public string selectedTextColor;
-	public string disabledTextColor;
+    public string NormalColor       { get; private set; }   // up,         #FFFFFF7F is white with 50% alpha
+    public string HighlightedColor  { get; private set; }   // over
+    public string PressedColor      { get; private set; }   // down
+    public string SelectedColor     { get; private set; }   // selected    
+    public string DisabledColor     { get; private set; }   // disabled
 
+    private ClickButton _clickButton;
     private Color _normalColor;
     private Color _highlightedColor;
     private Color _pressedColor;
-	private Color _selectedColor;
-	private Color _disabledColor;
+    private Color _selectedColor;
+    private Color _disabledColor;
 
-    public override void Initialize()
+    // Start is called before the first frame update
+    private void Start()
     {
-        base.Initialize();
+        _clickButton = GetComponent<ClickButton>();
+        _clickButton.OnUpdateButtonEvent += UpdateButton;
 
-        // ensure Text Color
-        if (string.IsNullOrEmpty(normalTextColor)) {
-            _normalColor = textField.color;
-        } else {
-            _normalColor = ConvertColor(normalTextColor);
-        }
-
-        if (string.IsNullOrEmpty(highlightedTextColor)) {
-            _highlightedColor = _normalColor;
-        } else {
-            _highlightedColor = ConvertColor(highlightedTextColor);
-        }
-
-        if (string.IsNullOrEmpty(pressedTextColor)) {
-            if (string.IsNullOrEmpty(selectedTextColor)) {              // TODO: Messy, clean up
-                _pressedColor = _highlightedColor;
-            } else {
-                _pressedColor = ConvertColor(selectedTextColor);
-            }
-        } else {
-            _pressedColor = ConvertColor(pressedTextColor);
-        }
-
-		if (string.IsNullOrEmpty(selectedTextColor)) {
-			_selectedColor = _pressedColor;
-		} else {
-			_selectedColor = ConvertColor(selectedTextColor);
-		}
-
-		if (string.IsNullOrEmpty(disabledTextColor)) {
-            // TODO: Use alpha? or Grey?
-            _disabledColor = _normalColor;
-        } else {
-            _disabledColor = ConvertColor(disabledTextColor);
+        if (_clickButton.style) {
+            SetStyle(_clickButton.style);
         }
     }
 
-    public override void UpdateButton(bool showAsPressed = false)
+    public void SetStyle(ClickButtonStyle style)
     {
-        base.UpdateButton(showAsPressed);
+        SetStyle(style.normalColor,
+                 style.highlightedColor,
+                 style.pressedColor,
+                 style.selectedColor,
+                 style.disabledColor);
+    }
 
+    public void SetStyle(string normalColor,
+                         string highlightedColor,
+                         string pressedColor,
+                         string selectedColor,
+                         string disabledColor)
+    {
+        NormalColor = normalColor;
+        HighlightedColor = highlightedColor;
+        PressedColor = pressedColor;
+        SelectedColor = selectedColor;
+        DisabledColor = disabledColor;
+
+        // ensure Text Color
+        if (string.IsNullOrEmpty(NormalColor)) {
+            _normalColor = textField.color;
+        } else {
+            _normalColor = UtilsColor.ConvertColor(NormalColor);
+        }
+
+        if (string.IsNullOrEmpty(HighlightedColor)) {
+            _highlightedColor = _normalColor;
+        } else {
+            _highlightedColor = UtilsColor.ConvertColor(HighlightedColor);
+        }
+
+        if (string.IsNullOrEmpty(PressedColor)) {
+            if (string.IsNullOrEmpty(SelectedColor)) {              // TODO: Messy, clean up
+                _pressedColor = _highlightedColor;
+            } else {
+                _pressedColor = UtilsColor.ConvertColor(SelectedColor);
+            }
+        } else {
+            _pressedColor = UtilsColor.ConvertColor(PressedColor);
+        }
+
+        if (string.IsNullOrEmpty(SelectedColor)) {
+            _selectedColor = _pressedColor;
+        } else {
+            _selectedColor = UtilsColor.ConvertColor(SelectedColor);
+        }
+
+        if (string.IsNullOrEmpty(DisabledColor)) {
+            // TODO: Use alpha? or Grey?
+            _disabledColor = _normalColor;
+        } else {
+            _disabledColor = UtilsColor.ConvertColor(DisabledColor);
+        }
+    }
+
+    // Update is called once per frame
+    private void UpdateButton(bool showAsPressed)
+    {
         // TODO: deal with clickInWhenPressed
 
-        if (Selected) {
+        if (_clickButton.Selected) {
             //
             // selected override
             textField.color = _selectedColor;
 
-        } else if (!Enabled) {
-			//
-			// button is disabled
+        } else if (!_clickButton.Enabled) {
+            //
+            // button is disabled
             textField.color = _disabledColor;
 
-		} else if (showAsPressed) {
-			//
-			// showAsClicked override
-			textField.color = _pressedColor;
+        } else if (showAsPressed) {
+            //
+            // showAsClicked override
+            textField.color = _pressedColor;
 
-		} else if (_inside) {
-			//
-			// if pointer inside, buttons are pressed or highlighted
-			if (_pressed) {
-				textField.color = _pressedColor;
-			} else {
-				textField.color = _highlightedColor;
-			}
+        } else if (_clickButton.PointerInside) {
+            //
+            // if pointer inside, buttons are pressed or highlighted
+            if (_clickButton.Pressed) {
+                textField.color = _pressedColor;
+            } else {
+                textField.color = _highlightedColor;
+            }
 
-		} else {
-			//
-			// otherwise button is normal
-			textField.color = _normalColor;
-		}
-    }
-
-    public Color ConvertColor(string colorString)
-    {
-        Color returnColor;
-        ColorUtility.TryParseHtmlString(colorString, out returnColor);
-        return returnColor;
+        } else {
+            //
+            // otherwise button is normal
+            textField.color = _normalColor;
+        }
     }
 }

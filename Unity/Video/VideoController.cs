@@ -37,13 +37,11 @@ public class VideoController : MonoBehaviour
     public VideoPlayer videoPlayer;
     public RenderTexture renderTexture;
 
+    public Slider videoSeekSlider;
     public ClickButton pauseButton;
     public ClickButton playButton;
-
 	public ClickButton muteButton;
 	public ClickButton soundButton;
-
-	public Slider videoSeekSlider;
 
 	private bool _videoPrepared;					// true if the video is prepared and ready to play
 	private long _pauseFrame;                       // frame the video was last paused on
@@ -80,12 +78,19 @@ public class VideoController : MonoBehaviour
             throw new Exception("Video Player not assigned.");
         }
 
-		// setup pause/play toggle buttons
-		pauseButton.gameObject.SetActive(true);
+        // add listeners
+        pauseButton.onClick.AddListener(OnClickPause);
+        playButton.onClick.AddListener(OnClickPlay);
+        muteButton.onClick.AddListener(OnClickToggleSound);
+        soundButton.onClick.AddListener(OnClickToggleSound);
+        videoSeekSlider.onValueChanged.AddListener(OnSliderChanged);
+        // Note: BeginDrag and EndDrag listeners added via EventTrigger in Unity Editor
+
+        pauseButton.gameObject.SetActive(true);
         playButton.gameObject.SetActive(false);
 
-		// setup mute/sound toggle buttons
-		if (!videoPlayer.canSetDirectAudioVolume) {
+        // setup mute/sound toggle buttons
+        if (!videoPlayer.canSetDirectAudioVolume) {
 			muteButton.gameObject.SetActive(false);
 		} else {
 			muteButton.gameObject.SetActive(true);
@@ -195,19 +200,11 @@ public class VideoController : MonoBehaviour
 		_pauseFrame = videoPlayer.frame;
 	}
 
-	/*
     public void Stop()
     {
 		// stop causes videoPlayer.frame to revert to the begining
 		videoPlayer.Stop();
     }
-	*/
-
-	public void ToggleSound()
-	{
-		// muteButton.Selected = !muteButton.Selected;
-		Mute(muteButton.gameObject.activeSelf);
-	}
 
 	public void Mute(bool mute)
 	{
@@ -218,19 +215,21 @@ public class VideoController : MonoBehaviour
 		}
 	}
 
-	public void OnSliderBeginDrag()
+    public void OnSliderChanged(float value)
+    {
+        if (!videoPlayer.isPlaying) {
+            videoPlayer.frame = SliderFrame;        // scrub video
+        }
+    }
+
+    // Note: Added via EventTrigger in Unity Editor
+    public void OnSliderBeginDrag()
 	{
 		VideoPlayerPause();
 	}
 
-	public void OnSliderChanged()
-	{
-		if (! videoPlayer.isPlaying) {
-			videoPlayer.frame = SliderFrame;        // scrub video
-		}
-	}
-
-	public void OnSliderEndDrag()
+    // Note: Added via EventTrigger in Unity Editor
+    public void OnSliderEndDrag()
 	{
 		if (IsPaused) {
 			VideoPlayerPause();
@@ -239,6 +238,21 @@ public class VideoController : MonoBehaviour
 
 		VideoPlayerPlay();
 	}
+
+    public void OnClickPlay(ClickButton button)
+    {
+        Play();
+    }
+
+    public void OnClickPause(ClickButton button)
+    {
+        Pause();
+    }
+
+    public void OnClickToggleSound(ClickButton button)
+    {
+        Mute(muteButton.gameObject.activeSelf);
+    }
 }
 
 

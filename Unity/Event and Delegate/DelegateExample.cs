@@ -14,8 +14,8 @@ public class DelegateExample : MonoBehaviour
 
     private void AddCallback()
     {
-        _callback += MyCallback;
-        _callback += delegate { MyCallbackInt(0); };
+        _callback += OnMyCallback;
+        _callback += delegate { OnMyCallbackInt(0); };
         //_callback += () => MyCallbackB(0);            // Lambda Expression for delegate { MyCallbackB(0); };
     }
 
@@ -31,7 +31,7 @@ public class DelegateExample : MonoBehaviour
 
     private void RemoveCallback()
     {
-        _callback -= MyCallback;
+        _callback -= OnMyCallback;
         // _callback -= MyCallbackInt;                  // Note: issues removing anonymous function
 
         // remove all callbacks
@@ -41,18 +41,18 @@ public class DelegateExample : MonoBehaviour
     }
 
     /* Update is called once per frame
-    private void Update()               // must be private
+    private void Update()
     {
 
     }
     */
 
-    private void MyCallback()
+    private void OnMyCallback()
     {
         Logger.Print(">> Got MyCallback()");
     }
 
-    private void MyCallbackInt(int value)
+    private void OnMyCallbackInt(int value)
     {
         Logger.Print(">> Got MyCallbackInt(" + value + ")");
     }

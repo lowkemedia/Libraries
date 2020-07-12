@@ -32,58 +32,61 @@ using TMPro;
 
 public static class ButtonFactory
 {
-	public static ClickButton MakeClickButton(this GameObject parent,
-											  ClickButton duplicate)
-	{
-		return parent.MakeButton(duplicate);
-	}
+    public static ClickButton MakeClickButton(this GameObject parent,
+                                              ClickButton duplicate)
+    {
+        return parent.MakeButton(duplicate);
+    }
 
-	public static TextButton MakeTextButton(this GameObject parent,
-											TextButton duplicate,
+    /*
+	 * 
+	public static TextButtonKill MakeTextButton(this GameObject parent,
+											TextButtonKill duplicate,
 											string label = null)
 	{
-		TextButton textButton = parent.MakeButton(duplicate);
+		TextButtonKill textButton = parent.MakeButton(duplicate);
 		if (!string.IsNullOrEmpty(label)) {
 			textButton.textField.text = label;
 			textButton.textField.name = label;
 		}
 		return textButton;
 	}
+	*/
 
-	private static T MakeButton<T>(this GameObject parent, T duplicate) where T : ClickButton
-	{
-		// create gameObject holder for button
-		GameObject buttonGameObject = parent.MakeGameObject("Button");
+    private static T MakeButton<T>(this GameObject parent, T duplicate) where T : ClickButton
+    {
+        // create gameObject holder for button
+        GameObject buttonGameObject = parent.MakeGameObject("Button");
 
-		// create button
-		T button = buttonGameObject.AddComponent<T>();
+        // create button
+        T button = buttonGameObject.AddComponent<T>();
 
-		// copy ClickButton properties
-		button.normalSprite = duplicate.normalSprite;
-		button.highlightedSprite = duplicate.highlightedSprite;
-		button.pressedSprite = duplicate.pressedSprite;
-		button.selectedSprite = duplicate.selectedSprite;
-		button.disabledSprite = duplicate.disabledSprite;
-		button.click = duplicate.click;
-		button.roll = duplicate.roll;
-		button.enabled = duplicate.enabled;
-		button.selected = duplicate.selected;
-		button.invokeWhilePressed = duplicate.invokeWhilePressed;
-		button.invokeInterval = duplicate.invokeInterval;
-		button.clickInWhenPressed = duplicate.clickInWhenPressed;
-		button.onClick = new UnityEvent();
-		button.onRollover = new UnityEvent();
-		button.onRollout = new UnityEvent();
+        // copy ClickButton properties
+        button.SetStyle(duplicate.NormalSprite,
+                        duplicate.HighlightedSprite,
+                        duplicate.PressedSprite,
+                        duplicate.SelectedSprite,
+                        duplicate.DisabledSprite,
+                        duplicate.ClickSound,
+                        duplicate.RollSound);
+        button.enabled = duplicate.enabled;
+        button.selected = duplicate.selected;
+        button.invokeWhilePressed = duplicate.invokeWhilePressed;
+        button.invokeInterval = duplicate.invokeInterval;
+        button.clickInWhenPressed = duplicate.clickInWhenPressed;
+        button.onClick = new ClickButtonEvent();
 
-		// add Image for ClickButton
-		Image image = buttonGameObject.AddComponent<Image>();
-		image.sprite = button.normalSprite;
-		CopyRectTransform(image.gameObject, duplicate.gameObject);
+        // add Image for ClickButton
+        Image image = buttonGameObject.AddComponent<Image>();
+        image.sprite = button.NormalSprite;
+        CopyRectTransform(image.gameObject, duplicate.gameObject);
 
-		if (duplicate is TextButton) {
+        /*
+		 * 
+		if (duplicate is TextButtonKill) {
 			// cast as TextButton
-			TextButton textButton = button as TextButton;
-			TextButton duplicateTextButton = duplicate as TextButton;
+			TextButtonKill textButton = button as TextButtonKill;
+			TextButtonKill duplicateTextButton = duplicate as TextButtonKill;
 
 			// add Text for TextButton
 			GameObject textGameObject = buttonGameObject.MakeGameObject();
@@ -103,22 +106,23 @@ public static class ButtonFactory
 			CopyRectTransform(textGameObject, duplicateTextButton.textField.gameObject);
 
 		}
+		*/
 
-		return button;
-	}
+        return button;
+    }
 
-	//
-	// Copy parts of RectTransform we want
-	//
-	public static void CopyRectTransform(GameObject target, GameObject duplicate)
-	{
-		// TODO: use Utils.CopyComponent() on RectTransform?
-		//  try target.rectTransform.CopyComponent(duplicate.rectTransform);
-		RectTransform rectTransform = target.GetComponent<RectTransform>();
-		RectTransform duplicateRectTransform = duplicate.GetComponent<RectTransform>();
-		rectTransform.localPosition = duplicateRectTransform.localPosition;
-		rectTransform.localScale = duplicateRectTransform.localScale;
-		rectTransform.localRotation = duplicateRectTransform.localRotation;
-		rectTransform.sizeDelta = duplicateRectTransform.sizeDelta;
-	}
+    //
+    // Copy parts of RectTransform we want
+    //
+    public static void CopyRectTransform(GameObject target, GameObject duplicate)
+    {
+        // TODO: use Utils.CopyComponent() on RectTransform?
+        //  try target.rectTransform.CopyComponent(duplicate.rectTransform);
+        RectTransform rectTransform = target.GetComponent<RectTransform>();
+        RectTransform duplicateRectTransform = duplicate.GetComponent<RectTransform>();
+        rectTransform.localPosition = duplicateRectTransform.localPosition;
+        rectTransform.localScale = duplicateRectTransform.localScale;
+        rectTransform.localRotation = duplicateRectTransform.localRotation;
+        rectTransform.sizeDelta = duplicateRectTransform.sizeDelta;
+    }
 }

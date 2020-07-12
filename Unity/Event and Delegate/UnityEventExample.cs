@@ -34,6 +34,13 @@
 // Unity events let you connect public interfaces in the editor, while Native events
 //  let one piece of code subscribe to events from other systems.
 
+// Note: Objects should initialize in Awake() and talk to others in Start().
+// The sequence of Awake() being called before Start() is guaranteed every time, but
+// the order in which a particular script gets the call is sequential and can only be
+// forced consistent by changing the Script Execution Order.
+// https://docs.unity3d.com/Manual/ExecutionOrder.html
+// https://docs.unity3d.com/Manual/class-MonoManager.html
+
 
 using UnityEngine;
 using UnityEngine.Events;
@@ -66,12 +73,12 @@ public class UnityEventExample : MonoBehaviour
 
     private void AddListeners()
     {
-        onStartEvent.AddListener(MyCallback);                       // Note: NOT OnStartEvent += MyCallbackA;
-        onStartEvent.AddListener(delegate { MyCallbackInt(0); });
+        onStartEvent.AddListener(OnMyCallback);                       // Note: NOT OnStartEvent += MyCallbackA;
+        onStartEvent.AddListener(delegate { OnMyCallbackInt(0); });
         // OnStartEvent.AddListener(() => MyCallbackB(0));          // Lambda Expression for delegate { MyCallbackB(0); };
 
-        onMyIntEvent.AddListener(MyCallbackInt);
-        onMyEvent.AddListener(MyCallbackInt);
+        onMyIntEvent.AddListener(OnMyCallbackInt);
+        onMyEvent.AddListener(OnMyCallbackInt);
     }
 
     // Start is called before the first frame update
@@ -90,10 +97,10 @@ public class UnityEventExample : MonoBehaviour
 
     private void RemoveListeners()
     {
-        onStartEvent.RemoveListener(MyCallback);                    // Note: NOT OnStartEvent -= MyCallbackA;
+        onStartEvent.RemoveListener(OnMyCallback);                    // Note: NOT OnStartEvent -= MyCallbackA;
         // OnStartEvent.RemoveListener(MyCallbackInt);              // Note: issues removing anonymous function
-        onMyIntEvent.RemoveListener(MyCallbackInt);
-        onMyEvent.RemoveListener(MyCallbackInt);
+        onMyIntEvent.RemoveListener(OnMyCallbackInt);
+        onMyEvent.RemoveListener(OnMyCallbackInt);
 
         // remove all listeners
         // OnStartEvent.RemoveAllListeners();
@@ -103,12 +110,12 @@ public class UnityEventExample : MonoBehaviour
         Logger.Print(">>> Remove Listeners");
     }
 
-    private void MyCallback()
+    private void OnMyCallback()
     {
         Logger.Print(">>> Got MyCallback()");
     }
 
-    private void MyCallbackInt(int value)
+    private void OnMyCallbackInt(int value)
     {
         Logger.Print(">>> Got MyCallbackInt(" + value + ")");
     }
