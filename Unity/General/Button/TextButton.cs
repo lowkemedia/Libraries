@@ -45,7 +45,16 @@ public class TextButton : MonoBehaviour
     private Color _selectedColor;
     private Color _disabledColor;
 
-    // Start is called before the first frame update
+    public bool Enabled {
+        get { return _clickButton.Enabled; }
+        set { _clickButton.Enabled = value; }
+    }
+
+    public bool Selected {
+        get { return _clickButton.Selected; }
+        set { _clickButton.Selected = value; }
+    }
+
     private void Start()
     {
         _clickButton = GetComponent<ClickButton>();

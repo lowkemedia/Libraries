@@ -41,8 +41,4 @@ public class ClickButtonStyle : ScriptableObject
     public string pressedColor;
     public string selectedColor;   
     public string disabledColor;
-
-    public bool useDefaultSound = true;       // TODO: hide click and roll AudioSource if true
-    public AudioSource clickSound;
-    public AudioSource rollSound;
 }

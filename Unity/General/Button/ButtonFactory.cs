@@ -66,9 +66,9 @@ public static class ButtonFactory
                         duplicate.HighlightedSprite,
                         duplicate.PressedSprite,
                         duplicate.SelectedSprite,
-                        duplicate.DisabledSprite,
-                        duplicate.ClickSound,
-                        duplicate.RollSound);
+                        duplicate.DisabledSprite);
+        button.clickSound = duplicate.clickSound;
+        button.rollSound = duplicate.rollSound;
         button.enabled = duplicate.enabled;
         button.selected = duplicate.selected;
         button.invokeWhilePressed = duplicate.invokeWhilePressed;

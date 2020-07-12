@@ -52,14 +52,16 @@ public class ClickButton : MonoBehaviour,
 
     public ClickButtonEvent onClick;
 
+    public bool useDefaultSound = true;
+    public AudioSource clickSound;
+    public AudioSource rollSound;
+
     public Image ButtonImage        { get; private set; }       // image currently shown for button
     public Sprite NormalSprite      { get; private set; }       // up
     public Sprite HighlightedSprite { get; private set; }       // over
     public Sprite PressedSprite     { get; private set; }       // down
     public Sprite SelectedSprite    { get; private set; }       // selected
     public Sprite DisabledSprite    { get; private set; }       // disabled
-    public AudioSource ClickSound   { get; private set; }
-    public AudioSource RollSound    { get; private set; }
     public bool Pressed             { get; private set; }
     public bool PointerInside       { get; private set; }
 
@@ -95,6 +97,17 @@ public class ClickButton : MonoBehaviour,
             SetStyle(style);
         }
 
+        if (SoundHelper.IsAvalable) {
+            // get default sound
+            if (clickSound == default && useDefaultSound) {
+                clickSound = SoundHelper.ClickSound;
+            }
+
+            if (rollSound == default && useDefaultSound) {
+                rollSound = SoundHelper.RollSound;
+            }
+        }
+
         _position = transform.position;
         _positionAdjusted = transform.position;
         _positionAdjusted.x += 0.5f;
@@ -107,44 +120,24 @@ public class ClickButton : MonoBehaviour,
 
     public void SetStyle(ClickButtonStyle style)
     {
-        AudioSource clickSound = style.clickSound;
-        AudioSource rollSound = style.rollSound;
-
-        if (style.useDefaultSound && SoundHelper.IsAvalable) {
-            // get default sound
-            if (clickSound == default) {
-                clickSound = SoundHelper.ClickSound;
-            }
-
-            if (rollSound == default) {
-                rollSound = SoundHelper.RollSound;
-            }
-        }
-
         SetStyle(style.normalSprite,
                  style.highlightedSprite,
                  style.pressedSprite,
                  style.selectedSprite,
-                 style.disabledSprite,
-                 clickSound,
-                 rollSound);
+                 style.disabledSprite);
     }
 
     public void SetStyle(Sprite normalSprite,
                          Sprite highlightedSprite,
                          Sprite pressedSprite,
                          Sprite selectedSprite,
-                         Sprite disabledSprite,
-                         AudioSource clickSound,
-                         AudioSource rollSound)
+                         Sprite disabledSprite)
     {
         NormalSprite = normalSprite;
         HighlightedSprite = highlightedSprite;
         PressedSprite = pressedSprite;
         SelectedSprite = selectedSprite;
         DisabledSprite = disabledSprite;
-        ClickSound = clickSound;
-        RollSound = rollSound;
 
         // ensure Sprites
         if (NormalSprite == default) {
@@ -196,8 +189,8 @@ public class ClickButton : MonoBehaviour,
         PointerInside = true;
         if (!Enabled) { return; }
 
-        if (RollSound != null) {
-            RollSound.Play();
+        if (rollSound != null) {
+            rollSound.Play();
         }
 
         UpdateButton();
@@ -303,13 +296,13 @@ public class ClickButton : MonoBehaviour,
         // shouldn't wait for click sound to finish
         //  when invokeWhilePressed is used
         if (invokeWhilePressed) {
-            ClickSound.Play();
+            clickSound.Play();
             onClick?.Invoke(this);
             return;
         }
 
         // TODO: onClick option not to wait for sound to end before triggering callback
-        SoundHelper.SoundCallback(ClickSound, delegate () {
+        SoundHelper.SoundCallback(clickSound, delegate () {
             onClick?.Invoke(this);
         }, false);
     }
