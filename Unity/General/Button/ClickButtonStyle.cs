@@ -30,15 +30,24 @@ using UnityEngine;
 [CreateAssetMenu]
 public class ClickButtonStyle : ScriptableObject
 {
-    public Sprite normalSprite;               // up
-    public Sprite highlightedSprite;          // over
-    public Sprite pressedSprite;              // down
-    public Sprite selectedSprite;             // selected
-    public Sprite disabledSprite;             // disabled
+    // Sprite skin used for each state
+    public Sprite normalSprite;         // up
+    public Sprite highlightedSprite;    // over
+    public Sprite pressedSprite;        // down
+    public Sprite selectedSprite;       // selected
+    public Sprite disabledSprite;       // disabled
 
-    public string normalColor;                // #FFFFFF7F is white with 50% alpha
-    public string highlightedColor;
+    // color associated with each state,
+    //  this is used for colorizing text or icons
+    public string normalColor;
+    public string highlightedColor;     // e.g. #FFFFFF7F is white with 50% alpha
     public string pressedColor;
     public string selectedColor;   
     public string disabledColor;
+
+    // if true omits drawing the NormalSprite after a click,
+    //  this is useful for tab menus or button toggles,
+    //  otherwise you see the normal state flicker.
+    public bool isTabOrToggle;
+
 }

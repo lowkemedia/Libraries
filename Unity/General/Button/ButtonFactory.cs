@@ -66,14 +66,12 @@ public static class ButtonFactory
                         duplicate.HighlightedSprite,
                         duplicate.PressedSprite,
                         duplicate.SelectedSprite,
-                        duplicate.DisabledSprite);
+                        duplicate.DisabledSprite,
+                        duplicate.IsTabOrToggle);
         button.clickSound = duplicate.clickSound;
         button.rollSound = duplicate.rollSound;
         button.enabled = duplicate.enabled;
         button.selected = duplicate.selected;
-        button.invokeWhilePressed = duplicate.invokeWhilePressed;
-        button.invokeInterval = duplicate.invokeInterval;
-        button.clickInWhenPressed = duplicate.clickInWhenPressed;
         button.onClick = new ClickButtonEvent();
 
         // add Image for ClickButton

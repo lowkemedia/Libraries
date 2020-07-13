@@ -64,11 +64,11 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
         GotoPage(0, true);
     }
 
-    public void OnDrag(PointerEventData data)
+    public void OnDrag(PointerEventData pointerEventData)
     {
         _dragging = true;
-        Vector3 localPressPosition = this.GetLocalPosition(data.pressPosition);
-        Vector3 localPosition = this.GetLocalPosition(data.position);
+        Vector3 localPressPosition = this.GetLocalPosition(pointerEventData.pressPosition);
+        Vector3 localPosition = this.GetLocalPosition(pointerEventData.position);
         float difference = localPressPosition.x - localPosition.x;
 
 
@@ -96,10 +96,10 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
         transform.localPosition = _panelLocation - new Vector3(difference, 0, 0);
     }
 
-    public void OnEndDrag(PointerEventData data)
+    public void OnEndDrag(PointerEventData pointerEventData)
     {
-        Vector3 localPressPosition = this.GetLocalPosition(data.pressPosition);
-        Vector3 localPosition = this.GetLocalPosition(data.position);
+        Vector3 localPressPosition = this.GetLocalPosition(pointerEventData.pressPosition);
+        Vector3 localPosition = this.GetLocalPosition(pointerEventData.position);
         float difference = localPressPosition.x - localPosition.x;
         float percentage = difference/_pageWidth;
 
@@ -115,7 +115,7 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
         }
     }
 
-    public void OnPointerClick(PointerEventData data)
+    public void OnPointerClick(PointerEventData pointerEventData)
     {
         if (_dragging == false) {
             GotoPage(++_pageIndex);

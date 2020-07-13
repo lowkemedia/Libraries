@@ -100,11 +100,7 @@ public class TextButton : MonoBehaviour
         }
 
         if (string.IsNullOrEmpty(PressedColor)) {
-            if (string.IsNullOrEmpty(SelectedColor)) {              // TODO: Messy, clean up
-                _pressedColor = _highlightedColor;
-            } else {
-                _pressedColor = UtilsColor.ConvertColor(SelectedColor);
-            }
+            _pressedColor = string.IsNullOrEmpty(SelectedColor) ? _highlightedColor : UtilsColor.ConvertColor(SelectedColor);
         } else {
             _pressedColor = UtilsColor.ConvertColor(PressedColor);
         }

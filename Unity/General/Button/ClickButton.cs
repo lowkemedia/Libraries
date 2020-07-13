@@ -34,21 +34,11 @@ using UnityEngine.UI;
 public class ClickButtonEvent : UnityEvent<ClickButton> { }
 
 public class ClickButton : MonoBehaviour,
-             IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
+             IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     public ClickButtonStyle style;
     public new bool enabled = true;
     public bool selected;
-
-    // TODO: Move invokeWhilePressed into an extending class
-    public bool invokeWhilePressed;
-    private float _invokedTime;                         // time of last invoke
-    private float _pressTime;                           // time of last press
-    public float invokeInterval = 0.15f;                // interval between press invokes, in seconds
-
-    public bool clickInWhenPressed;                     // TODO: Fix to be more subtle (or remove)
-    private Vector3 _position;  
-    private Vector3 _positionAdjusted;
 
     public ClickButtonEvent onClick;
 
@@ -62,8 +52,11 @@ public class ClickButton : MonoBehaviour,
     public Sprite PressedSprite     { get; private set; }       // down
     public Sprite SelectedSprite    { get; private set; }       // selected
     public Sprite DisabledSprite    { get; private set; }       // disabled
-    public bool Pressed             { get; private set; }
-    public bool PointerInside       { get; private set; }
+    public bool IsTabOrToggle       { get; set; }               // omits drawing the Normal state after a click
+
+    public bool Pressed             { get; private set; }       // true if pressed 
+    public bool PointerInside       { get; private set; }       // true if point currenty inside
+    
 
     public delegate void UpdateButtonEvent(bool showAsPressed);
     public event UpdateButtonEvent OnUpdateButtonEvent;
@@ -75,9 +68,6 @@ public class ClickButton : MonoBehaviour,
             UpdateButton();
         }
     }
-
-    // TODO: Include Interactable flag?
-    // TODO: Add a "toggle selected" option for use with check boxes and radio buttons
 
     // Note: disabled buttons (Enabled == false) that are Selected == true, show as Selected.
     // This is useful for tab menus where the selected tab is not enabled
@@ -108,36 +98,34 @@ public class ClickButton : MonoBehaviour,
             }
         }
 
-        _position = transform.position;
-        _positionAdjusted = transform.position;
-        _positionAdjusted.x += 0.5f;
-        _positionAdjusted.y -= 0.5f;
-
         // TODO: check if pointer started inside button
 
         UpdateButton();
     }
 
-    public void SetStyle(ClickButtonStyle style)
+	public void SetStyle(ClickButtonStyle style)
     {
         SetStyle(style.normalSprite,
                  style.highlightedSprite,
                  style.pressedSprite,
                  style.selectedSprite,
-                 style.disabledSprite);
+                 style.disabledSprite,
+                 style.isTabOrToggle);
     }
 
     public void SetStyle(Sprite normalSprite,
                          Sprite highlightedSprite,
                          Sprite pressedSprite,
                          Sprite selectedSprite,
-                         Sprite disabledSprite)
+                         Sprite disabledSprite,
+                         bool isTabOrToggle)
     {
         NormalSprite = normalSprite;
         HighlightedSprite = highlightedSprite;
         PressedSprite = pressedSprite;
         SelectedSprite = selectedSprite;
         DisabledSprite = disabledSprite;
+        IsTabOrToggle = isTabOrToggle;
 
         // ensure Sprites
         if (NormalSprite == default) {
@@ -149,7 +137,7 @@ public class ClickButton : MonoBehaviour,
         }
 
         if (PressedSprite == default) {
-            PressedSprite = (!SelectedSprite) ? HighlightedSprite : SelectedSprite;
+            PressedSprite = (SelectedSprite == default) ? HighlightedSprite : SelectedSprite;
         }
 
         if (SelectedSprite == default) {
@@ -164,27 +152,20 @@ public class ClickButton : MonoBehaviour,
         UpdateButton();
     }
 
-    public virtual void OnPointerUp(PointerEventData clickEventData)
+    public virtual void OnPointerUp(PointerEventData pointerEventData)
     {
-        if (!Enabled) {
-            Pressed = false;
+        Pressed = false;
+        if (!Enabled || IsTabOrToggle) {
+            // IsTabOrToggle omits showing Normal state after clicking,
+            //  which is useful with tab menus or button toggles,
+            //  otherwise you see a Normal state flicker.
             return;
         }
-
-        // TODO: Move invokeWhilePressed into an extending class
-        //  special case issues due to invokeWhilePressed
-        if (Pressed && PointerInside) {
-            if (!invokeWhilePressed ||
-                (Time.time - _pressTime < invokeInterval)) {
-                Click();
-            }
-        }
-        Pressed = false;
 
         UpdateButton();
     }
 
-    public virtual void OnPointerEnter(PointerEventData clickEventData)
+    public virtual void OnPointerEnter(PointerEventData pointerEventData)
     {
         PointerInside = true;
         if (!Enabled) { return; }
@@ -196,7 +177,7 @@ public class ClickButton : MonoBehaviour,
         UpdateButton();
     }
 
-    public virtual void OnPointerExit(PointerEventData clickEventData)
+    public virtual void OnPointerExit(PointerEventData pointerEventData)
     {
         PointerInside = false;
         if (!Enabled) { return; }
@@ -204,26 +185,24 @@ public class ClickButton : MonoBehaviour,
         UpdateButton();
     }
 
-    public virtual void OnPointerDown(PointerEventData clickEventData = null)
+    public virtual void OnPointerDown(PointerEventData pointerEventData = null)
     {
         Pressed = true;
         if (!Enabled) { return; }
 
-        _pressTime = Time.time;
         UpdateButton();
+    }
+
+    public virtual void OnPointerClick(PointerEventData pointerEventData)
+    {
+        Click();
     }
 
     public virtual void UpdateButton(bool showAsPressed = false)
     {
         if (!ButtonImage) {
-            return;     // too early, button hasn't started yet.
+            return;     // too early, button hasn't called Start() yet.
         }
-
-        /* TODO: deal with clickInWhenPressed
-		if (clickInWhenPressed) {
-            transform.position = (_enabled && _pressed && _inside) ? _positionAdjusted : _position;
-        }
-		*/
 
         if (Selected) {
             //
@@ -258,52 +237,28 @@ public class ClickButton : MonoBehaviour,
         OnUpdateButtonEvent?.Invoke(showAsPressed);
     }
 
-    // Update is called once per frame
-    private void Update()
-    {
-        float timeNow = Time.time;
-        if (invokeWhilePressed &&
-            Pressed && PointerInside &&
-            (timeNow - _pressTime >= invokeInterval) &&
-            (timeNow - _invokedTime >= invokeInterval)) {
-            Click();
-        }
-    }
-
     //
-    // Click for pressDuration in seconds
+    // Click for pressDuration seconds
     //
-    public bool Click(float pressDuration = 0.33f)
+    public void Click(float pressDuration = 0)  // 0.33f
     {
-        if (isActiveAndEnabled && Enabled) {
-            _invokedTime = Time.time;
-
-            if (!Pressed &&
-                PressedSprite != NormalSprite &&
-                pressDuration > 0) {
-                UpdateButton(true);
-                Delayer.Delay(pressDuration, DoClick);
-            } else {
-                DoClick();
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private void DoClick()
-    {
-        // shouldn't wait for click sound to finish
-        //  when invokeWhilePressed is used
-        if (invokeWhilePressed) {
-            clickSound.Play();
-            onClick?.Invoke(this);
+        // button must be active and enabled to click
+        if (! (isActiveAndEnabled && Enabled)) {
             return;
-        }
+		}
 
-        // TODO: onClick option not to wait for sound to end before triggering callback
-        SoundHelper.SoundCallback(clickSound, delegate () {
-            onClick?.Invoke(this);
-        }, false);
+        // show button as pressed
+        UpdateButton(true);
+
+        if (pressDuration > 0) {
+            clickSound?.Play();
+            Delayer.Delay(pressDuration, delegate () {
+                onClick?.Invoke(this);
+            });
+        } else {
+            SoundHelper.SoundCallback(clickSound, delegate () {
+                onClick?.Invoke(this);
+            }, false);
+        }
     }
 }

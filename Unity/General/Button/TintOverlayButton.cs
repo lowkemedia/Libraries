@@ -23,13 +23,13 @@ public class TintOverlayButton : ClickButton, IPointerClickHandler
     }
 
 
-    override public void OnPointerEnter(PointerEventData clickEventData)
+    public override void OnPointerEnter(PointerEventData clickEventData)
     {
         _tintImage.color = _tintHighlight;
         base.OnPointerEnter(clickEventData);
     }
 
-    override public void OnPointerDown(PointerEventData clickEventData = null)
+    public override void OnPointerDown(PointerEventData clickEventData = null)
     {
         _tintImage.color = _tintPressed;
 
@@ -37,22 +37,24 @@ public class TintOverlayButton : ClickButton, IPointerClickHandler
         //   base.OnPointerDown(clickEventData);      
     }
 
-    override public void OnPointerUp(PointerEventData clickEventData)
+    public override void OnPointerUp(PointerEventData clickEventData)
     {
         _tintImage.color = _tintHighlight;
         base.OnPointerUp(clickEventData);
     }
 
-    override public void OnPointerExit(PointerEventData clickEventData)
+    public override void OnPointerExit(PointerEventData clickEventData)
     {
         _tintImage.color = Color.clear;
         base.OnPointerExit(clickEventData);
     }
 
-    public void OnPointerClick(PointerEventData clickEventData)
+    public override void OnPointerClick(PointerEventData clickEventData)
     {
+        _tintImage.color = _tintPressed;
         base.OnPointerDown(clickEventData);
         base.OnPointerUp(clickEventData);
+        base.OnPointerClick(clickEventData);
     }
 }
 

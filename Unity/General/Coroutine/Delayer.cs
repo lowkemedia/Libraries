@@ -27,7 +27,7 @@
 
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
+using System;
 
 public class Delayer : MonoBehaviour
 {
@@ -49,14 +49,13 @@ public class Delayer : MonoBehaviour
     private static Delayer Instance {
         get {
             if (_instance == null) {
-                Logger.Warning("Delayer must be attached to the Unity scene to work.");
+                throw new Exception("Delayer must be attached to the Unity scene to work.");
             }
 
             return _instance;
         }
     }
 
-    // TODO: Make callback a UnityEvent? Overload Delay with UnityEvent callback?
     public static void Delay(float seconds, Callback callback, bool giveWarning = true)
     {
         if (giveWarning) {
