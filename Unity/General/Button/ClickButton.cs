@@ -195,7 +195,11 @@ public class ClickButton : MonoBehaviour,
 
     public virtual void OnPointerClick(PointerEventData pointerEventData)
     {
-        Click();
+        if (!Enabled) { return; }
+
+        SoundHelper.SoundCallback(clickSound, delegate () {
+            onClick?.Invoke(this);
+        }, false);
     }
 
     public virtual void UpdateButton(bool showAsPressed = false)
@@ -240,25 +244,22 @@ public class ClickButton : MonoBehaviour,
     //
     // Click for pressDuration seconds
     //
-    public void Click(float pressDuration = 0)  // 0.33f
+    public void Click(float pressDuration = 0.33f)
     {
         // button must be active and enabled to click
         if (! (isActiveAndEnabled && Enabled)) {
             return;
-		}
+        }
 
         // show button as pressed
         UpdateButton(true);
+        clickSound?.Play();
 
-        if (pressDuration > 0) {
-            clickSound?.Play();
-            Delayer.Delay(pressDuration, delegate () {
-                onClick?.Invoke(this);
-            });
-        } else {
-            SoundHelper.SoundCallback(clickSound, delegate () {
-                onClick?.Invoke(this);
-            }, false);
-        }
+        Delayer.Delay(pressDuration, delegate ()
+        {
+            // invoke and unpress button
+            onClick?.Invoke(this);
+            UpdateButton();
+        });
     }
 }
