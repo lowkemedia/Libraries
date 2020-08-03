@@ -1,6 +1,6 @@
 //
 //  ClickButton - Button package
-//  Russell Lowke, April 28th 2020
+//  Russell Lowke, July 24th 2020
 //
 //  Copyright (c) 2019-2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -36,8 +36,10 @@ public class ClickButtonEvent : UnityEvent<ClickButton> { }
 public class ClickButton : MonoBehaviour,
              IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
+    public delegate void Callback();
+
     public ClickButtonStyle style;
-    public new bool enabled = true;
+    public new bool enabled = true;                             // implements own enable, so disabled buttons still keep track of PointerInside, etc.
     public bool selected;
 
     public ClickButtonEvent onClick;
@@ -52,21 +54,45 @@ public class ClickButton : MonoBehaviour,
     public Sprite PressedSprite     { get; private set; }       // down
     public Sprite SelectedSprite    { get; private set; }       // selected
     public Sprite DisabledSprite    { get; private set; }       // disabled
-    public bool IsTabOrToggle       { get; set; }               // omits drawing the Normal state after a click
+    public bool SkipPointerUp       { get; set; }               // skips drawing the Normal ("Up") state after a click
 
-    public bool Pressed             { get; private set; }       // true if pressed 
     public bool PointerInside       { get; private set; }       // true if point currenty inside
-    
 
-    public delegate void UpdateButtonEvent(bool showAsPressed);
-    public event UpdateButtonEvent OnUpdateButtonEvent;
+    private bool _showAsPressed;                                // true if button override as pressed
+    private bool _pressed;                                      // true if button is pressed
+    public bool Pressed {                                       // true if pressed
+        get {
+            return _pressed || _showAsPressed;
+        }
+    }
+
+    public event Callback OnUpdateButtonEvent;
 
     public bool Enabled {
         get { return enabled; }
         set {
             enabled = value;
-            UpdateButton();
+            if (enabled) {
+                OnEnable();
+            } else {
+                OnDisable();
+            }
         }
+    }
+
+    // called by Unity on toggle
+    private void OnEnable()
+    {
+        UpdateButton();
+    }
+
+    // called by Unity on toggle
+    private void OnDisable()
+    {
+        _showAsPressed = false;
+        _pressed = false;
+        PointerInside = false;
+        UpdateButton();
     }
 
     // Note: disabled buttons (Enabled == false) that are Selected == true, show as Selected.
@@ -74,6 +100,7 @@ public class ClickButton : MonoBehaviour,
     public bool Selected {
         get { return selected; }
         set {
+            _showAsPressed = false;
             selected = value;
             UpdateButton();
         }
@@ -110,7 +137,7 @@ public class ClickButton : MonoBehaviour,
                  style.pressedSprite,
                  style.selectedSprite,
                  style.disabledSprite,
-                 style.isTabOrToggle);
+                 style.skipPointerUp);
     }
 
     public void SetStyle(Sprite normalSprite,
@@ -118,14 +145,14 @@ public class ClickButton : MonoBehaviour,
                          Sprite pressedSprite,
                          Sprite selectedSprite,
                          Sprite disabledSprite,
-                         bool isTabOrToggle)
+                         bool skipPointerUp)
     {
         NormalSprite = normalSprite;
         HighlightedSprite = highlightedSprite;
         PressedSprite = pressedSprite;
         SelectedSprite = selectedSprite;
         DisabledSprite = disabledSprite;
-        IsTabOrToggle = isTabOrToggle;
+        SkipPointerUp = skipPointerUp;
 
         // ensure Sprites
         if (NormalSprite == default) {
@@ -137,7 +164,7 @@ public class ClickButton : MonoBehaviour,
         }
 
         if (PressedSprite == default) {
-            PressedSprite = (SelectedSprite == default) ? HighlightedSprite : SelectedSprite;
+            PressedSprite = HighlightedSprite;
         }
 
         if (SelectedSprite == default) {
@@ -145,22 +172,26 @@ public class ClickButton : MonoBehaviour,
         }
     }
 
-    void OnDisable()
+    public virtual void OnPointerClick(PointerEventData pointerEventData)
     {
-        Pressed = false;
-        PointerInside = false;
+        if (!Enabled) { return; }
+
+        // SkipPointerUp skips returning to the Normal ("Up") state after
+        //  clicking, which is useful with tab menus or button toggles,
+        //  otherwise you see the Normal state flicker.
+        _showAsPressed = SkipPointerUp;
+
+        SoundHelper.SoundCallback(clickSound, delegate () {
+            onClick?.Invoke(this);
+        }, false);
+
         UpdateButton();
     }
 
     public virtual void OnPointerUp(PointerEventData pointerEventData)
     {
-        Pressed = false;
-        if (!Enabled || IsTabOrToggle) {
-            // IsTabOrToggle omits showing Normal state after clicking,
-            //  which is useful with tab menus or button toggles,
-            //  otherwise you see a Normal state flicker.
-            return;
-        }
+        _pressed = false;
+        if (!Enabled) { return; }
 
         UpdateButton();
     }
@@ -170,11 +201,15 @@ public class ClickButton : MonoBehaviour,
         PointerInside = true;
         if (!Enabled) { return; }
 
+        UpdateButton();
+
         if (rollSound != null) {
+            if (SystemInfo.deviceType == DeviceType.Handheld) {
+                // don't play roll sound on handheld devices
+                return;
+            }
             rollSound.Play();
         }
-
-        UpdateButton();
     }
 
     public virtual void OnPointerExit(PointerEventData pointerEventData)
@@ -187,58 +222,31 @@ public class ClickButton : MonoBehaviour,
 
     public virtual void OnPointerDown(PointerEventData pointerEventData = null)
     {
-        Pressed = true;
+        _pressed = true;
         if (!Enabled) { return; }
 
         UpdateButton();
     }
 
-    public virtual void OnPointerClick(PointerEventData pointerEventData)
-    {
-        if (!Enabled) { return; }
-
-        SoundHelper.SoundCallback(clickSound, delegate () {
-            onClick?.Invoke(this);
-        }, false);
-    }
-
-    public virtual void UpdateButton(bool showAsPressed = false)
+    public virtual void UpdateButton()
     {
         if (!ButtonImage) {
             return;     // too early, button hasn't called Start() yet.
         }
 
         if (Selected) {
-            //
-            // selected override
             ButtonImage.sprite = SelectedSprite;
-
         } else if (!Enabled) {
-            //
-            // button is disabled
             ButtonImage.sprite = DisabledSprite;
-
-        } else if (showAsPressed) {
-            //
-            // showAsPressed override
+        } else if (Pressed) {
             ButtonImage.sprite = PressedSprite;
-
         } else if (PointerInside) {
-            //
-            // if pointer inside, buttons are pressed or highlighted
-            if (Pressed) {
-                ButtonImage.sprite = PressedSprite;
-            } else {
-                ButtonImage.sprite = HighlightedSprite;
-            }
-
+            ButtonImage.sprite = HighlightedSprite;
         } else {
-            //
-            // otherwise button is normal
             ButtonImage.sprite = NormalSprite;
         }
 
-        OnUpdateButtonEvent?.Invoke(showAsPressed);
+        OnUpdateButtonEvent?.Invoke();
     }
 
     //
@@ -252,13 +260,15 @@ public class ClickButton : MonoBehaviour,
         }
 
         // show button as pressed
-        UpdateButton(true);
+        _showAsPressed = true;
+        UpdateButton();
         clickSound?.Play();
 
         Delayer.Delay(pressDuration, delegate ()
         {
             // invoke and unpress button
             onClick?.Invoke(this);
+            _showAsPressed = false;
             UpdateButton();
         });
     }

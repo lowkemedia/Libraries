@@ -153,20 +153,6 @@ public static class UtilsRect
     }
 
     //
-    // set and get UnityEngine Object parent
-    //
-    public static void SetParent(this Object child, Object parent)
-    {
-        child.GetRectTransform().parent = parent.GetRectTransform();
-    }
-
-    public static GameObject GetParent(this Object obj)
-    {
-		Transform parent = obj.GetRectTransform().parent;
-		return parent == null ? null : parent.gameObject;
-    }
-
-    //
     // return true if objA is wholly inside objB
     //
     public static bool AinsideB(RectTransform objA,

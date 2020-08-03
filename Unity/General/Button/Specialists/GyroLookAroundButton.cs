@@ -1,6 +1,6 @@
 ﻿//
-//  ClickButtonStyle - Button package
-//  Russell Lowke, July 12th 2020
+//  GyroLookAroundButton - Button package
+//  Russell Lowke, July 22nd 2020
 //
 //  Copyright (c) 2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -27,27 +27,49 @@
 
 using UnityEngine;
 
-[CreateAssetMenu]
-public class ClickButtonStyle : ScriptableObject
+public class GyroLookAroundButton : LookAroundButton
 {
-    // Sprite skin used for each state
-    public Sprite normalSprite;         // up
-    public Sprite highlightedSprite;    // over
-    public Sprite pressedSprite;        // down
-    public Sprite selectedSprite;       // selected
-    public Sprite disabledSprite;       // disabled
+	private Gyroscope _gyro;
+	private Quaternion _rot;
 
-    // color associated with each state,
-    //  this is used for colorizing text or icons
-    public string normalColor;
-    public string highlightedColor;     // e.g. #FFFFFF7F is white with 50% alpha
-    public string pressedColor;
-    public string selectedColor;   
-    public string disabledColor;
+	protected override void Start()
+	{
+		base.Start();
 
-    // if true, omits drawing the Normal ("up") state after
-    //  a click, this is useful for tab menus or button toggles,
-    //  as otherwise you see the normal state flicker.
-    public bool skipPointerUp;
+		/*
+		const string CONTAINER_NAME = "Gyro Container";
+		GameObject parent = lookAroundCamera.GetParent();
+		if (parent == null) {
+			_gyroContainer = new GameObject(CONTAINER_NAME);
+		} else {
+			_gyroContainer = parent.MakeGameObject(CONTAINER_NAME);
+		}
+		lookAroundCamera.SetParent(_gyroContainer);
+		*/
 
+		if (SystemInfo.supportsGyroscope) {
+			_gyro = Input.gyro;
+
+			// _gyroContainer.transform.rotation = Quaternion.Euler(90f, 90f, 0f);
+			_rot = new Quaternion(0, 0, 1, 0);
+		}
+	}
+
+	private void Update()
+	{
+		if (_gyro != null) {
+			Transform cameraTransform = lookAroundCamera.gameObject.transform;
+			cameraTransform.localRotation = _gyro.attitude * _rot;
+		}
+	}
+
+	protected override void VerticalRotation()
+	{
+		if (_gyro != null) {
+			// ignore vertical rotation if gyro enabled
+			return;
+		}
+
+		base.VerticalRotation();
+	}
 }

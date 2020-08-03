@@ -1,6 +1,6 @@
 ﻿//
 //  TextButton - Button package
-//  Russell Lowke, July 12th 2020
+//  Russell Lowke, July 24th 2020
 //
 //  Copyright (c) 2019-2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -100,7 +100,7 @@ public class TextButton : MonoBehaviour
         }
 
         if (string.IsNullOrEmpty(PressedColor)) {
-            _pressedColor = string.IsNullOrEmpty(SelectedColor) ? _highlightedColor : UtilsColor.ConvertColor(SelectedColor);
+            _pressedColor = _highlightedColor;
         } else {
             _pressedColor = UtilsColor.ConvertColor(PressedColor);
         }
@@ -120,37 +120,17 @@ public class TextButton : MonoBehaviour
     }
 
     // Update is called once per frame
-    private void UpdateButton(bool showAsPressed)
+    private void UpdateButton()
     {
-        // TODO: deal with clickInWhenPressed
-
         if (_clickButton.Selected) {
-            //
-            // selected override
             textField.color = _selectedColor;
-
         } else if (!_clickButton.Enabled) {
-            //
-            // button is disabled
             textField.color = _disabledColor;
-
-        } else if (showAsPressed) {
-            //
-            // showAsClicked override
+        } else if (_clickButton.Pressed) {
             textField.color = _pressedColor;
-
         } else if (_clickButton.PointerInside) {
-            //
-            // if pointer inside, buttons are pressed or highlighted
-            if (_clickButton.Pressed) {
-                textField.color = _pressedColor;
-            } else {
-                textField.color = _highlightedColor;
-            }
-
+            textField.color = _highlightedColor;
         } else {
-            //
-            // otherwise button is normal
             textField.color = _normalColor;
         }
     }

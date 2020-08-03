@@ -67,7 +67,7 @@ public static class ButtonFactory
                         duplicate.PressedSprite,
                         duplicate.SelectedSprite,
                         duplicate.DisabledSprite,
-                        duplicate.IsTabOrToggle);
+                        duplicate.SkipPointerUp);
         button.clickSound = duplicate.clickSound;
         button.rollSound = duplicate.rollSound;
         button.enabled = duplicate.enabled;

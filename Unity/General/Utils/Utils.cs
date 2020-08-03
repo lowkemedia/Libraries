@@ -71,6 +71,25 @@ public static class Utils
     }
 
     //
+    // set and get UnityEngine Object parent
+    //
+    public static void SetParent(this Object child, Object parent)
+    {
+        // TODO: Include optional straight transform.parent assign?
+        // child.GetGameObject().transform.parent = parent.GetGameObject().transform;
+
+        child.GetGameObject().transform.SetParent(parent.GetGameObject().transform);
+        // native transform.SetParent() is better as parent-relative position,
+        //  scale and rotation are modified such that the object keeps the same world space position
+    }
+
+    public static GameObject GetParent(this Object obj)
+    {
+        Transform parent = obj.GetGameObject().transform.parent;
+        return parent == null ? null : parent.gameObject;
+    }
+
+    //
     // Make Component on new child GameObject
     //
     public static T MakeComponent<T>(this GameObject parent,  T duplicate) where T : Component
