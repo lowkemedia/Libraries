@@ -32,6 +32,24 @@ public class GyroLookAroundButton : LookAroundButton
 	private Gyroscope _gyro;
 	private Quaternion _rot;
 
+	public bool SupportsGyro { get; private set; }
+
+	private void Awake()
+	{
+		// if Application.platform == RuntimePlatform.IPhonePlayer
+		if (SystemInfo.supportsGyroscope) {
+			SupportsGyro = true;
+
+			_gyro = Input.gyro;
+
+			// Mandatory for Android devices. iOS has gyro enabled by default.
+			_gyro.enabled = true;
+
+			// _gyroContainer.transform.rotation = Quaternion.Euler(90f, 90f, 0f);
+			_rot = new Quaternion(0, 0, 1, 0);
+		}
+	}
+
 	protected override void Start()
 	{
 		base.Start();
@@ -47,11 +65,20 @@ public class GyroLookAroundButton : LookAroundButton
 		lookAroundCamera.SetParent(_gyroContainer);
 		*/
 
-		if (SystemInfo.supportsGyroscope) {
-			_gyro = Input.gyro;
+		CorrectForGyro();
+	}
 
-			// _gyroContainer.transform.rotation = Quaternion.Euler(90f, 90f, 0f);
-			_rot = new Quaternion(0, 0, 1, 0);
+	private void CorrectForGyro()
+	{
+		if (_gyro != null) {
+			Quaternion gyro = _gyro.attitude * _rot;
+			Vector3 angles = gyro.eulerAngles;
+
+			// TODO: Compare gyro.eulerAngles with _lookAroundContainer.transform.eulerAngles
+			//  to ensure perfect correction
+
+			// adjust to face towards front
+			TurnCameraX(angles.x - 90);
 		}
 	}
 
@@ -60,6 +87,20 @@ public class GyroLookAroundButton : LookAroundButton
 		if (_gyro != null) {
 			Transform cameraTransform = lookAroundCamera.gameObject.transform;
 			cameraTransform.localRotation = _gyro.attitude * _rot;
+
+			/*
+			// update gyro rotation
+
+			float angleX = _gyro.rotationRateUnbiased.y * 2;
+			cameraTransform.RotateAround(cameraTransform.position, -Vector3.up, angleX);
+
+			float angleY = -_gyro.rotationRateUnbiased.x * 2;
+			cameraTransform.RotateAround(cameraTransform.position, cameraTransform.right, angleY);
+
+			// float angleZ = _gyro.rotationRateUnbiased.z * 2;
+			// cameraTransform.RotateAround(cameraTransform.position, cameraTransform.forward, angleZ);
+			*/
+
 		}
 	}
 

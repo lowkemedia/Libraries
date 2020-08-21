@@ -78,19 +78,36 @@ public class LookAroundButton : ClickButton, IDragHandler, IEndDragHandler, IPoi
 
 	protected virtual void HorizontalRotation()
 	{
-		Transform lookAroundTransform = _lookAroundContainer.transform;
 		float dMouseX = SPEED * Input.GetAxis("Mouse X");
 		if (Math.Abs(dMouseX) < BREAK) {
-			lookAroundTransform.RotateAround(lookAroundTransform.position, -Vector3.up, dMouseX);
+			TurnCameraX(dMouseX);
 		}
 	}
 
 	protected virtual void VerticalRotation()
 	{
-		Transform lookAroundTransform = _lookAroundContainer.transform;
 		float dMouseY = SPEED * Input.GetAxis("Mouse Y");
 		if (Math.Abs(dMouseY) < BREAK) {
-			lookAroundTransform.RotateAround(lookAroundTransform.position, lookAroundTransform.right, dMouseY);
+			TurnCameraY(dMouseY);
 		}
+	}
+
+	public void TurnCameraX(float angleX)
+	{
+		Transform cameraTransform = _lookAroundContainer.transform;
+		cameraTransform.RotateAround(cameraTransform.position, -Vector3.up, angleX);
+	}
+
+	public void TurnCameraY(float angleY)
+	{
+		Transform cameraTransform = _lookAroundContainer.transform;
+		cameraTransform.RotateAround(cameraTransform.position, cameraTransform.right, angleY);
+	}
+
+	public void TurnCameraZ(float angleZ)
+	{
+		// TODO: Fix. Turning on Z causes gimbal issues
+		Transform cameraTransform = _lookAroundContainer.transform;
+		cameraTransform.RotateAround(cameraTransform.position, cameraTransform.forward, angleZ);
 	}
 }
