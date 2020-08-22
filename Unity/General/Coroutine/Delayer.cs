@@ -35,7 +35,7 @@ public class Delayer : MonoBehaviour
 
     private static Delayer _instance;
 
-    public void Start()
+    public void Awake()
     {
         _instance = this;
     }
@@ -67,6 +67,11 @@ public class Delayer : MonoBehaviour
             }
         }
 
+        if (seconds <= 0) {
+            callback?.Invoke();
+            return;
+        }
+
         Instance.DoDelay(seconds, callback);
     }
 
@@ -86,13 +91,8 @@ public class Delayer : MonoBehaviour
     }
     */
 
-    public void DoDelay(float seconds, Callback callback)
+    protected void DoDelay(float seconds, Callback callback)
     {
-        if (seconds <= 0) {
-            callback?.Invoke();
-            return;
-        }
-
         IEnumerator coroutine = InvokeWaitForSeconds(seconds, callback);
         StartCoroutine(coroutine);
 
@@ -104,7 +104,7 @@ public class Delayer : MonoBehaviour
         */
     }
 
-    IEnumerator InvokeWaitForSeconds(float seconds, Callback callback)
+    private IEnumerator InvokeWaitForSeconds(float seconds, Callback callback)
     {
         yield return new WaitForSeconds(seconds);
 

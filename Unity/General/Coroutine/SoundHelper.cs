@@ -84,9 +84,9 @@ public class SoundHelper : MonoBehaviour
         Instance.DoSoundCallback(sound, callback);
     }
 
-    public void DoSoundCallback(AudioSource sound, Callback callback)
+    protected void DoSoundCallback(AudioSource sound, Callback callback)
     {
-        if (sound != null) {
+        if (sound) {
             sound.Play();
             StartCoroutine(InvokeAfterSound(sound, callback));
             return;
@@ -95,7 +95,7 @@ public class SoundHelper : MonoBehaviour
         callback?.Invoke();
     }
 
-    IEnumerator InvokeAfterSound(AudioSource sound, Callback callback)
+    private IEnumerator InvokeAfterSound(AudioSource sound, Callback callback)
     {
         sound.Play();
         yield return new WaitWhile(() => sound.isPlaying);

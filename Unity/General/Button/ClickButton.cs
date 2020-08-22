@@ -1,6 +1,6 @@
 //
 //  ClickButton - Button package
-//  Russell Lowke, July 24th 2020
+//  Russell Lowke, August 22nd 2020
 //
 //  Copyright (c) 2019-2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -47,6 +47,7 @@ public class ClickButton : MonoBehaviour,
     public bool useDefaultSound = true;
     public AudioSource clickSound;
     public AudioSource rollSound;
+    public bool waitForClickSound;                              // wait for click sound to end before invoking onClick
 
     public Image ButtonImage        { get; private set; }       // image currently shown for button
     public Sprite NormalSprite      { get; private set; }       // up
@@ -54,9 +55,9 @@ public class ClickButton : MonoBehaviour,
     public Sprite PressedSprite     { get; private set; }       // down
     public Sprite SelectedSprite    { get; private set; }       // selected
     public Sprite DisabledSprite    { get; private set; }       // disabled
-    public bool SkipPointerUp       { get; set; }               // skips drawing the Normal ("Up") state after a click
+    public bool SkipPointerUp       { get; set; }               // skips drawing the normal ("Up") state after a click
 
-    public bool PointerInside       { get; private set; }       // true if point currenty inside
+    public bool PointerInside       { get; private set; }       // true if pointer inside button
 
     private bool _showAsPressed;                                // true if button override as pressed
     private bool _pressed;                                      // true if button is pressed
@@ -174,18 +175,7 @@ public class ClickButton : MonoBehaviour,
 
     public virtual void OnPointerClick(PointerEventData pointerEventData)
     {
-        if (!Enabled) { return; }
-
-        // SkipPointerUp skips returning to the Normal ("Up") state after
-        //  clicking, which is useful with tab menus or button toggles,
-        //  otherwise you see the Normal state flicker.
-        _showAsPressed = SkipPointerUp;
-
-        SoundHelper.SoundCallback(clickSound, delegate () {
-            onClick?.Invoke(this);
-        }, false);
-
-        UpdateButton();
+        Click();
     }
 
     public virtual void OnPointerUp(PointerEventData pointerEventData)
@@ -220,7 +210,7 @@ public class ClickButton : MonoBehaviour,
         UpdateButton();
     }
 
-    public virtual void OnPointerDown(PointerEventData pointerEventData = null)
+    public virtual void OnPointerDown(PointerEventData pointerEventData)
     {
         _pressed = true;
         if (!Enabled) { return; }
@@ -252,24 +242,41 @@ public class ClickButton : MonoBehaviour,
     //
     // Click for pressDuration seconds
     //
-    public void Click(float pressDuration = 0.33f)
+    public virtual void Click(float pressDuration = 0)      // pressDuration = 0.33f
     {
-        // button must be active and enabled to click
         if (! (isActiveAndEnabled && Enabled)) {
+            // button must be active and enabled to click
             return;
         }
 
         // show button as pressed
         _showAsPressed = true;
         UpdateButton();
-        clickSound?.Play();
 
-        Delayer.Delay(pressDuration, delegate ()
+        void unpressCallback()
         {
+            //
             // invoke and unpress button
+
             onClick?.Invoke(this);
-            _showAsPressed = false;
+
+            // SkipPointerUp skips returning to the normal ("Up") state after
+            //  clicking, which is useful with tab menus or button toggles,
+            //  otherwise you see the normal state flicker.
+            _showAsPressed = SkipPointerUp;
             UpdateButton();
-        });
+        }
+
+        if (waitForClickSound) {
+            if (pressDuration > 0) {
+                Logger.Warning("waitForClickSound should not be used with pressDuration > 0");
+            }
+            SoundHelper.SoundCallback(clickSound, unpressCallback);
+        } else {
+            if (clickSound) {
+                clickSound.Play();
+            }
+            Delayer.Delay(pressDuration, unpressCallback, false);
+        }
     }
 }
