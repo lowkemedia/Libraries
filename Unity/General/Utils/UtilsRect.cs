@@ -26,21 +26,65 @@
 //
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 public static class UtilsRect
 {
     //
+    // Make child GameObject with UI RectTransform on parent
+    //
+    public static GameObject MakeUiObject(this GameObject parent,
+                                          string name = null)
+    {
+        GameObject child = new GameObject();
+        if (!string.IsNullOrEmpty(name)) {
+            child.name = name;
+        }
+
+        RectTransform rectTransform = child.AddComponent<RectTransform>();
+        rectTransform.SetParent(parent.transform);
+        rectTransform.sizeDelta = new Vector2(0, 0);        // width 0x0
+        rectTransform.localScale = new Vector3(1, 1, 1);    // scale 1, 1, 1
+        child.SetPosition(0, 0);                            // position 0, 0
+
+        return child;
+    }
+
+    //
+    // Copy child GameObject with RectTransform on parent
+    //
+    public static T MakeUiComponent<T>(this GameObject parent,
+                                       T template,
+                                       string name = null,
+                                       string[] ignore = null) where T : Component
+    {
+        GameObject gameObject = parent.MakeUiObject(name);
+        T component = gameObject.AddComponent<T>();
+        component.CopyComponent(template, ignore);
+        component.CopyRect(template);
+
+        return component;
+    }
+
+    //
+    // Copy RectTransform using reflection
+    //
+    public static void CopyRect(this Object target, Object template, bool ignoreParent = true)
+    {
+        RectTransform targetRect = target.GetRectTransform();
+        RectTransform templateRect = template.GetRectTransform();
+        string[] ignore = ignoreParent ? new string[] { "parent" } : null;
+        targetRect.CopyComponent(templateRect, ignore);
+    }
+
+    //
     // Get RectTransform from a UnityEngine Object
     //
     public static RectTransform GetRectTransform(this Object obj)
     {
-        return obj.GetGameObject().GetComponent<RectTransform>();
+        GameObject gameObject = obj.GetGameObject();
+        return gameObject.GetComponent<RectTransform>();
     }
 
     //
@@ -83,6 +127,19 @@ public static class UtilsRect
     {
         RectTransform rectTransform = obj.GetRectTransform();
         return rectTransform.TransformPoint(localPosition);
+    }
+
+    // TODO: GetCanvasPosition
+
+    public static RectTransform GetCanvasRect(this Object obj)      // TODO: Does this work?
+    {
+        Canvas[] canvases = obj.GetRectTransform().GetComponentsInParent<Canvas>();
+        if (canvases.Length != 1) {
+            throw new Exception("Could not find Canvas on obj.");
+        }
+
+        Canvas canvas = canvases[0];
+        return canvas.GetRectTransform();
     }
 
     public static void SetX(this Object obj, float x)
@@ -180,17 +237,6 @@ public static class UtilsRect
         return AinsideB(objA.GetRectTransform(), objB.GetRectTransform());
     }
 
-    public static RectTransform GetCanvasRect(this Object obj)
-    {
-        Canvas[] canvases = obj.GetRectTransform().GetComponentsInParent<Canvas>();
-        if (canvases.Length != 1) {
-            throw new Exception("Could not find Canvas on obj.");
-        }
-
-        Canvas canvas = canvases[0];
-        return canvas.GetRectTransform();
-    }
-
     //
     // Move child to top of display list
     //
@@ -204,6 +250,8 @@ public static class UtilsRect
         rectTransform.SetParent(parent.transform);
         rectTransform.localPosition = vector3;
 
-        // TODO: use obj.GetRectTransform().SetAsFirstSibling ?
+        // TODO: use obj.GetRectTransform().SetAsFirstSibling ?!
     }
+
+    // TODO: MoveToBottom()
 }

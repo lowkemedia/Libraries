@@ -71,6 +71,11 @@ public static class UtilsArray
         return updatedArray;
     }
 
+    public static bool HasValue<T>(T[] array)
+    {
+        return array != null && array.Length > 0;
+    }
+
     public static string Print<T>(T[] array)
     {
         string str = "[ ";

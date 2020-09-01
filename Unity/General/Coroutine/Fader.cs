@@ -1,6 +1,6 @@
 ﻿//
-//  Delayer
-//  Russell Lowke, April 28th 2020
+//  Fader
+//  Russell Lowke, August 23rd 2020
 //
 //  Copyright (c) 2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -28,83 +28,51 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using UnityEngine.UI;
 
-public class Delayer : MonoBehaviour
+public class Fader : MonoBehaviour
 {
     public delegate void Callback();
 
-    private static Delayer _instance;
+    private static Fader _instance;
 
     public void Awake()
     {
         if (_instance != null) {
-            Logger.Warning("Delayer should only be attached once.");
+            Logger.Warning("Fader should only be attached once.");
             return;
         }
         _instance = this;
     }
 
-    private static Delayer Instance {
+    private static Fader Instance {
         get {
             if (_instance == null) {
-                throw new Exception("Delayer must be attached to the Unity scene to work.");
+                throw new Exception("Fader must be attached to the Unity scene to work.");
             }
 
             return _instance;
         }
     }
 
-    public static void Delay(float seconds, Callback callback, bool giveWarning = true)
+    public static void FadeTextIn(Text text, Color color, float fadeOutTime = 0.333f)
     {
-        if (giveWarning) {
-            if (seconds <= 0) {
-                Logger.Warning("Delay() called with an zero or negative seconds parameter");
-            }
-            if (callback == null) {
-                Logger.Warning("Delay() called with an empty callback parameter");
-            }
-        }
-
-        if (seconds <= 0) {
-            callback?.Invoke();
-            return;
-        }
-
-        Instance.DoDelay(seconds, callback);
+        Instance.DoFadeTextIn(text, color, fadeOutTime);
     }
 
     // StartCoroutine() requires a MonoBehaviour instance
-    protected void DoDelay(float seconds, Callback callback)
+    private void DoFadeTextIn(Text text, Color color, float fadeOutTime)
     {
-        IEnumerator coroutine = InvokeWaitForSeconds(seconds, callback);
+        text.color = color;
+        IEnumerator coroutine = InvokeFadeTextColor(text, Color.clear, text.color, fadeOutTime);
         StartCoroutine(coroutine);
     }
 
-    private IEnumerator InvokeWaitForSeconds(float seconds, Callback callback)
+    private IEnumerator InvokeFadeTextColor(Text text, Color sourceColor, Color targetColor, float fadeOutTime)
     {
-        yield return new WaitForSeconds(seconds);
-
-        callback?.Invoke();
-    }
-
-
-    // TODO: keep dictionary of Delay calls
-    // TODO: Give warning if _instance is destroyed while callback still pending
-    // TODO: Add cancel() and trigger() functionality
-
-    /*
-    private List<IEnumerator> _delays;
-
-    //
-    // basically  StopAllCoroutines();
-    private void KillDelays()               
-    {
-        if (_delays != null) {
-            foreach (IEnumerator delay in _delays) {
-                StopCoroutine(delay);
-            }
+        for (float t = 0.01f; t < fadeOutTime; t += Time.deltaTime) {
+            text.color = Color.Lerp(sourceColor, targetColor, Mathf.Min(1, t / fadeOutTime));
+            yield return null;
         }
-        _delays = null;
     }
-    */
 }

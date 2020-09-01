@@ -76,7 +76,7 @@ public class ClickBlocker : MonoBehaviour,
 
     public static ClickBlocker MakeClickBlocker(GameObject popupMenuGameObject, GameObject popupGameObject)
     {
-        GameObject blockerGameObject = popupGameObject.MakeGameObject("Blocker");
+        GameObject blockerGameObject = popupGameObject.MakeUiObject("Blocker");
         ClickBlocker clickBlocker = blockerGameObject.AddComponent<ClickBlocker>();
         clickBlocker.Initialize(popupMenuGameObject);
 

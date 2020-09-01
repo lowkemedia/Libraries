@@ -32,13 +32,20 @@ using UnityEngine;
 public class TextButton : MonoBehaviour
 {
     public TextMeshProUGUI textField;
-    public string NormalColor       { get; private set; }   // up,         #FFFFFF7F is white with 50% alpha
+    public string NormalColor       { get; private set; }   // up          #FFFFFF7F is white with 50% alpha
     public string HighlightedColor  { get; private set; }   // over
     public string PressedColor      { get; private set; }   // down
     public string SelectedColor     { get; private set; }   // selected    
     public string DisabledColor     { get; private set; }   // disabled
 
     private ClickButton _clickButton;
+    public ClickButton ClickButton {
+        get {
+            if (!_clickButton) { _clickButton = GetComponent<ClickButton>(); }
+            return _clickButton;
+        }
+    }
+
     private Color _normalColor;
     private Color _highlightedColor;
     private Color _pressedColor;
@@ -46,22 +53,21 @@ public class TextButton : MonoBehaviour
     private Color _disabledColor;
 
     public bool Enabled {
-        get { return _clickButton.Enabled; }
-        set { _clickButton.Enabled = value; }
+        get { return ClickButton.Enabled; }
+        set { ClickButton.Enabled = value; }
     }
 
     public bool Selected {
-        get { return _clickButton.Selected; }
-        set { _clickButton.Selected = value; }
+        get { return ClickButton.Selected; }
+        set { ClickButton.Selected = value; }
     }
 
-    private void Start()
+    private void Awake()
     {
-        _clickButton = GetComponent<ClickButton>();
-        _clickButton.OnUpdateButtonEvent += UpdateButton;
+        ClickButton.OnUpdateButtonEvent += UpdateButton;
 
-        if (_clickButton.style) {
-            SetStyle(_clickButton.style);
+        if (ClickButton.style) {
+            SetStyle(ClickButton.style);
         }
     }
 
@@ -122,13 +128,13 @@ public class TextButton : MonoBehaviour
     // Update is called once per frame
     private void UpdateButton()
     {
-        if (_clickButton.Selected) {
+        if (ClickButton.Selected) {
             textField.color = _selectedColor;
-        } else if (!_clickButton.Enabled) {
+        } else if (!ClickButton.Enabled) {
             textField.color = _disabledColor;
-        } else if (_clickButton.Pressed) {
+        } else if (ClickButton.Pressed) {
             textField.color = _pressedColor;
-        } else if (_clickButton.PointerInside) {
+        } else if (ClickButton.PointerInside) {
             textField.color = _highlightedColor;
         } else {
             textField.color = _normalColor;

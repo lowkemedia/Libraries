@@ -1,6 +1,6 @@
 ﻿//
-//  Delayer
-//  Russell Lowke, April 28th 2020
+//  SmoothMove
+//  Russell Lowke, August 23rd 2020
 //
 //  Copyright (c) 2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -29,82 +29,53 @@ using UnityEngine;
 using System.Collections;
 using System;
 
-public class Delayer : MonoBehaviour
+public class Mover : MonoBehaviour
 {
     public delegate void Callback();
 
-    private static Delayer _instance;
+    private static Mover _instance;
 
     public void Awake()
     {
         if (_instance != null) {
-            Logger.Warning("Delayer should only be attached once.");
+            Logger.Warning("Mover should only be attached once.");
             return;
         }
         _instance = this;
     }
 
-    private static Delayer Instance {
+    private static Mover Instance {
         get {
             if (_instance == null) {
-                throw new Exception("Delayer must be attached to the Unity scene to work.");
+                throw new Exception("Mover must be attached to the Unity scene to work.");
             }
 
             return _instance;
         }
     }
 
-    public static void Delay(float seconds, Callback callback, bool giveWarning = true)
+    public static void SmoothMove(Transform transform, Vector3 endpos, float seconds, Callback callback)
     {
-        if (giveWarning) {
-            if (seconds <= 0) {
-                Logger.Warning("Delay() called with an zero or negative seconds parameter");
-            }
-            if (callback == null) {
-                Logger.Warning("Delay() called with an empty callback parameter");
-            }
-        }
-
-        if (seconds <= 0) {
-            callback?.Invoke();
-            return;
-        }
-
-        Instance.DoDelay(seconds, callback);
+        Vector3 startpos = transform.localPosition;
+        Instance.DoSmoothMove(transform, startpos, endpos, seconds, callback);
     }
 
     // StartCoroutine() requires a MonoBehaviour instance
-    protected void DoDelay(float seconds, Callback callback)
+    private void DoSmoothMove(Transform moveTransform, Vector3 startpos, Vector3 endpos, float seconds, Callback callback)
     {
-        IEnumerator coroutine = InvokeWaitForSeconds(seconds, callback);
+        IEnumerator coroutine = InvokeSmoothMove(moveTransform, startpos, endpos, seconds, callback);
         StartCoroutine(coroutine);
     }
 
-    private IEnumerator InvokeWaitForSeconds(float seconds, Callback callback)
+    IEnumerator InvokeSmoothMove(Transform moveTransform, Vector3 startpos, Vector3 endpos, float seconds, Callback callback)
     {
-        yield return new WaitForSeconds(seconds);
+        float t = 0f;
+        while (t <= 1.0) {
+            t += Time.deltaTime / seconds;
+            moveTransform.localPosition = Vector3.Lerp(startpos, endpos, Mathf.SmoothStep(0f, 1f, t));
+            yield return null;
+        }
 
         callback?.Invoke();
     }
-
-
-    // TODO: keep dictionary of Delay calls
-    // TODO: Give warning if _instance is destroyed while callback still pending
-    // TODO: Add cancel() and trigger() functionality
-
-    /*
-    private List<IEnumerator> _delays;
-
-    //
-    // basically  StopAllCoroutines();
-    private void KillDelays()               
-    {
-        if (_delays != null) {
-            foreach (IEnumerator delay in _delays) {
-                StopCoroutine(delay);
-            }
-        }
-        _delays = null;
-    }
-    */
 }

@@ -1,6 +1,6 @@
 //
 //  ClickButton - Button package
-//  Russell Lowke, August 22nd 2020
+//  Russell Lowke, September 1st 2020
 //
 //  Copyright (c) 2019-2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -33,6 +33,7 @@ using UnityEngine.UI;
 [System.Serializable]
 public class ClickButtonEvent : UnityEvent<ClickButton> { }
 
+[RequireComponent(typeof(Image))]
 public class ClickButton : MonoBehaviour,
              IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
@@ -48,26 +49,37 @@ public class ClickButton : MonoBehaviour,
     public AudioSource clickSound;
     public AudioSource rollSound;
     public bool waitForClickSound;                              // wait for click sound to end before invoking onClick
-
-    public Image ButtonImage        { get; private set; }       // image currently shown for button
-    public Sprite NormalSprite      { get; private set; }       // up
+       
+    public Sprite NormalSprite { get; private set; }            // up
     public Sprite HighlightedSprite { get; private set; }       // over
-    public Sprite PressedSprite     { get; private set; }       // down
-    public Sprite SelectedSprite    { get; private set; }       // selected
-    public Sprite DisabledSprite    { get; private set; }       // disabled
-    public bool SkipPointerUp       { get; set; }               // skips drawing the normal ("Up") state after a click
-
-    public bool PointerInside       { get; private set; }       // true if pointer inside button
+    public Sprite PressedSprite { get; private set; }           // down
+    public Sprite SelectedSprite { get; private set; }          // selected
+    public Sprite DisabledSprite { get; private set; }          // disabled
+    public bool SkipPointerUp { get; set; }               // skips drawing the normal ("Up") state after a click
+    public bool PointerInside { get; private set; }       // true if pointer inside button
 
     private bool _showAsPressed;                                // true if button override as pressed
     private bool _pressed;                                      // true if button is pressed
     public bool Pressed {                                       // true if pressed
+        get { return _pressed || _showAsPressed; }
+    }
+
+    
+    private Image _image;                                       // image used for button
+    private Sprite _startSprite;                                // sprite button image started with
+    public Image Image {
         get {
-            return _pressed || _showAsPressed;
+            if (!_image) {
+                _image = GetComponent<Image>();
+                _startSprite = _image.sprite;
+            }
+            return _image;
         }
     }
 
     public event Callback OnUpdateButtonEvent;
+    public event Callback OnRolloverEvent;
+    public event Callback OnRolloutEvent;
 
     public bool Enabled {
         get { return enabled; }
@@ -109,12 +121,6 @@ public class ClickButton : MonoBehaviour,
 
     protected virtual void Start()
     {
-        ButtonImage = GetComponent<Image>();
-
-        if (style) {
-            SetStyle(style);
-        }
-
         if (SoundHelper.IsAvalable) {
             // get default sound
             if (clickSound == default && useDefaultSound) {
@@ -128,25 +134,29 @@ public class ClickButton : MonoBehaviour,
 
         // TODO: check if pointer started inside button
 
-        UpdateButton();
+        SetStyle(style);
     }
 
-	public void SetStyle(ClickButtonStyle style)
+    public void SetStyle(ClickButtonStyle style)
     {
-        SetStyle(style.normalSprite,
-                 style.highlightedSprite,
-                 style.pressedSprite,
-                 style.selectedSprite,
-                 style.disabledSprite,
-                 style.skipPointerUp);
+        if (style) {
+            SetStyle(style.normalSprite,
+                     style.highlightedSprite,
+                     style.pressedSprite,
+                     style.selectedSprite,
+                     style.disabledSprite,
+                     style.skipPointerUp);
+        } else if (_startSprite) {
+            SetStyle();
+        }
     }
 
-    public void SetStyle(Sprite normalSprite,
-                         Sprite highlightedSprite,
-                         Sprite pressedSprite,
-                         Sprite selectedSprite,
-                         Sprite disabledSprite,
-                         bool skipPointerUp)
+    public void SetStyle(Sprite normalSprite = default,
+                         Sprite highlightedSprite = default,
+                         Sprite pressedSprite = default,
+                         Sprite selectedSprite = default,
+                         Sprite disabledSprite = default,
+                         bool skipPointerUp = false)
     {
         NormalSprite = normalSprite;
         HighlightedSprite = highlightedSprite;
@@ -157,7 +167,7 @@ public class ClickButton : MonoBehaviour,
 
         // ensure Sprites
         if (NormalSprite == default) {
-            NormalSprite = ButtonImage.sprite;
+            NormalSprite = _startSprite;
         }
 
         if (HighlightedSprite == default) {
@@ -171,6 +181,8 @@ public class ClickButton : MonoBehaviour,
         if (SelectedSprite == default) {
             SelectedSprite = PressedSprite;
         }
+
+        UpdateButton();
     }
 
     public virtual void OnPointerClick(PointerEventData pointerEventData)
@@ -192,6 +204,7 @@ public class ClickButton : MonoBehaviour,
         if (!Enabled) { return; }
 
         UpdateButton();
+        OnRolloverEvent?.Invoke();
 
         if (rollSound != null) {
             if (SystemInfo.deviceType == DeviceType.Handheld) {
@@ -208,6 +221,7 @@ public class ClickButton : MonoBehaviour,
         if (!Enabled) { return; }
 
         UpdateButton();
+        OnRolloutEvent?.Invoke();
     }
 
     public virtual void OnPointerDown(PointerEventData pointerEventData)
@@ -220,20 +234,16 @@ public class ClickButton : MonoBehaviour,
 
     public virtual void UpdateButton()
     {
-        if (!ButtonImage) {
-            return;     // too early, button hasn't called Start() yet.
-        }
-
         if (Selected) {
-            ButtonImage.sprite = SelectedSprite;
+            Image.sprite = SelectedSprite;
         } else if (!Enabled) {
-            ButtonImage.sprite = DisabledSprite;
+            Image.sprite = DisabledSprite;
         } else if (Pressed) {
-            ButtonImage.sprite = PressedSprite;
+            Image.sprite = PressedSprite;
         } else if (PointerInside) {
-            ButtonImage.sprite = HighlightedSprite;
+            Image.sprite = HighlightedSprite;
         } else {
-            ButtonImage.sprite = NormalSprite;
+            Image.sprite = NormalSprite;
         }
 
         OnUpdateButtonEvent?.Invoke();
@@ -244,7 +254,7 @@ public class ClickButton : MonoBehaviour,
     //
     public virtual void Click(float pressDuration = 0)      // pressDuration = 0.33f
     {
-        if (! (isActiveAndEnabled && Enabled)) {
+        if (!(isActiveAndEnabled && Enabled)) {
             // button must be active and enabled to click
             return;
         }
@@ -274,9 +284,13 @@ public class ClickButton : MonoBehaviour,
             SoundHelper.SoundCallback(clickSound, unpressCallback);
         } else {
             if (clickSound) {
-                clickSound.Play();
+                clickSound?.Play();
             }
-            Delayer.Delay(pressDuration, unpressCallback, false);
+            if (pressDuration > 0) {
+                Delayer.Delay(pressDuration, unpressCallback);
+            } else {
+                unpressCallback();
+            }
         }
     }
 }

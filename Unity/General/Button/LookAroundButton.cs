@@ -51,7 +51,7 @@ public class LookAroundButton : ClickButton, IDragHandler, IEndDragHandler, IPoi
 		if (parent == null) {
 			_lookAroundContainer = new GameObject(CONTAINER_NAME);
 		} else {
-			_lookAroundContainer = parent.MakeGameObject(CONTAINER_NAME);
+			_lookAroundContainer = parent.MakeUiObject(CONTAINER_NAME);
 		}
 		lookAroundCamera.SetParent(_lookAroundContainer);
 		_lookAroundContainer.transform.rotation = Quaternion.Euler(90f, 90f, 0f);

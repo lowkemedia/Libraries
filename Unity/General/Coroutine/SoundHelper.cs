@@ -51,15 +51,13 @@ public class SoundHelper : MonoBehaviour
 
     private void Awake()
     {
+        if (_instance != null) {
+            Logger.Warning("SoundHelper should only be attached once.");
+            return;
+        }
         _instance = this;
     }
 
-    // TODO: Give warning if _instance is destroyed while callback still pending
-    // TODO: keep dictionary of SoundCallback calls
-    // TODO: Add cancel() and trigger() functionality
-
-    // StartCoroutine is a MonoBehaviour method
-    //  so SoundHelper must depend on an a MonoBehaviour
     private static SoundHelper Instance {
         get {
             if (_instance == null) {
@@ -84,6 +82,7 @@ public class SoundHelper : MonoBehaviour
         Instance.DoSoundCallback(sound, callback);
     }
 
+    // StartCoroutine() requires a MonoBehaviour instance
     protected void DoSoundCallback(AudioSource sound, Callback callback)
     {
         if (sound) {

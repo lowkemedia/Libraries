@@ -28,25 +28,27 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.EventSystems;
+using TMPro;
 using UnityEngine.UI;
 
 [System.Serializable]
-public class IndexedUnityEvent : UnityEvent<string> { }
+public class StringUnityEvent : UnityEvent<string> { }
 
 public class PopupMenu : MonoBehaviour
 {
-	// TODO: device version needs to behave differenetly from desktop
-	// TODO: Add accessor to any additional labal textfield
+    // TODO: device version needs to behave differenetly from desktop
+    public delegate void Callback();
+    public delegate void StringCallback(string value);
 
-	public Sprite popupBgSprite;                    // TODO: use sliced sprite (9-slice scaling)
-	public TextButtonOld popupTextButton;
-	public IndexedUnityEvent onMenuSelected;
-	public IndexedUnityEvent onMenuRoll;
-	public UnityEvent onPopupRollout;
-	public UnityEvent onPopupCanceled;
+    public Sprite popupBgSprite;
+	public TextMeshProUGUI popupLabel;
+	public TextButton popupTextButton;
+	public StringUnityEvent onMenuSelectedEvent;
 
-	public float padding = 30;                      // padding around buttons
+    public event StringCallback OnMenuRollEvent;
+    public event Callback OnPopupRolloutEvent;
+
+    public float padding = 30;                      // padding around buttons
 
 	private GameObject _popupGameObject;
 	private GameObject _gameObjectMenu;
@@ -70,20 +72,20 @@ public class PopupMenu : MonoBehaviour
 		HidePopup();
 	}
 
-	private GameObject MakePopupGameObject(TextButtonOld templateButton,
+	private GameObject MakePopupGameObject(TextButton templateButton,
 										   string selected = null)
 	{
 		// create popup menu
-		GameObject popupGameObject = gameObject.MakeGameObject("Popup");
+		GameObject popupGameObject = gameObject.MakeUiObject("Popup");
 
 		// create blocker
 		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(gameObject, popupGameObject);
 
 		// create menu
-		_gameObjectMenu = popupGameObject.MakeGameObject("Menu");
+		_gameObjectMenu = popupGameObject.MakeUiObject("Menu");
 
 		// create background
-		GameObject gameObjectBackground = _gameObjectMenu.MakeGameObject("Background");
+		GameObject gameObjectBackground = _gameObjectMenu.MakeUiObject("Background");
 		Image backgroundImage = gameObjectBackground.AddComponent<Image>();
 		backgroundImage.sprite = popupBgSprite;
 		float btnWidth = popupTextButton.GetWidth() + padding * 2;
@@ -108,11 +110,12 @@ public class PopupMenu : MonoBehaviour
 		int counter = 0;
 		foreach (string label in _labels) {
 			int index = counter++;
-			TextButtonOld textButton = _gameObjectMenu.MakeTextButton(templateButton, label);
-			textButton.SetY(yLoc);
-			textButton.onClick.AddListener(delegate { MenuButtonClicked(label); });
-			textButton.onRollover.AddListener(delegate { MenuButtonRolled(label); });
-			yLoc += textButton.GetHeight() + padding;
+			TextButton textButton = _gameObjectMenu.MakeTextButton(templateButton, label);
+			ClickButton clickButton = textButton.ClickButton;
+            clickButton.SetY(yLoc);
+            clickButton.onClick.AddListener(delegate { MenuButtonClicked(label); });
+            clickButton.OnRolloverEvent += delegate { MenuButtonRolled(label); };
+            yLoc += clickButton.GetHeight() + padding;
 		}
 
 		return popupGameObject;
@@ -176,35 +179,27 @@ public class PopupMenu : MonoBehaviour
 		}
 	}
 
-	public void MenuButtonClicked(string label = null)
+	public void MenuButtonClicked(string label)
 	{
 		Selected = label;
-		if (onMenuSelected != null) {
-			onMenuSelected.Invoke(Selected);
+		if (onMenuSelectedEvent != null) {
+			onMenuSelectedEvent.Invoke(Selected);
 		}
 		HidePopup();
 	}
 
 	public void MenuButtonRolled(string label)
 	{
-		if (onMenuRoll != null) {
-			onMenuRoll.Invoke(label);
-		}
-	}
-
-	public void OnPopupCancelled()
-	{
-		HidePopup();
-
-		if (onMenuSelected != null) {
-			onPopupCanceled.Invoke();
-		}
-	}
+        OnMenuRollEvent?.Invoke(label);
+    }
 
 	public void OnPopupRollout()
 	{
-		if (onPopupRollout != null) {
-			onPopupRollout.Invoke();
-		}
+        OnPopupRolloutEvent?.Invoke();
 	}
+
+    public void OnPopupCancelled()
+    {
+        HidePopup();
+    }
 }

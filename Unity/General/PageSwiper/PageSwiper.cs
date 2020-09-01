@@ -138,18 +138,8 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
             return;
         }
 
-        StartCoroutine(SmoothMove(transform.localPosition, newLocation, easing));
-    }
-
-    IEnumerator SmoothMove(Vector3 startpos, Vector3 endpos, float seconds)
-    {
-        float t = 0f;
-        while (t <= 1.0) {
-            t += Time.deltaTime/seconds;
-            transform.localPosition = Vector3.Lerp(startpos, endpos, Mathf.SmoothStep(0f, 1f, t));
-            yield return null;
-        }
-
-        onAnimationFinished?.Invoke(_pageIndex);
+        Mover.SmoothMove(transform, newLocation, easing, delegate {
+            onAnimationFinished?.Invoke(_pageIndex);
+        });
     }
 }

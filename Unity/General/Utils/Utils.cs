@@ -26,33 +26,12 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 public static class Utils
 {
-    //
-    // Make child GameObject on parent
-    //
-    public static GameObject MakeGameObject(this GameObject parent,
-                                            string name = null)
-    {
-        GameObject child = new GameObject();
-        if (!string.IsNullOrEmpty(name)) {
-            child.name = name;
-        }
-
-        RectTransform rectTransform = child.AddComponent<RectTransform>();
-        rectTransform.SetParent(parent.transform);
-        rectTransform.sizeDelta = new Vector2(100, 100);    // width 100x100
-        rectTransform.localScale = new Vector3(1, 1, 1);    // scale 1, 1, 1
-        child.SetPosition(0, 0);                           // position 0, 0
-
-        return child;
-    }
-
     //
     // Get GameObject of UnityEngine.Object
     //
@@ -62,9 +41,11 @@ public static class Utils
         if (obj is Component) {
             gameObject = (obj as Component).gameObject;
         } else if (obj is GameObject) {
-            gameObject = (obj as GameObject);
+            gameObject = obj as GameObject;
+        } else if (obj == null) {
+            throw new Exception("GetGameObject() called on null Object");
         } else {
-            throw new Exception("GetGameObject() called on UnityEngine.Object that is not a Component or GameObject");
+            throw new Exception("GetGameObject() called on Object " + obj + " that is not a Component or GameObject");
         }
 
         return gameObject;
@@ -90,21 +71,9 @@ public static class Utils
     }
 
     //
-    // Make Component on new child GameObject
-    //
-    public static T MakeComponent<T>(this GameObject parent,  T duplicate) where T : Component
-    {
-        GameObject child = MakeGameObject(parent, "" + duplicate.GetType());
-        T target = child.AddComponent<T>();
-        target.CopyComponent(duplicate);
-
-        return target;
-    }
-
-    //
     // Copy Component using reflection
     //
-    public static void CopyComponent<T>(this T target, T duplicate, string[] ignore = null) where T : Component
+    public static void CopyComponent<T>(this T target, T template, string[] ignore = null) where T : Component
     {
         foreach (PropertyInfo propertyInfo in typeof(T).GetProperties())
         {
@@ -113,7 +82,19 @@ public static class Utils
                     // skip this property as it's on the ignore list
                     continue;
                 }
-                propertyInfo.SetValue(target, propertyInfo.GetValue(duplicate));
+                propertyInfo.SetValue(target, propertyInfo.GetValue(template));
+            }
+        }
+    }
+
+    //
+    // Copy specific Component properties
+    //
+    public static void CopyProperties<T>(this T target, T template, string[] properties) where T : Component
+    {
+        foreach (PropertyInfo propertyInfo in typeof(T).GetProperties()) {
+            if (propertyInfo.CanWrite && Array.IndexOf(properties, propertyInfo.Name) != -1) {
+                propertyInfo.SetValue(target, propertyInfo.GetValue(template));
             }
         }
     }
