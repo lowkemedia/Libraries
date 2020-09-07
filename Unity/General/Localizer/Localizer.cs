@@ -50,9 +50,8 @@ public class Localizer : MonoBehaviour
     public static void Initialize(LanguageCode languageCode)
     {
         _languageCode = languageCode;
-        TextAsset textJsonAsset = Resources.Load<TextAsset>("Localization/StringKeys_" + _languageCode);
-        string json = textJsonAsset.ToString();
-        _localizationValue = LocalizationValue.CreateFromJSON(json);
+        string fileName = "Localization/StringKeys_" + _languageCode;
+        _localizationValue = JsonReader.ReadJson<LocalizationValue>(fileName);
     }
 
     public static StringKeyValue Key(string key)
