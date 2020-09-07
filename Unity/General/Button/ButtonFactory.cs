@@ -48,8 +48,7 @@ public static class ButtonFactory
         GameObject gameObject = clickButton.gameObject;
 
         // create text label
-        string[] ignoreProperties = { "fontSharedMaterials", "fontSharedMaterial", "fontMaterial", "fontMaterials" };
-        TextMeshProUGUI textField = gameObject.MakeUiComponent(template.textField, label, ignoreProperties);
+        TextMeshProUGUI textField = gameObject.MakeTextMesh(template.textField, label);
         textField.text = label;
 
         // create TextButton

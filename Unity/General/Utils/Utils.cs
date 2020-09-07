@@ -77,7 +77,7 @@ public static class Utils
     {
         foreach (PropertyInfo propertyInfo in typeof(T).GetProperties())
         {
-            if (propertyInfo.CanWrite) {
+            if (propertyInfo.CanWrite && propertyInfo.CanRead) {
                 if (ignore != null && Array.IndexOf(ignore, propertyInfo.Name) != -1) {
                     // skip this property as it's on the ignore list
                     continue;

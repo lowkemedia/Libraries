@@ -27,6 +27,7 @@
 
 using System;
 using UnityEngine;
+using TMPro;
 using Object = UnityEngine.Object;
 
 public static class UtilsRect
@@ -65,6 +66,14 @@ public static class UtilsRect
         component.CopyRect(template);
 
         return component;
+    }
+
+    public static TextMeshProUGUI MakeTextMesh(this GameObject parent,
+                                          TextMeshProUGUI template,
+                                          string name = null)
+    {
+        string[] ignore = { "fontSharedMaterials", "fontSharedMaterial", "fontMaterial", "fontMaterials" };
+        return parent.MakeUiComponent(template, name, ignore);
     }
 
     //
