@@ -135,7 +135,7 @@ public class Logger : MonoBehaviour
 
     public static void Severe(string message,
                               string id = null,
-                              bool stackTrace = true,       // by default severe logs show the stack trace
+                              bool stackTrace = false,       // by default severe logs show the stack trace
                               bool showOnlyOnce = false)
     {
         Log(LogLevel.SEVERE, message, id, stackTrace, showOnlyOnce);
