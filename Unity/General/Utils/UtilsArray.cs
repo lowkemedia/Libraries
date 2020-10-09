@@ -78,6 +78,8 @@ public static class UtilsArray
 
     public static string Print<T>(T[] array)
     {
+        if (array == null) { return "null"; }
+
         string str = "[ ";
         for (int i = 0; i < array.Length; ++i) {
             str += array[i];
