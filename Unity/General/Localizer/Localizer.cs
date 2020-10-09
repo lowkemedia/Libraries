@@ -1,6 +1,6 @@
 //
 //  Localizer v 1.0 - Localizer package
-//  Russell Lowke, November 15th 2019
+//  Russell Lowke, October 7th 2020
 //
 //  Copyright (c) 2019 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -27,53 +27,99 @@
 
 using UnityEngine;
 using LocalizerTypes;
-using System;
+using System.Collections.Generic;
 
 public class Localizer : MonoBehaviour
 {
-    private static LanguageCode _languageCode = LanguageCode.en;
-    private static LocalizationValue _localizationValue;
-    // TODO: use Dictionary
+    private static Dictionary<string, StringKeyValue> _stringKeys;
+    private static List<string> _files;
 
-    public static LanguageType Language
-    {
-        get { return ConvertLanguageCode(_languageCode); }
-        set { Initialize(ConvertLanguageType(value)); }
-    }
-
-    public static LanguageCode LanguageCode
-    {
+    private static LanguageCode _languageCode = LanguageCode.en_GB;
+    public static LanguageCode LanguageCode {
         get { return _languageCode; }
         set { Initialize(value); }
     }
 
-    public static void Initialize(LanguageCode languageCode)
-    {
-        _languageCode = languageCode;
-        string fileName = "Localization/StringKeys_" + _languageCode;
-        _localizationValue = JsonReader.ReadJson<LocalizationValue>(fileName);
+    public static LanguageType LanguageType {
+        get { return (LanguageType)(int)_languageCode; }
+        set { Initialize((LanguageCode)(int)value); }
+    }
+    public static LanguageType GetLanguageType(LanguageCode value) {
+        return (LanguageType)(int)value;
+	}
+
+    public static LanguageName LanguageName {
+        get { return (LanguageName)(int)_languageCode; }
+        set { Initialize((LanguageCode)(int)value); }
+    }
+    public static LanguageName GetLanguageName(LanguageCode value) {
+        return (LanguageName)(int)value;
     }
 
-    public static StringKeyValue Key(string key)
+    public static bool Initialized {
+        get { return _stringKeys != null; }
+	}
+
+    public static void Initialize(LanguageCode languageCode, bool clearFiles = false)
     {
-        if (_localizationValue == null) {
-            Initialize(_languageCode);
+        _languageCode = languageCode;
+        _stringKeys = new Dictionary<string, StringKeyValue>();
+        if (_files == null || clearFiles) {
+            _files = new List<string>();
+        }
+
+        foreach (string file in _files) {
+            LoadFile(file, true);
+        }
+    }
+
+    public static void AddFile(string fileName, bool giveWarning = true)
+	{
+        _files.Add(fileName);
+        LoadFile(fileName, giveWarning);
+    }
+
+    public static void LoadFile(string fileName, bool giveWarning = true)
+    {
+        if (!Initialized) {
+            Logger.Severe("Can't load localization file:\"" + fileName + "\" as Localizer not initialized.", LocalizerID.SEVERE_CANT_LOAD_FILE);
+            return;
+        }
+
+        string fullFileName = fileName + "_" + _languageCode;
+        LocalizationValue localizationValue = JsonReader.ReadJson<LocalizationValue>(fullFileName);
+
+        if (localizationValue == default) {
+            return;
+		}
+
+        // add keys to dictionary
+        foreach (StringKeyValue value in localizationValue.keys) {
+            string key = value.key.ToLower();
+            bool found = _stringKeys.TryGetValue(key, out StringKeyValue stringKeyValue);
+            if (found && giveWarning) {
+                Logger.Warning("Duplicate key:\"" + key + "\" in file:\"" + fileName + "\" existing:\"" + stringKeyValue.value + "\" replacement:\"" + value.value + "\"", LocalizerID.WARNING_DUPLICATE_KEY);
+            }
+            _stringKeys[key] = value;
+        }
+    }
+
+    public static StringKeyValue Key(string key, bool giveWarning = true)
+    {
+        if (!Initialized) {
+            Logger.Severe("Can't localize key:\"" + key + "\" as Localizer not initialized.", LocalizerID.SEVERE_CANT_READ_KEY);
+            return null;
         }
 
         // force all keys to lower case
         key = key.ToLower();
 
-        // TODO: Use Dictionary
-        foreach (StringKeyValue value in _localizationValue.keys)
-        {
-            string valueKey = value.key.ToLower();
-            if (valueKey == key) {
-                return value;
-            }
+        bool found = _stringKeys.TryGetValue(key, out StringKeyValue stringKeyValue);
+        if (!found && giveWarning) {
+            Logger.Warning("Can't find key:\"" + key + "\" in localization dictionary.", LocalizerID.WARNING_COULD_NOT_FIND_KEY, true);
         }
-
-        Logger.Severe("Could not find localization key \"" + key + "\"", LocalizerID.SEVERE_COULD_NOT_FIND_KEY);
-        return null;
+        
+        return stringKeyValue;
     }
 
     public static string Value(string key, 
@@ -123,7 +169,8 @@ public class Localizer : MonoBehaviour
 
         //
         // retrieve value
-        string value = Key(key).value;
+        StringKeyValue stringKeyValue = Key(key);
+        string value = (stringKeyValue != null) ? stringKeyValue.value : key;
 
         //
         // replace variables
@@ -160,15 +207,5 @@ public class Localizer : MonoBehaviour
     public static string Citation(string key)
     {
         return Key(key).citation;
-    }
-
-    public static LanguageCode ConvertLanguageType(LanguageType languageType)
-    {
-        return (LanguageCode) (int) languageType;
-    }
-
-    public static LanguageType ConvertLanguageCode(LanguageCode languageCode)
-    {
-        return (LanguageType) (int) languageCode;
     }
 }

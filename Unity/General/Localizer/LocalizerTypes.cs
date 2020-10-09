@@ -1,6 +1,6 @@
 ﻿//
 //  Localizer v 1.0 - Localizer package
-//  Russell Lowke, October 29th 2019
+//  Russell Lowke, October 7th 2020
 //
 //  Copyright (c) 2019 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -27,43 +27,83 @@
 
 namespace LocalizerTypes
 {
-    // language codes, see http://www.loc.gov/standards/iso639-2/php/code_list.php
+    // British to American translator see
+    // https://gotranscript.com/translation-services/british-to-american
+
+    // Languages of the World with Language Code (ISO 639)
+    // https://www.nationsonline.org/oneworld/language_code.htm
+    // https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes
     // en ENGLISH, pt PORTUGUESE, fr FRENCH, es SPANISH, de GERMAN, 
-    // ja JAPANESE, zh CHINESE, ko KOREAN, ru RUSSIAN
+    // ja JAPANESE, zh CHINESE, ko KOREAN, ru RUSSIAN,
+    // fa FARSI/PERSIAN, my BURMESE/MYANMAR, mn MONGOLIAN
+
+    // For suffixes see
+    // see also https://en.wikipedia.org/wiki/Language_localisation
+
     public enum LanguageCode
     {
-        en,
-        pt,
-        fr,
-        es,
-        de,
-        ja,
-        zh,
-        ko,
-        ru,
-        th,
-        tr,
-        id,
-        ar,
-        hi
+        en_GB,              // British English
+        en_US,              // American English
+        fr_FR,              // Standard French (especially in France)
+        pt_BR,              // Brazilian Portuguese
+        es_ES,              // Castilian Spanish (as spoken in Central-Northern Spain)
+        de_DE,              // Standard German (as spoken in Germany)
+        it_IT,              // Standard Italian (as spoken in Italy)
+        ru,                 // Russian
+        sv_SE,              // Standard Swedish (as spoken in Sweden)
+        tr,                 // Turkish
+        id,                 // Indonesian
+        th,                 // Thai
+        ja,                 // Japanese
+        zh_CN,              // Mainland China, simplified characters
+        ko_KR,              // Hangul, South Korean
+        hi,                 // Hindi
+        my,                 // Burmese
+        la                  // Latin
     }
 
     public enum LanguageType
     {
         English,
-        Portuguese,
+        American,
         French,
+        Portuguese,
         Spanish,
         German,
+        Italian,
+        Russian,
+        Swedish,
+        Turkish,
+        Indonesian,
+        Thai,
         Japanese,
         Chinese,
         Korean,
-        Russian,
-        Thai,
-        Turkish,
-        Indonesian,
-        Arabic,
-        Hindi
+        Hindi,
+        Burmese,            // Myanmar
+        Latin
+    };
+
+    public enum LanguageName
+    {
+        English,            // English
+        American,           // American
+        Français,           // French
+        Português,          // Portuguese
+        Español,            // Spanish
+        Deutsch,            // German
+        Italiano,           // Italian
+        Русский,            // Russian
+        Svenska,            // Swedish
+        Türkçe,             // Turkish
+        bahasa,             // Indonesian
+        ภาษาไทย,            // Thai
+        日本語,              // Japanese
+        简体中文,            // Chinese (Simplified)
+        한국어,               // Korean
+        हिन्दी,                // Hindi
+        မြန်မာစာ,             // Burmese
+        Latin               // Latin
     };
 
     public static class LocalizerID
@@ -71,8 +111,90 @@ namespace LocalizerTypes
         //
         // error, warning and info IDs
         public const string LOG_PREFIX = "LOC";
-        public const string SEVERE_COULD_NOT_FIND_KEY = LOG_PREFIX + "00";
-        public const string WARNING_INVALID_KEY_PASSED = LOG_PREFIX + "01";
-        public const string WARNING_HAS_EMBEDDED_AND_PASSED_VARIABLES = LOG_PREFIX + "02";
+        public const string SEVERE_CANT_LOAD_FILE = LOG_PREFIX + "00";
+        public const string SEVERE_CANT_READ_KEY = LOG_PREFIX + "01";
+        public const string WARNING_COULD_NOT_FIND_KEY = LOG_PREFIX + "02";
+        public const string WARNING_DUPLICATE_KEY = LOG_PREFIX + "03";
+        public const string WARNING_INVALID_KEY_PASSED = LOG_PREFIX + "04";
+        public const string WARNING_HAS_EMBEDDED_AND_PASSED_VARIABLES = LOG_PREFIX + "05";
     }
 }
+
+
+
+/* Languages
+
+Arabic (العربية)
+Armenian (հայերեն)
+Assyrian (ܣܘܪܝܬ)
+Bangla (বাংলা)
+Burmese (မြန်မာစာ)
+Chinese-Simplified (简体中文)
+Chinese-Traditional (繁體中文)
+Croatian (Hrvatski)
+Czech (Cestina)
+Dari (دريلو)
+Danish (Dansk)
+Dinka (Thuɔŋjäŋ)
+English (English)
+Estonian (Eesti keel)
+Farsi (فارسی)
+Filipino (Wikang Tagalog)
+Finnish (Suomi) 
+FijianHindi ( फ़िजी हिंदी)
+French (Français)
+Gaelic (Gàidhlig)
+Greek (Ελληνικά)
+Gujrati (ગુજરાતી)
+Hazaragi (آزرگی‎)
+Hindi (हिन्दी)
+Hungarian (Magyar)
+Indonesian (bahasa)
+Irish (Gaeilge)
+Italian (Italiano)
+Japanese (日本語)
+Karen (Karen)
+Khmer (ភាសាខ្មែរ)
+Kinyarwanda (Kinyarwanda)
+Kirundi (کوردی)
+Korean (한국어)
+Kurdish-Kurmanji (کورمانجی)
+Kurdish-Sorani (سۆرانی)
+Lao (ພາສາລາວ)
+Latvian (Latviešu valoda)
+Lithuanian (Lietuvių kalba)
+Luxembourgish (LÎtzebuergesch)
+Macedonian (Mакедонски)
+Maltese (Malti)
+Mandarin (普通话)
+Mongolian (Монгол Хэл)
+Nepali (नेपाली)
+Norwegian (Nynorsk)
+Pashto (پښتو)
+Polish (Język polski)
+Portuguese (Português)
+Punjabi (पंजाबी)
+Rohingya (Rohingya)
+Romanian (Romana)
+Russian (Русский)
+Samoan (Gagana Sāmoa)
+Serbian (Српски)
+Sinhalese (සිංහල)
+Slovak (Slovensky jazyk)
+Slovenian (Slovenski jezik)
+Somali (Somali)
+Spanish (Español)
+Swahili (Kiswahili)
+Swedish (Svenska)
+Tamil (தமிழ்)
+Thai (ภาษาไทย)
+Tibetan (བོད་སྐད་)
+Tigrinya (ትግርኛ)
+Tongan (Lea faka-Tonga)
+Turkish (Türkçe)
+Ukrainian (Ukrainian)
+Urdu (اُردُو)
+Vietnamese (Tiếng Việt Nam)
+Welsh (Cymraeg)
+
+*/
