@@ -101,6 +101,7 @@ public static class UtilsRect
     //
     public static void SetPosition(this Object obj, Vector3 localPosition)
     {
+        // TODO: want GetRectTransform().canvasPosition, etc
         obj.GetRectTransform().localPosition = localPosition;
     }
 
@@ -108,7 +109,7 @@ public static class UtilsRect
                                    float x, float y, float z = float.NaN)
     {
         RectTransform rectTransform = obj.GetRectTransform();
-        Vector3 localPosition = rectTransform.localPosition;
+        Vector3 localPosition = rectTransform.localPosition;        // TODO: SetPosition using canvasPosition
         if (!float.IsNaN(x)) {
             localPosition.x = x;
         }
@@ -137,6 +138,15 @@ public static class UtilsRect
         RectTransform rectTransform = obj.GetRectTransform();
         return rectTransform.TransformPoint(localPosition);
     }
+
+    /* TODO: Ensure ConvertPosition works
+    public static Vector3 ConvertPosition(this Object obj, Object source, Vector3 position)
+	{
+        Vector3 worldPosition = source.GetWorldPosition(position);
+        Vector3 localPosition = obj.GetLocalPosition(worldPosition);
+        return localPosition;
+	}
+    */
 
     // TODO: GetCanvasPosition
 
