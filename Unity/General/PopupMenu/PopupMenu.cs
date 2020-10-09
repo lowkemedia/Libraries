@@ -56,18 +56,22 @@ public class PopupMenu : MonoBehaviour
 	private string[] _labels;
 
 	public void Initialize(string[] labels,
-						   string selected = null)
+						   string selected = null,
+						   UnityAction<string> unityCallback = null)
 	{
 		_labels = (string[])labels.Clone();
 
-		//TODO: initialize the popupTextButton to defaults? initial values?
-		//  Is Enabled = true enough?
+		//TODO: initialize the popupTextButton to defaults.
 		popupTextButton.Enabled = true;
 
 		if (_popupGameObject != null) {
 			Destroy(_popupGameObject);
 		}
 		_popupGameObject = MakePopupGameObject(popupTextButton, selected);
+		if (unityCallback != null) {
+			onMenuSelectedEvent.RemoveAllListeners();
+			onMenuSelectedEvent.AddListener(unityCallback);
+		}
 
 		HidePopup();
 	}
