@@ -53,22 +53,21 @@ public class Logger : MonoBehaviour
     public static void Log(LogLevel logLevel,
                            string message,
                            string id = null,
-                           bool showStackTrace = false,
-                           bool showOnlyOnce = false)
+                           bool showOnlyOnce = false,
+                           bool showStackTrace = false)
     {
-
         // some errors are displayed only once, otherwise they get too spammy
         if (showOnlyOnce)
         {
-            _onceOnlyErrors.TryGetValue(id, out bool flag);
-            if (flag)
-            {
+            _onceOnlyErrors.TryGetValue(message, out bool flag);
+
+            if (flag) {
                 // this error has already been displayed
                 return;
             }
 
             // flag this error as having been displayed
-            _onceOnlyErrors[id] = true;
+            _onceOnlyErrors[message] = true;
         }
 
         if (logLevel <= _logLevel)
@@ -77,13 +76,11 @@ public class Logger : MonoBehaviour
 
             if (showStackTrace)
             {
-                try
-                {
+                try {
                     // intentionally throw error so we can get a stack trace
                     throw new Exception();
                 }
-                catch (Exception error)
-                {
+                catch (Exception error) {
                     logMessage += error.StackTrace + '\n';
                 }
             }
@@ -96,13 +93,12 @@ public class Logger : MonoBehaviour
                                    string id = null)
     {
         string prefix = "";
-        if (level != LogLevel.PRINT)    // level PRINT does not add an indicator
-        {
+        if (level != LogLevel.PRINT) {
+            // level PRINT does not add an indicator
             prefix += LogLevelString(level) + " ";
         }
 
-        if (id != null)
-        {
+        if (id != null) {
             prefix += "#" + id + ": ";
         }
 
@@ -135,51 +131,45 @@ public class Logger : MonoBehaviour
 
     public static void Severe(string message,
                               string id = null,
-                              bool stackTrace = false,       // by default severe logs show the stack trace
-                              bool showOnlyOnce = false)
-    {
-        Log(LogLevel.SEVERE, message, id, stackTrace, showOnlyOnce);
+                              bool showOnlyOnce = false,
+                              bool stackTrace = false) {
+        Log(LogLevel.SEVERE, message, id, showOnlyOnce, stackTrace);
     }
 
     public static void Warning(string message,
                                string id = null,
-                               bool stackTrace = false,
-                               bool showOnlyOnce = false)
-    {
-        Log(LogLevel.WARNING, message, id, stackTrace, showOnlyOnce);
+                               bool showOnlyOnce = false,
+                               bool stackTrace = false) {
+        Log(LogLevel.WARNING, message, id, showOnlyOnce, stackTrace);
     }
 
     public static void Info(string message,
                             string id = null,
-                            bool stackTrace = false,
-                            bool showOnlyOnce = false)
-    {
-        Log(LogLevel.INFO, message, id, stackTrace, showOnlyOnce);
+                            bool showOnlyOnce = false,
+                            bool stackTrace = false) {
+        Log(LogLevel.INFO, message, id, showOnlyOnce, stackTrace);
     }
 
     public static void Print(string message,
                              string id = null,
                              bool stackTrace = false,
-                             bool showOnlyOnce = false)
-    {
-        Log(LogLevel.PRINT, message, id, stackTrace, showOnlyOnce);
+                             bool showOnlyOnce = false) {
+        Log(LogLevel.PRINT, message, id, showOnlyOnce, stackTrace);
     }
 
     public static void Debug(string message,
                              string id = null,
-                             bool stackTrace = false,
-                             bool showOnlyOnce = false)
-    {
-        Log(LogLevel.DEBUG, message, id, stackTrace, showOnlyOnce);
+                             bool showOnlyOnce = false,
+                             bool stackTrace = false) {
+        Log(LogLevel.DEBUG, message, id, showOnlyOnce, stackTrace);
     }
 
     public static LogLevel Level
     {
         get { return _logLevel; }
-        set
-        {
-            if (value != _logLevel)
-            {
+
+        set {
+            if (value != _logLevel) {
                 _logLevel = value;
                 print("Logging level set to " + LogLevelString(_logLevel));
             }
