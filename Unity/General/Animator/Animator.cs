@@ -156,7 +156,7 @@ public class Animator : MonoBehaviour
     }
 
     // Give warning if _instance is destroyed while animations are pending
-    void OnDestroy()
+    private void OnDestroy()
     {
         if (_animeList.Count > 0) {
             Logger.Warning("Animator destroyed while still animating.", LogID.WARNING_ANIMATOR_DESTROYED_WHILE_ANIMATING);
