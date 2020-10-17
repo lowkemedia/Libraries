@@ -40,7 +40,6 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
     public float percentThreshold = 0.2f;
     public float easing = 0.5f;
     public PageNumberEvent onPageChange;
-    public event Callback OnSwipePastEndEvent;
 
     private int _totalPages;
     private int _pageIndex;
@@ -116,7 +115,7 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
         }
     }
 
-    public void OnPointerClick(PointerEventData pointerEventData)
+    public void OnPointerClick(PointerEventData pointerEventData = null)
     {
         if (_dragging == false) {
             GotoPage(++_pageIndex);
@@ -125,10 +124,6 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
 
     public void GotoPage(int pageIndex, bool snapTo = false)
     {
-        if (pageIndex == _totalPages) {
-            // TODO: Clicking past, but not Swiping past, triggers OnSwipePastEndEvent
-            OnSwipePastEndEvent?.Invoke();
-        }
         pageIndex = Utils.Clamp(pageIndex, 0, _totalPages - 1);
         Vector3 newLocation = _startLocation - new Vector3(pageIndex * _pageWidth, 0, 0);
         _pageIndex = pageIndex;
