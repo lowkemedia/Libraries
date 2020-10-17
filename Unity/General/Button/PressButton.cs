@@ -30,8 +30,8 @@ using UnityEngine.EventSystems;
 
 public class PressButton : ClickButton
 {
-    private float _invokedTime;                         // time of last invoke
     private float _pressTime;                           // time of last press
+    private float _pressInvokeTime;                     // time of last invoke while pressed
     public float invokeInterval = 0.15f;                // interval between press invokes, in seconds
 
     public override void OnPointerDown(PointerEventData pointerEventData = null)
@@ -40,26 +40,21 @@ public class PressButton : ClickButton
         base.OnPointerDown(pointerEventData);
     }
 
-    public override void OnPointerUp(PointerEventData pointerEventData)
-    {
-        _invokedTime = 0;
-        base.OnPointerUp(pointerEventData);
-    }
-
     private void Update()
     {
         float timeNow = Time.time;
         if (Pressed && PointerInside &&
             timeNow - _pressTime >= invokeInterval) {
-            Click();
+            _pressTime = timeNow;
+            _pressInvokeTime = _pressTime;
+            base.Click();
         }
     }
 
     public override void Click(float pressDuration = 0)
     {
         float timeNow = Time.time;
-        if (timeNow - _invokedTime >= invokeInterval) {
-            _invokedTime = timeNow;
+        if (timeNow - _pressInvokeTime >= invokeInterval) {
             base.Click(pressDuration);
         }
     }
