@@ -1,8 +1,8 @@
-//
+﻿//
 //  PopupMenu - PopupMenu package
-//  Russell Lowke, October 29th 2019
+//  Russell Lowke, October 14th 2020
 //
-//  Copyright (c) 2019 Lowke Media
+//  Copyright (c) 2019-2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -31,35 +31,90 @@ using UnityEngine.Events;
 using TMPro;
 using UnityEngine.UI;
 
-[System.Serializable]
-public class StringUnityEvent : UnityEvent<string> { }
+[Serializable]
+public class PopupMenuEvent : UnityEvent<PopupMenuEventArgs> { }
+public class PopupMenuEventArgs
+{
+	public string MenuItem;
+	public int Index;
+
+	public PopupMenuEventArgs(string menuItem, int index)
+	{
+		MenuItem = menuItem;
+		Index = index;
+	}
+}
 
 public class PopupMenu : MonoBehaviour
 {
-    // TODO: device version needs to behave differenetly from desktop
-    public delegate void Callback();
-    public delegate void StringCallback(string value);
+	// TODO: device version needs to behave differenetly from desktop
+	public delegate void Callback();
+	public delegate void PopupMenuCallback(string menuItem, int index);
 
-    public Sprite popupBgSprite;
+	public Sprite popupBgSprite;
 	public TextMeshProUGUI popupLabel;
 	public TextButton popupTextButton;
-	public StringUnityEvent onMenuSelectedEvent;
+	public PopupMenuEvent onMenuSelectedEvent;
 
-    public event StringCallback OnMenuRollEvent;
-    public event Callback OnPopupRolloutEvent;
+	public event PopupMenuCallback OnMenuRollEvent;
+	public event Callback OnPopupRolloutEvent;
 
-    public float padding = 30;                      // padding around buttons
+	public float padding = 30;                      // padding around buttons
 
 	private GameObject _popupGameObject;
-	private GameObject _gameObjectMenu;
+	protected GameObject _gameObjectMenu;
 	private int _selectedIndex;
-	private string[] _labels;
+	private string[] _menuItems;
 
-	public void Initialize(string[] labels,
+	public string LabelText {
+		get { return popupLabel.text; }
+		set { popupLabel.text = value; }
+	}
+
+	public string Selected {
+		get { return _menuItems[_selectedIndex]; }
+		set {
+			int index = 0;
+			if (!string.IsNullOrEmpty(value)) {
+				index = Array.IndexOf(_menuItems, value);
+			}
+			if (index == -1) {
+				Logger.Warning("Could not set Selected to \"" + value + "\" as it is not a menu item.");
+				return;
+			}
+			SelectedIndex = index;
+		}
+	}
+
+	public int SelectedIndex {
+		get { return _selectedIndex; }
+
+		set {
+			_selectedIndex = value;
+
+			if (_selectedIndex < 0 ||
+				_selectedIndex > _menuItems.Length - 1) {
+				_selectedIndex = 0;
+			}
+
+			// show correct menuItem on button
+			SelectedText = Selected;
+
+			// move popup according to location of selected item
+			float yPos = -_selectedIndex * (popupTextButton.GetHeight() + padding);
+			_gameObjectMenu.SetY(yPos);
+		}
+	}
+
+	protected virtual string SelectedText {
+		set { popupTextButton.textField.text = value; }
+	}
+
+	public void Initialize(string[] menuItems,
 						   string selected = null,
-						   UnityAction<string> unityCallback = null)
+						   UnityAction<PopupMenuEventArgs> unityCallback = null)
 	{
-		_labels = (string[])labels.Clone();
+		_menuItems = (string[])menuItems.Clone();
 
 		//TODO: initialize the popupTextButton to defaults.
 		popupTextButton.Enabled = true;
@@ -94,7 +149,7 @@ public class PopupMenu : MonoBehaviour
 		backgroundImage.sprite = popupBgSprite;
 		float btnWidth = popupTextButton.GetWidth() + padding * 2;
 		float btnHeight = popupTextButton.GetHeight() + padding * 2;
-		float bgHeight = (btnHeight - padding) * _labels.Length + padding;
+		float bgHeight = (btnHeight - padding) * _menuItems.Length + padding;
 		backgroundImage.SetSize(btnWidth, bgHeight);
 		backgroundImage.SetY(backgroundImage.GetHeight() / 2 - btnHeight / 2);
 
@@ -103,56 +158,32 @@ public class PopupMenu : MonoBehaviour
 
 		// check if popup in within display region
 		if (!UtilsRect.AinsideB(backgroundImage, clickBlocker)) {
-			// if not, then reverse label order
+			// if not, then reverse menuItem order
 			//  causing menu to build in the opposite direction
-			Array.Reverse(_labels);
+			Array.Reverse(_menuItems);
 			Selected = selected;
 		}
 
 		// create selection buttons
 		float yLoc = 0;
 		int counter = 0;
-		foreach (string label in _labels) {
+		foreach (string menuItem in _menuItems) {
 			int index = counter++;
-			TextButton textButton = _gameObjectMenu.MakeTextButton(templateButton, label);
+			TextButton textButton = MakeTextButton(templateButton, menuItem);
 			ClickButton clickButton = textButton.ClickButton;
-            clickButton.SetY(yLoc);
-            clickButton.onClick.AddListener(delegate { MenuButtonClicked(label); });
-            clickButton.OnRolloverEvent += delegate { MenuButtonRolled(label); };
-            yLoc += clickButton.GetHeight() + padding;
+			clickButton.SetY(yLoc);
+			clickButton.onClick.AddListener(delegate { MenuButtonClicked(new PopupMenuEventArgs(menuItem, index)); });
+			clickButton.OnRolloverEvent += delegate { MenuButtonRolled(menuItem, index); };
+			yLoc += clickButton.GetHeight() + padding;
 		}
 
 		return popupGameObject;
 	}
 
-	public string Selected {
-		get {
-			return _labels[_selectedIndex];
-		}
-
-		set {
-			SelectedIndex = Array.IndexOf(_labels, value);
-		}
-	}
-
-	public int SelectedIndex {
-		get { return _selectedIndex; }
-
-		set {
-			_selectedIndex = value;
-
-			if (_selectedIndex < 0 ||
-				_selectedIndex > _labels.Length - 1) {
-				_selectedIndex = 0;
-			}
-
-			// show correct label on button
-			popupTextButton.textField.text = Selected;
-
-			// move popup according to location of selected item
-			float yPos = -_selectedIndex * (popupTextButton.GetHeight() + padding);
-			_gameObjectMenu.SetY(yPos);
-		}
+	protected virtual TextButton MakeTextButton(TextButton templateButton, string menuItem)
+	{
+		TextButton textButton = _gameObjectMenu.MakeTextButton(templateButton, menuItem);
+		return textButton;
 	}
 
 	private void ShowPopup()
@@ -161,7 +192,7 @@ public class PopupMenu : MonoBehaviour
 		gameObject.MoveToTop();
 
 		// TODO: Shouldn't need to reinitialize! just fix popup position, AinsideB() call.
-		Initialize(_labels, Selected);
+		Initialize(_menuItems, Selected);
 
 		// show popup
 		_popupGameObject.SetActive(true);
@@ -183,27 +214,27 @@ public class PopupMenu : MonoBehaviour
 		}
 	}
 
-	public void MenuButtonClicked(string label)
+	public void MenuButtonClicked(PopupMenuEventArgs popupMenuEventArgs)
 	{
-		Selected = label;
+		Selected = popupMenuEventArgs.MenuItem;
 		if (onMenuSelectedEvent != null) {
-			onMenuSelectedEvent.Invoke(Selected);
+			onMenuSelectedEvent.Invoke(popupMenuEventArgs);
 		}
 		HidePopup();
 	}
 
-	public void MenuButtonRolled(string label)
+	public void MenuButtonRolled(string menuItem, int index)
 	{
-        OnMenuRollEvent?.Invoke(label);
-    }
+		OnMenuRollEvent?.Invoke(menuItem, index);
+	}
 
 	public void OnPopupRollout()
 	{
-        OnPopupRolloutEvent?.Invoke();
+		OnPopupRolloutEvent?.Invoke();
 	}
 
-    public void OnPopupCancelled()
-    {
-        HidePopup();
-    }
+	public void OnPopupCancelled()
+	{
+		HidePopup();
+	}
 }
