@@ -25,15 +25,13 @@
 //
 //
 
-using UnityEngine;
-
 [System.Serializable]
-public class LocalizationValue
+public class LocalizerValue
 {
-    public StringKeyValue[] keys;
-
-    public static LocalizationValue CreateFromJSON(string jsonString)
-    {
-        return JsonUtility.FromJson<LocalizationValue>(jsonString);
-    }
+    public string key;                  // key used to lookup string
+    public string citation;             // any citation pertaining to string
+    public string context;              // context of string, how it is used
+    public string original;             // original English string
+    public string value;                // translated string
+    public string note;                 // note about string added by translator or developer
 }

@@ -1,8 +1,8 @@
 //
 //  Localizer v 1.0 - Localizer package
-//  Russell Lowke, October 7th 2020
+//  Russell Lowke, October 14th 2020
 //
-//  Copyright (c) 2019 Lowke Media
+//  Copyright (c) 2019-2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a 
@@ -31,7 +31,17 @@ using System.Collections.Generic;
 
 public class Localizer : MonoBehaviour
 {
-    private static Dictionary<string, StringKeyValue> _stringKeys;
+    public const char KEY_PREFEX    = '.';          // all keys begin with a '.'
+    public const char SEPERATOR     = '+';          // compound keys are seperated by '+'
+    public const char VARIABLES     = '|';          // varables passed into keys are separated by '|'
+    public const string BRACES      = "{}";         // curly braces indicate a variable
+    public const char DELIMINATOR   = ' ';          // deliminator added between keys, e.g. ".angry+.bees" returns "Angry Bees"
+    public const string TEST_RETURN = "*";          // when testing, all keys return "*"
+
+    public delegate void Callback(bool giveWarning = true);
+    public static event Callback OnLanguageChangedEvent;
+
+    private static Dictionary<string, LocalizerValue> _keyValuePairs;
     private static List<string> _files;
 
     private static LanguageCode _languageCode = LanguageCode.en_GB;
@@ -57,13 +67,19 @@ public class Localizer : MonoBehaviour
     }
 
     public static bool Initialized {
-        get { return _stringKeys != null; }
+        get { return _keyValuePairs != null; }
 	}
+
+    // A root folder may be set for Localization
+    public static string Root { get; set; }         // filepath root, if any.
+
+    // This is for testing if all strings pass through the Localizer
+    public static bool Testing { get; set; }    // when true all keys return "*"
 
     public static void Initialize(LanguageCode languageCode, bool clearFiles = false)
     {
         _languageCode = languageCode;
-        _stringKeys = new Dictionary<string, StringKeyValue>();
+        _keyValuePairs = new Dictionary<string, LocalizerValue>();
         if (_files == null || clearFiles) {
             _files = new List<string>();
         }
@@ -71,6 +87,8 @@ public class Localizer : MonoBehaviour
         foreach (string file in _files) {
             LoadFile(file, true);
         }
+
+        OnLanguageChangedEvent?.Invoke();
     }
 
     public static void AddFile(string fileName, bool giveWarning = true)
@@ -86,25 +104,31 @@ public class Localizer : MonoBehaviour
             return;
         }
 
-        string fullFileName = fileName + "_" + _languageCode;
-        LocalizationValue localizationValue = JsonReader.ReadJson<LocalizationValue>(fullFileName);
+        string fullFileName = "";
+        if (! string.IsNullOrEmpty(Root)) {
+            // include language type folder to path
+            fullFileName += Root + LanguageType + "/";
+        }
+        fullFileName += fileName + "_" + _languageCode;
+        LocalizationKeys localizationKeys = JsonReader.ReadJson<LocalizationKeys>(fullFileName);
 
-        if (localizationValue == default) {
+        if (localizationKeys == default) {
             return;
 		}
 
         // add keys to dictionary
-        foreach (StringKeyValue value in localizationValue.keys) {
+        foreach (LocalizerValue value in localizationKeys.keys) {
             string key = value.key.ToLower();
-            bool found = _stringKeys.TryGetValue(key, out StringKeyValue stringKeyValue);
+            bool found = _keyValuePairs.TryGetValue(key, out LocalizerValue stringKeyValue);
             if (found && giveWarning) {
                 Logger.Warning("Duplicate key:\"" + key + "\" in file:\"" + fileName + "\" existing:\"" + stringKeyValue.value + "\" replacement:\"" + value.value + "\"", LocalizerID.WARNING_DUPLICATE_KEY);
             }
-            _stringKeys[key] = value;
+            _keyValuePairs[key] = value;
         }
     }
 
-    public static StringKeyValue Key(string key, bool giveWarning = true)
+    // retrieve LocalizerValue of key
+    public static LocalizerValue LocalizerValue(string key, bool giveWarning = true)
     {
         if (!Initialized) {
             Logger.Severe("Can't localize key:\"" + key + "\" as Localizer not initialized.", LocalizerID.SEVERE_CANT_READ_KEY);
@@ -114,7 +138,7 @@ public class Localizer : MonoBehaviour
         // force all keys to lower case
         key = key.ToLower();
 
-        bool found = _stringKeys.TryGetValue(key, out StringKeyValue stringKeyValue);
+        bool found = _keyValuePairs.TryGetValue(key, out LocalizerValue stringKeyValue);
         if (!found && giveWarning) {
             Logger.Warning("Can't find key:\"" + key + "\" in localization dictionary.", LocalizerID.WARNING_COULD_NOT_FIND_KEY, true);
         }
@@ -122,29 +146,31 @@ public class Localizer : MonoBehaviour
         return stringKeyValue;
     }
 
+    // retrieve Value of key
     public static string Value(string key, 
                                string[] variables = null,
                                bool giveWarning = true)
     {
         //
         // ensure key starts with a '.'
-        if (key[0] != '.')
+        if (!IsKey(key))
         {
             if (giveWarning) {
                 Logger.Warning("Received invalid key \"" + key + "\"", LocalizerID.WARNING_INVALID_KEY_PASSED);
             }
-            return key;
+
+            return (Testing) ? TEST_RETURN : key;
         }
 
         //
         // check for compound key
-        if (key.IndexOf('+') > -1) {
+        if (key.IndexOf(SEPERATOR) > -1) {
             return CompoundKey(key, variables, giveWarning);
         }
-
+        
         //
         // parse embedded variables, seperated by '|'
-        char[] spearator = { '|' };
+        char[] spearator = { VARIABLES };
         string[] strlist = key.Split(spearator);
 
         if (strlist.Length > 1)
@@ -169,7 +195,7 @@ public class Localizer : MonoBehaviour
 
         //
         // retrieve value
-        StringKeyValue stringKeyValue = Key(key);
+        LocalizerValue stringKeyValue = LocalizerValue(key);
         string value = (stringKeyValue != null) ? stringKeyValue.value : key;
 
         //
@@ -179,33 +205,63 @@ public class Localizer : MonoBehaviour
             int counter = 0;
             foreach (string variableKey in variables) {
                 string variableValue = Value(variableKey, null, false);
-                value = value.Replace("{" + counter++ + "}", variableValue);
+                string replaceWithVariable = "";
+                replaceWithVariable += BRACES[0];
+                replaceWithVariable += counter++;
+                replaceWithVariable += BRACES[1];
+                value = value.Replace(replaceWithVariable, variableValue);
             }
         }
 
-        return value;
+        return (Testing) ? TEST_RETURN : value;
     }
 
     private static string CompoundKey(string key, 
                                       string[] variables = null,
-                                      bool giveWarning = true, 
-                                      string delimiter = " ")
+                                      bool giveWarning = true)   
     {
-        //
-        // parse compound keys, seperated by '+'
-        char[] spearator = { '+' };
-        string[] keylist = key.Split(spearator);
-
+        char[] seperator = { SEPERATOR };
+        string[] keylist = key.Split(seperator);
         string value = "";
-        foreach (string kkey in keylist) {
-            value += Value(kkey, variables, giveWarning) + delimiter;
-            // TODO: Don't add delimiter after last item
+        string previousKey = default;
+        for (int i = 0; i < keylist.Length; ++i) {
+            string thisKey = keylist[i];
+            if (IsKey(previousKey) && IsKey(thisKey)) {
+                value += DELIMINATOR;
+            }
+            bool warn = giveWarning && IsKey(thisKey);     // compound keys warn only for embedded keys
+            value += Value(thisKey, variables, warn);
+            previousKey = thisKey;
         }
+
         return value;
+    }
+
+    // find Key used for a value
+    public static string FindKey(string value, bool giveWarning = true)
+    {
+        foreach (KeyValuePair<string, LocalizerValue> keyValuePair in _keyValuePairs) {
+            LocalizerValue keyValue = keyValuePair.Value;
+            if (keyValue.value == value) {
+                return keyValue.key;
+            }
+        }
+
+        if (giveWarning) {
+            Logger.Warning("Coud not find value:\"" + value + "\" in localization dictionary.", LocalizerID.WARNING_COULD_NOT_FIND_VALUE);
+        }
+        
+        return null;
+    }
+
+    private static bool IsKey(string value)
+    {
+        // return true if value starts with '.'
+        return !string.IsNullOrEmpty(value) && value[0] == KEY_PREFEX;
     }
 
     public static string Citation(string key)
     {
-        return Key(key).citation;
+        return LocalizerValue(key).citation;
     }
 }
