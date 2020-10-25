@@ -9,7 +9,7 @@ public static class JsonReader
 
         T gameValue = default(T);
         TextAsset textJsonAsset = Resources.Load<TextAsset>(path);
-        if (textJsonAsset == null) {
+        if (textJsonAsset is null) {
             Logger.Warning("Coudn't load file \"" + path + "\".", JsonReaderID.WARNING_CANT_LOAD_FILE);
         } else {
             string jsonString = textJsonAsset.ToString();

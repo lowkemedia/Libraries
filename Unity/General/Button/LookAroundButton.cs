@@ -48,7 +48,7 @@ public class LookAroundButton : ClickButton, IDragHandler, IEndDragHandler, IPoi
 
 		const string CONTAINER_NAME = "LookAround Container";
 		GameObject parent = lookAroundCamera.GetParent();
-		if (parent == null) {
+		if (parent is null) {
 			_lookAroundContainer = new GameObject(CONTAINER_NAME);
 		} else {
 			_lookAroundContainer = parent.MakeUiObject(CONTAINER_NAME);

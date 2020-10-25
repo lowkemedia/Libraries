@@ -64,7 +64,7 @@ public class UnityEventExample : MonoBehaviour
     private void Awake()
     {
         // Note: if private or not serializable you will need to create a new event
-        if (onMyEvent == null) {
+        if (onMyEvent is null) {
             onMyEvent = new MyUnityEventWrapper<int>();
         }
 

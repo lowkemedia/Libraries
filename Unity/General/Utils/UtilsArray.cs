@@ -49,7 +49,7 @@ public static class UtilsArray
     public static T[] AddTo<T>(T[] array, T value)
     {
         T[] updatedArray;
-        if (array == null) {
+        if (array is null) {
             updatedArray = new T[] { value };
         } else {
             updatedArray = new T[array.Length + 1];
@@ -78,7 +78,7 @@ public static class UtilsArray
 
     public static string Print<T>(T[] array)
     {
-        if (array == null) { return "null"; }
+        if (array is null) { return "null"; }
 
         string str = "[ ";
         for (int i = 0; i < array.Length; ++i) {

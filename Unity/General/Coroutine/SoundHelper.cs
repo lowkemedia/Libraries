@@ -60,7 +60,7 @@ public class SoundHelper : MonoBehaviour
 
     private static SoundHelper Instance {
         get {
-            if (_instance == null) {
+            if (_instance is null) {
                 Logger.Warning("SoundHelper must be attached to the Unity scene to work.");
             }
 
@@ -71,10 +71,10 @@ public class SoundHelper : MonoBehaviour
     public static void SoundCallback(AudioSource sound, Callback callback, bool giveWarning = true)
     {
         if (giveWarning) {
-            if (sound == null) {
+            if (sound is null) {
                 Logger.Warning("SoundCallback() called with an empty sound parameter");
             }
-            if (callback == null) {
+            if (callback is null) {
                 Logger.Warning("SoundCallback() called with an empty callback parameter");
             }
         }

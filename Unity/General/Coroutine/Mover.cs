@@ -46,7 +46,7 @@ public class Mover : MonoBehaviour
 
     private static Mover Instance {
         get {
-            if (_instance == null) {
+            if (_instance is null) {
                 throw new Exception("Mover must be attached to the Unity scene to work.");
             }
 

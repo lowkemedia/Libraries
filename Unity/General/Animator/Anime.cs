@@ -172,7 +172,7 @@ public class Anime
     public void RemoveEffects(string str = null,
                               bool snapToEnd = false)
     {   
-        if (str == null) {
+        if (str is null) {
             ClearEffects(snapToEnd);
         } else 
         {

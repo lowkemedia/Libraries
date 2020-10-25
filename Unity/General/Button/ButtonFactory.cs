@@ -34,7 +34,7 @@ public static class ButtonFactory
                                               ClickButton template)
     {
         ClickButton clickButton = parent.MakeUiComponent(template, "Button");
-        clickButton.onClick = new ClickButtonEvent();
+        clickButton.onClickEvent = new ClickButtonEvent();
 
         return clickButton;
     }

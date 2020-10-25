@@ -59,7 +59,7 @@ public abstract class AnimatorEffect
 
         // target is usually the anime's target, 
         //  though may have been set to an alternative
-        if (_target == null) {
+        if (_target is null) {
             _target = _anime.Target;
         }
 

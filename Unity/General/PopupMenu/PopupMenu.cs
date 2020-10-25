@@ -110,13 +110,16 @@ public class PopupMenu : MonoBehaviour
 		set { popupTextButton.textField.text = value; }
 	}
 
+	private void Start()
+	{
+		popupTextButton.onClickEvent.AddListener(OnClickButton);
+	}
+
 	public void Initialize(string[] menuItems,
 						   string selected = null,
 						   UnityAction<PopupMenuEventArgs> unityCallback = null)
 	{
 		_menuItems = (string[])menuItems.Clone();
-
-		//TODO: initialize the popupTextButton to defaults.
 		popupTextButton.Enabled = true;
 
 		if (_popupGameObject != null) {
@@ -129,6 +132,7 @@ public class PopupMenu : MonoBehaviour
 		}
 
 		HidePopup();
+
 	}
 
 	private GameObject MakePopupGameObject(TextButton templateButton,
@@ -172,7 +176,7 @@ public class PopupMenu : MonoBehaviour
 			TextButton textButton = MakeTextButton(templateButton, menuItem);
 			ClickButton clickButton = textButton.ClickButton;
 			clickButton.SetY(yLoc);
-			clickButton.onClick.AddListener(delegate { MenuButtonClicked(new PopupMenuEventArgs(menuItem, index)); });
+			clickButton.onClickEvent.AddListener(delegate { MenuButtonClicked(new PopupMenuEventArgs(menuItem, index)); });
 			clickButton.OnRolloverEvent += delegate { MenuButtonRolled(menuItem, index); };
 			yLoc += clickButton.GetHeight() + padding;
 		}
@@ -205,7 +209,7 @@ public class PopupMenu : MonoBehaviour
 		popupTextButton.gameObject.SetActive(true);
 	}
 
-	public void OnClickButton()
+	public void OnClickButton(ClickButton button)
 	{
 		if (_popupGameObject.activeSelf) {
 			HidePopup();

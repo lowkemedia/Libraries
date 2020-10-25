@@ -57,7 +57,7 @@ public class GyroLookAroundButton : LookAroundButton
 		/*
 		const string CONTAINER_NAME = "Gyro Container";
 		GameObject parent = lookAroundCamera.GetParent();
-		if (parent == null) {
+		if (parent is null) {
 			_gyroContainer = new GameObject(CONTAINER_NAME);
 		} else {
 			_gyroContainer = parent.MakeGameObject(CONTAINER_NAME);

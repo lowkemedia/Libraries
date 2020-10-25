@@ -40,7 +40,7 @@ public class Animator : MonoBehaviour
 
     public static Animator Instance {
         get {
-            if (_instance == null) {
+            if (_instance is null) {
                 Logger.Warning("Animator must be attached to the Unity scene to work.", LogID.WARNING_ANIMATOR_NOT_ATTACHED);
             }
 
@@ -93,7 +93,7 @@ public class Animator : MonoBehaviour
     //
     public Anime Anime(GameObject target)
     {
-        if (target == null) {
+        if (target is null) {
             target = gameObject;
         }
 
@@ -101,7 +101,7 @@ public class Animator : MonoBehaviour
         Anime anime = GetAnime(target);
 
         // if no Anime found then create a new one
-        if (anime == null)
+        if (anime is null)
         {
             anime = new Anime(this, target);
             _animeDict[target] = anime;

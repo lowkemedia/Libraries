@@ -47,7 +47,7 @@ public class Fader : MonoBehaviour
 
     private static Fader Instance {
         get {
-            if (_instance == null) {
+            if (_instance is null) {
                 throw new Exception("Fader must be attached to the Unity scene to work.");
             }
 

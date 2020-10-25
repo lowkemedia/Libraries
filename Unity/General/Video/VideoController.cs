@@ -32,18 +32,18 @@ using UnityEngine.Video;
 
 public class VideoController : MonoBehaviour
 {
-    public delegate void Callback();
+	public delegate void Callback();
 
-    public VideoPlayer videoPlayer;
-    public RenderTexture renderTexture;
+	public VideoPlayer videoPlayer;
+	public RenderTexture renderTexture;
 
-    public Slider videoSeekSlider;
-    public ClickButton pauseButton;
-    public ClickButton playButton;
+	public Slider videoSeekSlider;
+	public ClickButton pauseButton;
+	public ClickButton playButton;
 	public ClickButton muteButton;
 	public ClickButton soundButton;
 
-	private bool _videoPrepared;					// true if the video is prepared and ready to play
+	private bool _videoPrepared;                    // true if the video is prepared and ready to play
 	private long _pauseFrame;                       // frame the video was last paused on
 
 	//
@@ -56,7 +56,7 @@ public class VideoController : MonoBehaviour
 	//
 	// video frame as a percentage
 	private float VideoValue {
-		get { return (float)videoPlayer.frame/videoPlayer.frameCount; }
+		get { return (float)videoPlayer.frame / videoPlayer.frameCount; }
 	}
 
 	//
@@ -66,31 +66,31 @@ public class VideoController : MonoBehaviour
 	}
 
 	private void Start()
-    {
-        if (videoPlayer == null) {
-            // if no video player declared, then find one
-            //  videoPlayer = GetComponent<VideoPlayer>();
-            //  gameObject.GetComponent(typeof(VideoPlayer)) as VideoPlayer;
+	{
+		if (videoPlayer is null) {
+			// if no video player declared, then find one
+			//  videoPlayer = GetComponent<VideoPlayer>();
+			//  gameObject.GetComponent(typeof(VideoPlayer)) as VideoPlayer;
 
-            // if no video player found, then make one
-            //  videoPlayer = gameObject.AddComponent<UnityEngine.Video.VideoPlayer>();
+			// if no video player found, then make one
+			//  videoPlayer = gameObject.AddComponent<UnityEngine.Video.VideoPlayer>();
 
-            throw new Exception("Video Player not assigned.");
-        }
+			throw new Exception("Video Player not assigned.");
+		}
 
-        // add listeners
-        pauseButton.onClick.AddListener(OnClickPause);
-        playButton.onClick.AddListener(OnClickPlay);
-        muteButton.onClick.AddListener(OnClickToggleSound);
-        soundButton.onClick.AddListener(OnClickToggleSound);
-        videoSeekSlider.onValueChanged.AddListener(OnSliderChanged);
-        // Note: BeginDrag and EndDrag listeners added via EventTrigger in Unity Editor
+		// add listeners
+		pauseButton.onClickEvent.AddListener(OnClickPause);
+		playButton.onClickEvent.AddListener(OnClickPlay);
+		muteButton.onClickEvent.AddListener(OnClickToggleSound);
+		soundButton.onClickEvent.AddListener(OnClickToggleSound);
+		videoSeekSlider.onValueChanged.AddListener(OnSliderChanged);
+		// Note: BeginDrag and EndDrag listeners added via EventTrigger in Unity Editor
 
-        pauseButton.gameObject.SetActive(true);
-        playButton.gameObject.SetActive(false);
+		pauseButton.gameObject.SetActive(true);
+		playButton.gameObject.SetActive(false);
 
-        // setup mute/sound toggle buttons
-        if (!videoPlayer.canSetDirectAudioVolume) {
+		// setup mute/sound toggle buttons
+		if (!videoPlayer.canSetDirectAudioVolume) {
 			muteButton.gameObject.SetActive(false);
 		} else {
 			muteButton.gameObject.SetActive(true);
@@ -107,27 +107,27 @@ public class VideoController : MonoBehaviour
 	}
 
 	public void Play(VideoClip clip)
-    {
-        if (videoPlayer.clip != clip) {
-            _videoPrepared = false;
-            videoPlayer.clip = clip;
-        }
+	{
+		if (videoPlayer.clip != clip) {
+			_videoPrepared = false;
+			videoPlayer.clip = clip;
+		}
 
-        Play();
-    }
+		Play();
+	}
 
-    public void Play(string url)
-    {
-        if (videoPlayer.url != url) {
-            _videoPrepared = false;
-            videoPlayer.url = url;
-        }
+	public void Play(string url)
+	{
+		if (videoPlayer.url != url) {
+			_videoPrepared = false;
+			videoPlayer.url = url;
+		}
 
-        Play();
-    }
+		Play();
+	}
 
-    public void Play()
-    {
+	public void Play()
+	{
 		VideoPlayerPlay();
 		SetIsPaused(false);
 	}
@@ -143,37 +143,37 @@ public class VideoController : MonoBehaviour
 			// fix for issue where video played at end loops to start
 			return;
 		}
-	
+
 		videoPlayer.Play();
 	}
 
-    private void VideoPlayerPrepare()
-    {
-        videoPlayer.prepareCompleted += OnVideoPrepared;
+	private void VideoPlayerPrepare()
+	{
+		videoPlayer.prepareCompleted += OnVideoPrepared;
 		videoPlayer.loopPointReached += OnVideoFinished;
 		videoPlayer.Prepare();
-    }
+	}
 
-    private void OnVideoPrepared(VideoPlayer value)
-    {
-        Logger.Print("Video ready (URL):" + videoPlayer.url);
-        // Logger.Print("Height:" + videoPlayer.height + " Width:" + videoPlayer.width);
+	private void OnVideoPrepared(VideoPlayer value)
+	{
+		Logger.Print("Video ready (URL):" + videoPlayer.url);
+		// Logger.Print("Height:" + videoPlayer.height + " Width:" + videoPlayer.width);
 
-        //  VideoPlayer set to AspectRatio = "Stretch", no need for sized render texture
+		//  VideoPlayer set to AspectRatio = "Stretch", no need for sized render texture
 
-        // Logger.Print(">> Render Texture:" + renderTexture.height + " Width:" + renderTexture.width);
-        /* create new render texture for specific sizing
+		// Logger.Print(">> Render Texture:" + renderTexture.height + " Width:" + renderTexture.width);
+		/* create new render texture for specific sizing
         renderTexture.height = (int) videoPlayer.height;
         renderTexture.width = (int) videoPlayer.width;
         videoPlayer.targetTexture = renderTexture
         */
 
-        _videoPrepared = true;
+		_videoPrepared = true;
 		VideoPreparedCallback?.Invoke();
 		VideoPreparedCallback = null;
 
 		VideoPlayerPlay();
-    }
+	}
 
 	private void OnVideoFinished(VideoPlayer value)
 	{
@@ -182,7 +182,7 @@ public class VideoController : MonoBehaviour
 	}
 
 	public void Pause()
-    {
+	{
 		VideoPlayerPause();
 		SetIsPaused(true);
 	}
@@ -200,11 +200,11 @@ public class VideoController : MonoBehaviour
 		_pauseFrame = videoPlayer.frame;
 	}
 
-    public void Stop()
-    {
+	public void Stop()
+	{
 		// stop causes videoPlayer.frame to revert to the begining
 		videoPlayer.Stop();
-    }
+	}
 
 	public void Mute(bool mute)
 	{
@@ -215,21 +215,21 @@ public class VideoController : MonoBehaviour
 		}
 	}
 
-    public void OnSliderChanged(float value)
-    {
-        if (!videoPlayer.isPlaying) {
-            videoPlayer.frame = SliderFrame;        // scrub video
-        }
-    }
+	public void OnSliderChanged(float value)
+	{
+		if (!videoPlayer.isPlaying) {
+			videoPlayer.frame = SliderFrame;        // scrub video
+		}
+	}
 
-    // Note: Added via EventTrigger in Unity Editor
-    public void OnSliderBeginDrag()
+	// Note: Added via EventTrigger in Unity Editor
+	public void OnSliderBeginDrag()
 	{
 		VideoPlayerPause();
 	}
 
-    // Note: Added via EventTrigger in Unity Editor
-    public void OnSliderEndDrag()
+	// Note: Added via EventTrigger in Unity Editor
+	public void OnSliderEndDrag()
 	{
 		if (IsPaused) {
 			VideoPlayerPause();
@@ -239,20 +239,20 @@ public class VideoController : MonoBehaviour
 		VideoPlayerPlay();
 	}
 
-    public void OnClickPlay(ClickButton button)
-    {
-        Play();
-    }
+	public void OnClickPlay(ClickButton button)
+	{
+		Play();
+	}
 
-    public void OnClickPause(ClickButton button)
-    {
-        Pause();
-    }
+	public void OnClickPause(ClickButton button)
+	{
+		Pause();
+	}
 
-    public void OnClickToggleSound(ClickButton button)
-    {
-        Mute(muteButton.gameObject.activeSelf);
-    }
+	public void OnClickToggleSound(ClickButton button)
+	{
+		Mute(muteButton.gameObject.activeSelf);
+	}
 }
 
 

@@ -46,7 +46,7 @@ public class Delayer : MonoBehaviour
 
     private static Delayer Instance {
         get {
-            if (_instance == null) {
+            if (_instance is null) {
                 throw new Exception("Delayer must be attached to the Unity scene to work.");
             }
 
@@ -60,7 +60,7 @@ public class Delayer : MonoBehaviour
             if (seconds <= 0) {
                 Logger.Warning("Delay() called with an zero or negative seconds parameter");
             }
-            if (callback == null) {
+            if (callback is null) {
                 Logger.Warning("Delay() called with an empty callback parameter");
             }
         }

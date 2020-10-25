@@ -25,10 +25,10 @@
 //
 //
 
-using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class PageNumberEvent : UnityEvent<int> {}
@@ -37,6 +37,7 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
 {
     public delegate void Callback();
 
+    public Image swipeArea;
     public float percentThreshold = 0.2f;
     public float easing = 0.5f;
     public PageNumberEvent onPageChange;

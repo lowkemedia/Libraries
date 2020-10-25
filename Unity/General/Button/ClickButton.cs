@@ -43,7 +43,10 @@ public class ClickButton : MonoBehaviour,
     public new bool enabled = true;                             // implements own enable, so disabled buttons still keep track of PointerInside, etc.
     public bool selected;
 
-    public ClickButtonEvent onClick;
+    public ClickButtonEvent onClickEvent;                       // Unity event for clicking button
+    public event Callback OnUpdateEvent;                        // Regular event for update
+    public event Callback OnRolloverEvent;                      // Regular event for rollover
+    public event Callback OnRolloutEvent;                       // Regular event for rollout
 
     public bool useDefaultSound = true;
     public AudioSource clickSound;
@@ -76,10 +79,6 @@ public class ClickButton : MonoBehaviour,
             return _image;
         }
     }
-
-    public event Callback OnUpdateButtonEvent;
-    public event Callback OnRolloverEvent;
-    public event Callback OnRolloutEvent;
 
     public bool Enabled {
         get { return enabled; }
@@ -246,7 +245,7 @@ public class ClickButton : MonoBehaviour,
             Image.sprite = NormalSprite;
         }
 
-        OnUpdateButtonEvent?.Invoke();
+        OnUpdateEvent?.Invoke();
     }
 
     //
@@ -268,7 +267,7 @@ public class ClickButton : MonoBehaviour,
             //
             // invoke and unpress button
 
-            onClick?.Invoke(this);
+            onClickEvent?.Invoke(this);
 
             // SkipPointerUp skips returning to the normal ("Up") state after
             //  clicking, which is useful with tab menus or button toggles,

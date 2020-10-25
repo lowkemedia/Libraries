@@ -42,7 +42,7 @@ public static class Utils
             gameObject = (obj as Component).gameObject;
         } else if (obj is GameObject) {
             gameObject = obj as GameObject;
-        } else if (obj == null) {
+        } else if (obj is null) {
             throw new Exception("GetGameObject() called on null Object");
         } else {
             throw new Exception("GetGameObject() called on Object " + obj + " that is not a Component or GameObject");
@@ -67,7 +67,7 @@ public static class Utils
     public static GameObject GetParent(this Object obj)
     {
         Transform parent = obj.GetGameObject().transform.parent;
-        return parent == null ? null : parent.gameObject;
+        return parent is null ? null : parent.gameObject;
     }
 
     //
@@ -119,6 +119,6 @@ public static class Utils
         // and returns null when the object has been destroyed, but 
         // actually the object is still there but has not been cleaned up yet
         // if we test both we can determine if the object has been destroyed.
-        return gameObject == null && !ReferenceEquals(gameObject, null);
+        return gameObject is null && !ReferenceEquals(gameObject, null);
     }
 }
