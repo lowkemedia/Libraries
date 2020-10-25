@@ -80,7 +80,7 @@ public class Localizer : MonoBehaviour
     {
         _languageCode = languageCode;
         _keyValuePairs = new Dictionary<string, LocalizerValue>();
-        if (_files == null || clearFiles) {
+        if (_files is null || clearFiles) {
             _files = new List<string>();
         }
 
@@ -152,6 +152,12 @@ public class Localizer : MonoBehaviour
                                bool giveWarning = true)
     {
         //
+        // check for compound key
+        if (key.IndexOf(SEPERATOR) > -1) {
+            return CompoundKey(key, variables, giveWarning);
+        }
+
+        //
         // ensure key starts with a '.'
         if (!IsKey(key))
         {
@@ -160,12 +166,6 @@ public class Localizer : MonoBehaviour
             }
 
             return (Testing) ? TEST_RETURN : key;
-        }
-
-        //
-        // check for compound key
-        if (key.IndexOf(SEPERATOR) > -1) {
-            return CompoundKey(key, variables, giveWarning);
         }
         
         //

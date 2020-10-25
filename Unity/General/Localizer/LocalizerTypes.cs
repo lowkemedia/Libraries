@@ -117,7 +117,8 @@ namespace LocalizerTypes
         public const string WARNING_DUPLICATE_KEY = LOG_PREFIX + "03";
         public const string WARNING_INVALID_KEY_PASSED = LOG_PREFIX + "04";
         public const string WARNING_COULD_NOT_FIND_VALUE = LOG_PREFIX + "05";
-        public const string WARNING_HAS_EMBEDDED_AND_PASSED_VARIABLES = LOG_PREFIX + "06";
+        public const string WARNING_NEEDS_BASELINE_ALIGNMENT = LOG_PREFIX + "06";
+        public const string WARNING_HAS_EMBEDDED_AND_PASSED_VARIABLES = LOG_PREFIX + "07";
     }
 }
 
