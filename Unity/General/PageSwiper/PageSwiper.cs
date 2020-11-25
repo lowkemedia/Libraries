@@ -1,6 +1,6 @@
 ﻿//
 //  PageSwiper
-//  Russell Lowke, May 14th 2020
+//  Russell Lowke, October 31st 2020
 //
 //  Copyright (c) 2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -40,10 +40,11 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
     public Image swipeArea;
     public float percentThreshold = 0.2f;
     public float easing = 0.5f;
-    public PageNumberEvent onPageChange;
+    public PageNumberEvent onPageChange;                // Unity event for page change
+    public event Callback OnPastLastPage;               // Regular event for clicking past the last page
 
+    public int PageIndex { get; private set; }
     private int _totalPages;
-    private int _pageIndex;
     private float _pageWidth;
     private Vector3 _startLocation;
     private Vector3 _endLocation;
@@ -67,26 +68,31 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
 
     public void OnDrag(PointerEventData pointerEventData)
     {
+        if (_totalPages < 2) {
+            // PageSwiper doesn't swipe with only one or zero pages.
+            return;
+		}
+
         _dragging = true;
         Vector3 localPressPosition = this.GetLocalPosition(pointerEventData.pressPosition);
         Vector3 localPosition = this.GetLocalPosition(pointerEventData.position);
         float difference = localPressPosition.x - localPosition.x;
 
 
-        if ((_pageIndex == 0 && difference < difference * percentThreshold) ||
-            (_pageIndex == _totalPages - 1 && difference > difference * percentThreshold))
+        if ((PageIndex == 0 && difference < difference * percentThreshold) ||
+            (PageIndex == _totalPages - 1 && difference > difference * percentThreshold))
         {
             // clamp swiping before page 1 and after the last page
             difference *= percentThreshold;
         }
-        else if (_pageIndex > 0 &&                  // (difference -'ve)
+        else if (PageIndex > 0 &&                  // (difference -'ve)
                  _panelLocation.x - difference > _startLocation.x)
         {
             // clamp start location
             transform.localPosition = _startLocation;
             return;
         }
-        else if (_pageIndex < _totalPages - 1 &&    // (difference +'ve)
+        else if (PageIndex < _totalPages - 1 &&    // (difference +'ve)
                  _panelLocation.x - difference < _endLocation.x)
         {
             // clamp end location
@@ -109,35 +115,45 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
             // move to new page
             int pagesMoved = (int) percentage/1;
             pagesMoved += (percentage < 0) ? -1 : +1;
-            GotoPage(_pageIndex + pagesMoved);
+            PageChange(pagesMoved);
         } else {
             // bounce back to original position
-            GotoPage(_pageIndex);
+            GotoPage(PageIndex);
         }
     }
 
     public void OnPointerClick(PointerEventData pointerEventData = null)
     {
         if (_dragging == false) {
-            GotoPage(++_pageIndex);
+            PageChange(+1);
         }
     }
 
-    public void GotoPage(int pageIndex, bool snapTo = false)
+    private void PageChange(int pagesMoved)
+    {
+        if (pagesMoved == 0) {
+            return; // not actually changing page
+        }
+        if (PageIndex == _totalPages - 1 && pagesMoved > 0) {
+            OnPastLastPage?.Invoke();
+        }
+        GotoPage(PageIndex + pagesMoved);
+    }
+
+    public void GotoPage(int pageIndex, bool snapTo = false, Callback callback = null)
     {
         pageIndex = Utils.Clamp(pageIndex, 0, _totalPages - 1);
         Vector3 newLocation = _startLocation - new Vector3(pageIndex * _pageWidth, 0, 0);
-        _pageIndex = pageIndex;
+        PageIndex = pageIndex;
         _panelLocation = newLocation;
         _dragging = false;
 
-        onPageChange?.Invoke(_pageIndex);
+        onPageChange?.Invoke(PageIndex);
 
         if (snapTo) {
             transform.localPosition = _panelLocation;
         } else {
-            // TODO: trigger onPageChange after SmoothMove instead of passing null here.
-            Mover.SmoothMove(transform, newLocation, easing, null);
+            Mover.SmoothMove(transform, newLocation, easing, delegate() { callback?.Invoke(); });
         }
     }
 }
