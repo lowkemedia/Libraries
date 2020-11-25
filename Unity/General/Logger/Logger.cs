@@ -29,8 +29,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// TODO: replace with Debug.Log("I'm gone! (bye, bye)");  ?
-
 public class Logger : MonoBehaviour
 {
     public enum LogLevel
@@ -85,6 +83,7 @@ public class Logger : MonoBehaviour
                 }
             }
 
+            // TODO: use Debug.Log(logMessage); instead?
             print(logMessage);
         }
     }
