@@ -42,8 +42,8 @@ namespace LocalizerTypes
 
     public enum LanguageCode
     {
-        en_GB,              // British English
-        en_US,              // American English
+        en_GB,              // British English         English (UK)
+        en_US,              // American English        English (US)
         fr_FR,              // Standard French (especially in France)
         pt_BR,              // Brazilian Portuguese
         es_ES,              // Castilian Spanish (as spoken in Central-Northern Spain)
@@ -113,12 +113,16 @@ namespace LocalizerTypes
         public const string LOG_PREFIX = "LOC";
         public const string SEVERE_CANT_LOAD_FILE = LOG_PREFIX + "00";
         public const string SEVERE_CANT_READ_KEY = LOG_PREFIX + "01";
-        public const string WARNING_COULD_NOT_FIND_KEY = LOG_PREFIX + "02";
-        public const string WARNING_DUPLICATE_KEY = LOG_PREFIX + "03";
-        public const string WARNING_INVALID_KEY_PASSED = LOG_PREFIX + "04";
-        public const string WARNING_COULD_NOT_FIND_VALUE = LOG_PREFIX + "05";
-        public const string WARNING_NEEDS_BASELINE_ALIGNMENT = LOG_PREFIX + "06";
-        public const string WARNING_HAS_EMBEDDED_AND_PASSED_VARIABLES = LOG_PREFIX + "07";
+        public const string SEVERE_CANT_READ_STYLE = LOG_PREFIX + "02";
+        public const string SEVERE_CANT_FIND_FONT = LOG_PREFIX + "03";
+        public const string WARNING_COULD_NOT_FIND_KEY = LOG_PREFIX + "04";
+        public const string WARNING_COULD_NOT_FIND_STYLE = LOG_PREFIX + "05";
+        public const string WARNING_DUPLICATE_KEY = LOG_PREFIX + "06";
+        public const string WARNING_DUPLICATE_STYLE = LOG_PREFIX + "07";
+        public const string WARNING_INVALID_KEY_PASSED = LOG_PREFIX + "08";
+        public const string WARNING_COULD_NOT_FIND_VALUE = LOG_PREFIX + "09";
+        public const string WARNING_NEEDS_BASELINE_ALIGNMENT = LOG_PREFIX + "10";
+        public const string WARNING_HAS_EMBEDDED_AND_PASSED_VARIABLES = LOG_PREFIX + "11";
     }
 }
 

@@ -28,12 +28,12 @@
 using UnityEngine;
 
 [System.Serializable]
-public class LocalizationKeys
+public class LocalizerKeys
 {
     public LocalizerValue[] keys;
 
-    public static LocalizationKeys CreateFromJSON(string jsonString)
+    public static LocalizerKeys CreateFromJSON(string jsonString)
     {
-        return JsonUtility.FromJson<LocalizationKeys>(jsonString);
+        return JsonUtility.FromJson<LocalizerKeys>(jsonString);
     }
 }

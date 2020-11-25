@@ -31,18 +31,19 @@ using System.Collections.Generic;
 
 public class Localizer : MonoBehaviour
 {
-    public const char KEY_PREFEX    = '.';          // all keys begin with a '.'
-    public const char SEPERATOR     = '+';          // compound keys are seperated by '+'
-    public const char VARIABLES     = '|';          // varables passed into keys are separated by '|'
-    public const string BRACES      = "{}";         // curly braces indicate a variable
-    public const char DELIMINATOR   = ' ';          // deliminator added between keys, e.g. ".angry+.bees" returns "Angry Bees"
+    public const char KEY_PREFEX = '.';             // all keys begin with a '.'
+    public const char SEPERATOR = '+';              // compound keys are seperated by '+'
+    public const char VARIABLES = '|';              // varables passed into keys are separated by '|'
+    public const string BRACES = "{}";              // curly braces indicate a variable
+    public const char DELIMINATOR = ' ';            // deliminator added between keys, e.g. ".angry+.bees" returns "Angry Bees"
     public const string TEST_RETURN = "*";          // when testing, all keys return "*"
 
     public delegate void Callback(bool giveWarning = true);
     public static event Callback OnLanguageChangedEvent;
 
     private static Dictionary<string, LocalizerValue> _keyValuePairs;
-    private static List<string> _files;
+    private static List<string> _files;             // files used for localization
+    private static string _styleFile;                   // file used for stylesheet
 
     private static LanguageCode _languageCode = LanguageCode.en_GB;
     public static LanguageCode LanguageCode {
@@ -51,24 +52,41 @@ public class Localizer : MonoBehaviour
     }
 
     public static LanguageType LanguageType {
-        get { return (LanguageType)(int)_languageCode; }
-        set { Initialize((LanguageCode)(int)value); }
+        get { return (LanguageType) (int) _languageCode; }
+        set { Initialize((LanguageCode) (int) value); }
     }
-    public static LanguageType GetLanguageType(LanguageCode value) {
-        return (LanguageType)(int)value;
-	}
+    public static LanguageType GetLanguageType(LanguageCode value)
+    {
+        return (LanguageType) (int) value;
+    }
 
     public static LanguageName LanguageName {
-        get { return (LanguageName)(int)_languageCode; }
-        set { Initialize((LanguageCode)(int)value); }
+        get { return (LanguageName) (int) _languageCode; }
+        set { Initialize((LanguageCode) (int) value); }
     }
-    public static LanguageName GetLanguageName(LanguageCode value) {
-        return (LanguageName)(int)value;
+    public static LanguageName GetLanguageName(LanguageCode value)
+    {
+        return (LanguageName) (int) value;
+    }
+
+    public static string LanguageString {
+        get { return GetLanguageNameString(LanguageCode); }
+    }
+    public static string GetLanguageNameString(LanguageCode value)
+    {
+        switch (value) {
+            case LanguageCode.en_GB:
+                return "English (UK)";
+            case LanguageCode.en_US:
+                return "English (US)";
+            default:
+                return GetLanguageName(value).ToString();
+        }
     }
 
     public static bool Initialized {
         get { return _keyValuePairs != null; }
-	}
+    }
 
     // A root folder may be set for Localization
     public static string Root { get; set; }         // filepath root, if any.
@@ -84,6 +102,10 @@ public class Localizer : MonoBehaviour
             _files = new List<string>();
         }
 
+        if (!string.IsNullOrEmpty(_styleFile)) {
+            SetStyle(_styleFile);
+        }
+
         foreach (string file in _files) {
             LoadFile(file, true);
         }
@@ -91,8 +113,14 @@ public class Localizer : MonoBehaviour
         OnLanguageChangedEvent?.Invoke();
     }
 
+    public static void SetStyle(string fileName, bool giveWarning = true)
+    {
+        _styleFile = fileName;
+        Stylizer.LoadStyle(fileName, true, giveWarning);
+    }
+
     public static void AddFile(string fileName, bool giveWarning = true)
-	{
+    {
         _files.Add(fileName);
         LoadFile(fileName, giveWarning);
     }
@@ -105,16 +133,15 @@ public class Localizer : MonoBehaviour
         }
 
         string fullFileName = "";
-        if (! string.IsNullOrEmpty(Root)) {
+        if (!string.IsNullOrEmpty(Root)) {
             // include language type folder to path
             fullFileName += Root + LanguageType + "/";
         }
         fullFileName += fileName + "_" + _languageCode;
-        LocalizationKeys localizationKeys = JsonReader.ReadJson<LocalizationKeys>(fullFileName);
-
+        LocalizerKeys localizationKeys = JsonReader.ReadJson<LocalizerKeys>(fullFileName);
         if (localizationKeys == default) {
-            return;
-		}
+            return;     // file failed to load
+        }
 
         // add keys to dictionary
         foreach (LocalizerValue value in localizationKeys.keys) {
@@ -142,12 +169,12 @@ public class Localizer : MonoBehaviour
         if (!found && giveWarning) {
             Logger.Warning("Can't find key:\"" + key + "\" in localization dictionary.", LocalizerID.WARNING_COULD_NOT_FIND_KEY, true);
         }
-        
+
         return stringKeyValue;
     }
 
     // retrieve Value of key
-    public static string Value(string key, 
+    public static string Value(string key,
                                string[] variables = null,
                                bool giveWarning = true)
     {
@@ -159,31 +186,27 @@ public class Localizer : MonoBehaviour
 
         //
         // ensure key starts with a '.'
-        if (!IsKey(key))
-        {
+        if (!IsKey(key)) {
             if (giveWarning) {
                 Logger.Warning("Received invalid key \"" + key + "\"", LocalizerID.WARNING_INVALID_KEY_PASSED);
             }
 
             return (Testing) ? TEST_RETURN : key;
         }
-        
+
         //
         // parse embedded variables, seperated by '|'
         char[] spearator = { VARIABLES };
         string[] strlist = key.Split(spearator);
 
-        if (strlist.Length > 1)
-        {
+        if (strlist.Length > 1) {
             // found embedded variables
             if (variables != null) {
                 if (giveWarning) {
                     // but variables were passed in
                     Logger.Warning("Key \"" + key + "\" has embedded variables, but was passed in variables " + variables, LocalizerID.WARNING_HAS_EMBEDDED_AND_PASSED_VARIABLES);
                 }
-            }
-            else
-            {
+            } else {
                 // transfer embedded vars to variables list
                 variables = new string[strlist.Length - 1];
                 for (int i = 0; i < variables.Length; i++) {
@@ -200,8 +223,7 @@ public class Localizer : MonoBehaviour
 
         //
         // replace variables
-        if (variables != null)
-        {
+        if (variables != null) {
             int counter = 0;
             foreach (string variableKey in variables) {
                 string variableValue = Value(variableKey, null, false);
@@ -216,9 +238,9 @@ public class Localizer : MonoBehaviour
         return (Testing) ? TEST_RETURN : value;
     }
 
-    private static string CompoundKey(string key, 
+    private static string CompoundKey(string key,
                                       string[] variables = null,
-                                      bool giveWarning = true)   
+                                      bool giveWarning = true)
     {
         char[] seperator = { SEPERATOR };
         string[] keylist = key.Split(seperator);
@@ -250,7 +272,7 @@ public class Localizer : MonoBehaviour
         if (giveWarning) {
             Logger.Warning("Coud not find value:\"" + value + "\" in localization dictionary.", LocalizerID.WARNING_COULD_NOT_FIND_VALUE);
         }
-        
+
         return null;
     }
 

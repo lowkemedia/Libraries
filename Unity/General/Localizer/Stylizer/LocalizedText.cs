@@ -49,14 +49,17 @@ public class LocalizedText : MonoBehaviour
 
     public string Key { get; private set; }
     public string[] Variables { get; private set; }
+    public string Style { get; private set; }
     private bool _listenerAdded;
 
     public void SetKey(string key,
-                       string[] variables = null,
+                       string[] variables = default,
+                       string style = default,
                        bool giveWarning = true)
     {
         Key = key;
         Variables = variables;
+        Style = style;
         LinkTextField();
         UpdateKey(giveWarning);
 
@@ -66,48 +69,21 @@ public class LocalizedText : MonoBehaviour
         }
     }
 
-    public void UpdateKey(bool giveWarning = true) {
-        if (_textField is null) {
+    public void UpdateKey(bool giveWarning = true)
+    {
+        if (_textField == default) {
             // _textField has been deleted, but garbage collection
             //  has not called OnDestroy() yet.
             OnDestroy();
             return;
         }
 
-        string alignment = _textField.alignment.ToString();
-        if (giveWarning && !alignment.Contains("Baseline")) {
-            Logger.Warning("Localized textfield \"" + _textField.name + "\" should use baseline alignment.", LocalizerID.WARNING_NEEDS_BASELINE_ALIGNMENT, true);
-		}
-
-        float lineSpacing = _textField.lineSpacing;
-
-        // TODO: Localization stylesheet to be implemented here
-        // for now, a hack to ensure display doesn't overflow
-        const float TITLE_SIZE = 132;
-        const float TITLE_SIZE_RU = 82;
-        if (Localizer.LanguageCode == LanguageCode.ru) {
-            if (_textField.fontSize == TITLE_SIZE) {
-                _textField.fontSize = TITLE_SIZE_RU;
-            }
-        } else {
-            if (_textField.fontSize == TITLE_SIZE_RU) {
-                _textField.fontSize = TITLE_SIZE;
-            }
-        }
-        switch (Localizer.LanguageCode) {
-            case LanguageCode.en_GB:
-                _textField.lineSpacing = 13;
-                break;
-            case LanguageCode.fr_FR:
-                _textField.lineSpacing = 7;
-                break;
-            case LanguageCode.ru:
-                _textField.lineSpacing = 6;
-                break;
-
-        }
+        Stylizer.ApplyStyle(_textField, Style, giveWarning);
 
         switch (Key) {
+            case ".languageString":
+                _textField.text = Localizer.LanguageString;
+                break;
             case ".languageName":
                 _textField.text = Localizer.LanguageName.ToString();
                 break;
@@ -126,27 +102,5 @@ public class LocalizedText : MonoBehaviour
     private void OnDestroy() {
         Localizer.OnLanguageChangedEvent -= UpdateKey;
         _listenerAdded = false;
-    }
-}
-
-public static class LocalizedTextExtender
-{
-    public static void AddKey(this TextMeshProUGUI textField,
-                              string key,
-                              string[] variables = null,
-                              bool giveWarning = true)
-    {
-        // TODO: Ensure textField not destroyed!
-        GameObject gameObject = textField.gameObject;
-        if (gameObject is null) {
-            Logger.Severe("Could not add localization key:\"" + key + "\" to null TextField");
-            return;
-        }
-        LocalizedText localizedText;
-        localizedText = gameObject.GetComponent<LocalizedText>();
-        if (localizedText is null) {
-            localizedText = gameObject.AddComponent<LocalizedText>();
-        }
-        localizedText.SetKey(key, variables, giveWarning);
     }
 }

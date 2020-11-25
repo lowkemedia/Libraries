@@ -31,14 +31,14 @@ using LocalizerTypes;
 
 public class LanguageSwitcher : MonoBehaviour
 {
-    private static bool SHOW_LANGUAGE_TOGGLE = false;
+    private static bool SHOW_LANGUAGE_TOGGLE = true;
 
 	public ClickButton languageButton;
     public ClickButton foreignButton;
     public ClickButton englishButton;
 
     // TODO: Build Languages array in set LanguageCodes or Initialize()
-    public static LanguageCode[] LanguageCodes { get; } = new LanguageCode[] { LanguageCode.en_GB, LanguageCode.fr_FR, LanguageCode.ru };
+    public static LanguageCode[] LanguageCodes { get; } = new LanguageCode[] { LanguageCode.en_GB, LanguageCode.fr_FR, LanguageCode.de_DE, LanguageCode.ja };
 
     private static string[] _languages;
     public static string[] Languages {
@@ -48,7 +48,7 @@ public class LanguageSwitcher : MonoBehaviour
                 _languages = new string[LanguageCodes.Length];
                 for (int i = 0; i < LanguageCodes.Length; ++i) {
                     LanguageCode languageCode = LanguageCodes[i];
-                    string languageName = Localizer.GetLanguageName(languageCode).ToString();
+                    string languageName = Localizer.GetLanguageNameString(languageCode);
                     _languages[i] = languageName;
                 }
             }
@@ -76,7 +76,7 @@ public class LanguageSwitcher : MonoBehaviour
     }
 
 
-    private void Start()
+    public void Start()
 	{
         if (languageButton is null) {
             languageButton = GameObject.Find("Language Button").GetComponent<ClickButton>();
