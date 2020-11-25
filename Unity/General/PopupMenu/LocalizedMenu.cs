@@ -1,6 +1,6 @@
 //
 //  LocalizedMenu - PopupMenu package
-//  Russell Lowke, October 14th 2020
+//  Russell Lowke, November 23rd 2020
 //
 //  Copyright (c) 2019-2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -25,23 +25,41 @@
 //
 //
 
+using UnityEngine.Events;
+
 public class LocalizedMenu : PopupMenu
 {
-	public void LabelKey(string key,
-						 string[] variables = null,
-					     bool giveWarning = true)
+	private string _style;
+	private string[] _variables;
+	private bool _giveWarning;
+
+	public void Initialize(string[] menuKeys,
+						   string selectedKey = default,
+					       UnityAction<PopupMenuEventArgs> unityCallback = default,
+						   string style = default, string[] variables = default, bool giveWarning = true)
 	{
-		popupLabel.AddKey(key, variables, giveWarning);
+		_style = style;
+		_variables = variables;
+		_giveWarning = giveWarning;
+		base.Initialize(menuKeys, selectedKey, unityCallback);
 	}
 
 	protected override string SelectedText {
-		set { popupTextButton.textField.AddKey(value); }
+		set { popupTextButton.textField.AddKey(value, _variables, _style, _giveWarning); }
+	}
+
+	public void LabelKey(string key,
+						 string[] variables = default,
+						 string style = default,
+						 bool giveWarning = true)
+	{
+		popupLabel.AddKey(key, variables, style, giveWarning);
 	}
 
 	protected override TextButton MakeTextButton(TextButton templateButton, string menuItemKey)
 	{
 		TextButton textButton = _gameObjectMenu.MakeTextButton(templateButton, menuItemKey);
-		textButton.textField.AddKey(menuItemKey);
+		textButton.textField.AddKey(menuItemKey, _variables, _style, _giveWarning);
 		return textButton;
 	}
 }

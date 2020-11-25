@@ -110,14 +110,14 @@ public class PopupMenu : MonoBehaviour
 		set { popupTextButton.textField.text = value; }
 	}
 
-	private void Start()
+	public void Start()
 	{
 		popupTextButton.onClickEvent.AddListener(OnClickButton);
 	}
 
 	public void Initialize(string[] menuItems,
-						   string selected = null,
-						   UnityAction<PopupMenuEventArgs> unityCallback = null)
+						   string selected = default,
+						   UnityAction<PopupMenuEventArgs> unityCallback = default)
 	{
 		_menuItems = (string[])menuItems.Clone();
 		popupTextButton.Enabled = true;
