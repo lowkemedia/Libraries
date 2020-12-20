@@ -1,0 +1,15 @@
+#
+#
+# tells how to create programs
+
+CC = c++
+
+chess: chess.o
+	$(CC) main.cpp chess.o -o chess
+
+chess.o: chess.cpp chess.hpp
+	$(CC) -c chess.cpp
+
+clean:
+	rm chess
+	rm chess.o
