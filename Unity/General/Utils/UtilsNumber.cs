@@ -27,7 +27,6 @@
 
 public static class UtilsNumber
 {
-
     //
     // Convert radians to degrees.
     // degrees = radians*180/PI
@@ -63,38 +62,28 @@ public static class UtilsNumber
         ///
         public static function XYToAngle(x:Number, y:Number):Number
         {
-            if (x == 0 && y == 0)
-            {
+            if (x == 0 && y == 0) {
                 return NaN;     // there is no angle without an x or y
             }
 
             if (x == 0)
             {                   // avoid error due to divide by zero.
-                if (y > 0)
-                {
+                if (y > 0) {
                     return 90;  //  down
-                }
-                else
-                {
+                } else {
                     return 270;  //  up
                 }
             }
             else
             {                    // quadrants
                 var degrees:Number = radiansToDegrees(Math.atan(y/x));
-                if (x > 0)
-                {
-                    if (degrees < 0)
-                    {
+                if (x > 0) {
+                    if (degrees < 0) {
                         return 360 + degrees;
-                    }
-                    else
-                    {
+                    } else {
                         return degrees;
                     }
-                }
-                else
-                {
+                } else {
                     return 180 + degrees;
                 }
             }
@@ -187,12 +176,9 @@ public static class UtilsNumber
                                         pt:Point,
                                         m:Number):Number
         {
-            if (m == 0)
-            {
+            if (m == 0) {
                 return 0; // avoid divide by zero
-            }
-            else
-            {
+            } else {
                 return pt.x + (y - pt.y)/m;
             }
         }
@@ -219,16 +205,11 @@ public static class UtilsNumber
         ///
         public static function gradient(rise:Number, run:Number):Number
         {
-            if (rise == 0)
-            {
+            if (rise == 0) {
                 return 0;
-            }
-            else if (run == 0)
-            {
+            } else if (run == 0) {
                 return rise;  // infinity
-            }
-            else
-            {
+            }  else {
                 return rise/run;
             }
         }
@@ -246,7 +227,7 @@ public static class UtilsNumber
         //
         // Returns true if value with range of other two values.
         //
-        // @param value Value being checked if within range of other tqo parameters.
+        // @param value Value being checked if within range of other two parameters.
         // @param valueA First value defining range limit.
         // @param valueB Second value defining range limit.
         ///
@@ -256,27 +237,19 @@ public static class UtilsNumber
         {
             var low:Number;
             var high:Number;
-            if (valueA < valueB)
-            {
+            if (valueA < valueB) {
                 low = valueA;
                 high = valueB;
-            }
-            else
-            {
+            } else {
                 low = valueB;
                 high = valueA;
             }
 
-            if (value < low)
-            {
+            if (value < low) {
                 return false;
-            }
-            else if (value > high)
-            {
+            } else if (value > high) {
                 return false;
-            }
-            else
-            {
+            } else {
                 return true;
             }
         }
@@ -284,8 +257,7 @@ public static class UtilsNumber
         public static function cleanAngle(angle:Number):Number
         {
             angle %= 360;
-            if (angle < 0)
-            {
+            if (angle < 0) {
                 return 360 + angle;
             }
             return angle;
@@ -303,35 +275,24 @@ public static class UtilsNumber
             var inc:int = 0;
             var dec:int = 0;
     
-            if (n == dest)
-            {
+            if (n == dest) {
                 return 0;
-            }
-            else
-            {
-                if (n < dest)
-                {
+            } else {
+                if (n < dest) {
                     inc = dest - n;
                     dec = n + (
                         max - dest);
-                }
-                else
-                {
-                    if (n > dest)
-                    {
-                        inc = dest + (
-                            max - n);
+                } else {
+                    if (n > dest) {
+                        inc = dest + (max - n);
                         dec = n - dest;
                     }
                 }
             }
     
-            if (inc > dec)
-            {
+            if (inc > dec) {
                 return -1;
-            }
-            else
-            {
+            } else {
                 return +1;
             }
         }
