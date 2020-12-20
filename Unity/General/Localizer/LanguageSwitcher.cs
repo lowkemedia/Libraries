@@ -38,7 +38,7 @@ public class LanguageSwitcher : MonoBehaviour
     public ClickButton englishButton;
 
     // TODO: Build Languages array in set LanguageCodes or Initialize()
-    public static LanguageCode[] LanguageCodes { get; } = new LanguageCode[] { LanguageCode.en_GB, LanguageCode.fr_FR, LanguageCode.de_DE, LanguageCode.ja };
+    public static LanguageCode[] LanguageCodes { get; } = new LanguageCode[] { LanguageCode.en_GB, LanguageCode.fr_FR, LanguageCode.de_DE, LanguageCode.ru, LanguageCode.ja };
 
     private static string[] _languages;
     public static string[] Languages {

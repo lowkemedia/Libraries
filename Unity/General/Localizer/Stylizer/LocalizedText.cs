@@ -65,8 +65,12 @@ public class LocalizedText : MonoBehaviour
 
         if (!_listenerAdded) {
             _listenerAdded = true;
-            Localizer.OnLanguageChangedEvent += UpdateKey;
+            Localizer.OnLanguageChangedEvent += OnLanguageChanged;
         }
+    }
+
+    private void OnLanguageChanged() {
+        UpdateKey(true);
     }
 
     public void UpdateKey(bool giveWarning = true)
@@ -100,7 +104,7 @@ public class LocalizedText : MonoBehaviour
     }
 
     private void OnDestroy() {
-        Localizer.OnLanguageChangedEvent -= UpdateKey;
+        Localizer.OnLanguageChangedEvent -= OnLanguageChanged;
         _listenerAdded = false;
     }
 }

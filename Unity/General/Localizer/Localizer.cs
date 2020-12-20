@@ -1,6 +1,6 @@
 //
 //  Localizer v 1.0 - Localizer package
-//  Russell Lowke, October 14th 2020
+//  Russell Lowke, December 20th 2020
 //
 //  Copyright (c) 2019-2020 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -33,17 +33,21 @@ public class Localizer : MonoBehaviour
 {
     public const char KEY_PREFEX = '.';             // all keys begin with a '.'
     public const char SEPERATOR = '+';              // compound keys are seperated by '+'
-    public const char VARIABLES = '|';              // varables passed into keys are separated by '|'
+    public const char BAR = '|';                    // varables passed into keys are separated by '|'
     public const string BRACES = "{}";              // curly braces indicate a variable
     public const char DELIMINATOR = ' ';            // deliminator added between keys, e.g. ".angry+.bees" returns "Angry Bees"
     public const string TEST_RETURN = "*";          // when testing, all keys return "*"
 
-    public delegate void Callback(bool giveWarning = true);
+    public delegate void Callback();
     public static event Callback OnLanguageChangedEvent;
+
+    // delegate allowing external modification of variables passed into keys
+    public delegate string[] VariablesDelegate(string[] variables);
+    public static VariablesDelegate VariablesTinkerer;  // call to modify variables passed into keys
 
     private static Dictionary<string, LocalizerValue> _keyValuePairs;
     private static List<string> _files;             // files used for localization
-    private static string _styleFile;                   // file used for stylesheet
+    private static string _styleFile;               // file used for stylesheet
 
     private static LanguageCode _languageCode = LanguageCode.en_GB;
     public static LanguageCode LanguageCode {
@@ -196,15 +200,15 @@ public class Localizer : MonoBehaviour
 
         //
         // parse embedded variables, seperated by '|'
-        char[] spearator = { VARIABLES };
+        char[] spearator = { BAR };
         string[] strlist = key.Split(spearator);
 
         if (strlist.Length > 1) {
-            // found embedded variables
+            // found embedded variables in key
             if (variables != null) {
                 if (giveWarning) {
-                    // but variables were passed in
-                    Logger.Warning("Key \"" + key + "\" has embedded variables, but was passed in variables " + variables, LocalizerID.WARNING_HAS_EMBEDDED_AND_PASSED_VARIABLES);
+                    // but variables were passed into Value()
+                    Logger.Warning("Key \"" + key + "\" has embedded variables: " + UtilsArray.Print(strlist) + ", but was passed in variable parameters: " + UtilsArray.Print(variables), LocalizerID.WARNING_HAS_EMBEDDED_AND_PASSED_VARIABLES);
                 }
             } else {
                 // transfer embedded vars to variables list
@@ -215,6 +219,11 @@ public class Localizer : MonoBehaviour
             }
         }
         key = strlist[0];
+
+        // if assigned, use VariablesTinkerer delegate to modify variables list
+        if (VariablesTinkerer != null && UtilsArray.HasValue(variables)) {
+            variables = VariablesTinkerer(variables);
+        }
 
         //
         // retrieve value
