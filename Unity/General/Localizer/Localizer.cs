@@ -129,6 +129,18 @@ public class Localizer : MonoBehaviour
         LoadFile(fileName, giveWarning);
     }
 
+    public static string FullFileName(string fileName)
+    {
+        string fullFileName = "";
+        if (!string.IsNullOrEmpty(Root)) {
+            // include language type folder to path
+            fullFileName += Root + LanguageType + "/";
+        }
+        fullFileName += fileName + "_" + _languageCode;
+
+        return fullFileName;
+	}
+
     public static void LoadFile(string fileName, bool giveWarning = true)
     {
         if (!Initialized) {
@@ -136,12 +148,7 @@ public class Localizer : MonoBehaviour
             return;
         }
 
-        string fullFileName = "";
-        if (!string.IsNullOrEmpty(Root)) {
-            // include language type folder to path
-            fullFileName += Root + LanguageType + "/";
-        }
-        fullFileName += fileName + "_" + _languageCode;
+        string fullFileName = FullFileName(fileName);
         LocalizerKeys localizationKeys = JsonReader.ReadJson<LocalizerKeys>(fullFileName);
         if (localizationKeys == default) {
             return;     // file failed to load
@@ -149,11 +156,13 @@ public class Localizer : MonoBehaviour
 
         // add keys to dictionary
         foreach (LocalizerValue value in localizationKeys.keys) {
+            value.FileName = fullFileName;
             string key = value.key.ToLower();
             bool found = _keyValuePairs.TryGetValue(key, out LocalizerValue stringKeyValue);
             if (found && giveWarning) {
-                Logger.Warning("Duplicate key:\"" + key + "\" in file:\"" + fileName + "\" existing:\"" + stringKeyValue.value + "\" replacement:\"" + value.value + "\"", LocalizerID.WARNING_DUPLICATE_KEY);
+                Logger.Warning("Duplicate key:\"" + key + "\" value:\"" + value + "\" file:\"" + fullFileName + "\" existing:\"" + stringKeyValue.value + "\" file:\"" + stringKeyValue.FileName + "\"", LocalizerID.WARNING_DUPLICATE_KEY);
             }
+            
             _keyValuePairs[key] = value;
         }
     }
@@ -161,6 +170,8 @@ public class Localizer : MonoBehaviour
     // retrieve LocalizerValue of key
     public static LocalizerValue LocalizerValue(string key, bool giveWarning = true)
     {
+        key = JustKey(key);
+
         if (!Initialized) {
             Logger.Severe("Can't localize key:\"" + key + "\" as Localizer not initialized.", LocalizerID.SEVERE_CANT_READ_KEY);
             return null;
@@ -198,11 +209,7 @@ public class Localizer : MonoBehaviour
             return (Testing) ? TEST_RETURN : key;
         }
 
-        //
-        // parse embedded variables, seperated by '|'
-        char[] spearator = { BAR };
-        string[] strlist = key.Split(spearator);
-
+        string[] strlist = ExpandKey(key);
         if (strlist.Length > 1) {
             // found embedded variables in key
             if (variables != null) {
@@ -228,20 +235,33 @@ public class Localizer : MonoBehaviour
         //
         // retrieve value
         LocalizerValue stringKeyValue = LocalizerValue(key);
-        string value = (stringKeyValue != null) ? stringKeyValue.value : key;
+        string value;
+        if (stringKeyValue != null) {
+            value = stringKeyValue.value;
 
-        //
-        // replace variables
-        if (variables != null) {
-            int counter = 0;
-            foreach (string variableKey in variables) {
-                string variableValue = Value(variableKey, null, false);
-                string replaceWithVariable = "";
-                replaceWithVariable += BRACES[0];
-                replaceWithVariable += counter++;
-                replaceWithVariable += BRACES[1];
-                value = value.Replace(replaceWithVariable, variableValue);
+            //
+            // replace variables
+            if (variables != null) {
+
+                // save variables last used with this key
+                stringKeyValue.Variables = variables;
+
+                // substitute variables
+                int counter = 0;
+                foreach (string variableKey in variables) {
+                    string variableValue = Value(variableKey, null, false);
+                    string replaceWithVariable = "";
+                    replaceWithVariable += BRACES[0];
+                    replaceWithVariable += counter++;
+                    replaceWithVariable += BRACES[1];
+                    value = value.Replace(replaceWithVariable, variableValue);
+                }
             }
+
+        } else {
+
+            // if failed to get value, then use the key
+            value = key;
         }
 
         return (Testing) ? TEST_RETURN : value;
@@ -251,8 +271,7 @@ public class Localizer : MonoBehaviour
                                       string[] variables = null,
                                       bool giveWarning = true)
     {
-        char[] seperator = { SEPERATOR };
-        string[] keylist = key.Split(seperator);
+        string[] keylist = GetKeys(key);
         string value = "";
         string previousKey = default;
         for (int i = 0; i < keylist.Length; ++i) {
@@ -285,11 +304,33 @@ public class Localizer : MonoBehaviour
         return null;
     }
 
-    private static bool IsKey(string value)
+    public static bool IsKey(string value)
     {
         // return true if value starts with '.'
         return !string.IsNullOrEmpty(value) && value[0] == KEY_PREFEX;
     }
+
+    public static string JustKey(string key)
+    {
+        // remove any embedded variables from end of key
+        return ExpandKey(key)[0];
+    }
+
+    public static string[] ExpandKey(string key)
+    {
+        // break key into key and variables
+        //  embedded variables seperated by '|'
+        char[] spearator = { BAR };
+        return key.Split(spearator);
+    }
+
+    public static string[] GetKeys(string key)
+	{
+        // break compound key into individual keys
+        //  compound keys seperated by '+'
+        char[] seperator = { SEPERATOR };
+        return key.Split(seperator);
+	}
 
     public static string Citation(string key)
     {

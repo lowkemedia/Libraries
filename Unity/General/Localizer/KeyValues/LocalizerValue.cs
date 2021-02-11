@@ -34,4 +34,7 @@ public class LocalizerValue
     public string original;             // original English string
     public string value;                // translated string
     public string note;                 // note about string added by translator or developer
+
+    public string FileName;             // (assigned) file name
+    public string[] Variables;          // (assigned) variables from when last called
 }
