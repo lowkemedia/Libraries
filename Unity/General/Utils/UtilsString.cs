@@ -27,13 +27,72 @@
 
 public static class UtilsString
 {
+    public static char First(this string value)
+    {
+        if (string.IsNullOrEmpty(value)) {
+            return '\0';
+        }
+
+        // return 1st char of string
+        return value[0];
+    }
+
     public static char Last(this string value)
     {
         if (string.IsNullOrEmpty(value)) {
             return '\0';
         }
+
+        // return last char of string
         return value[value.Length - 1];
     }
+
+    public static bool CheckForQuote(string value, bool giveWarning = true)
+    {
+        // check for single quote
+        //  see https://practicaltypography.com/straight-and-curly-quotes.html
+        if (value.IndexOf("\'") != -1) {
+            if (giveWarning) {
+                Logger.Warning("Found single quote (\') in value:\"" + value + "\"  Should use ’ ");
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    public static string CorrectForQuotes(string value)
+    {
+        return Replace(value, '"', "\\\"");
+    }
+
+    public static string CorrectForTabs(string value)
+    {
+        return Replace(value, '\t', "\\t");
+    }
+
+    public static string Replace(string value, char character, string replacement)
+    {
+        // replace a character with a string
+
+        if (string.IsNullOrEmpty(value)) {
+            return null;
+        }
+
+        char[] charList = { character };
+        string[] split = value.Split(charList);
+
+        for (int i = 0; i < split.Length; ++i) {
+            if (i == 0) {
+                value = split[0];
+            } else {
+                value += replacement + split[i];
+            }
+        }
+
+        return value;
+    }
+
 
     public delegate string ApplyFunctionDelegate(string functionName, string[] parameters);
     public static string ApplyStringedFunction(string value, ApplyFunctionDelegate applyFunction)
