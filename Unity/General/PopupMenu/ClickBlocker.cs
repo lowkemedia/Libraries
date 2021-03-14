@@ -28,11 +28,11 @@
 using UnityEngine.EventSystems;
 using UnityEngine;
 using UnityEngine.UI;
+using PopupMenuTypes;
 
-public class ClickBlocker : MonoBehaviour,
-    IPointerDownHandler, IPointerEnterHandler
+public class ClickBlocker : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
 {
-    private PopupMenu _popupMenu;
+    private IPopup _popupMenu;
 	
 	public void Initialize(GameObject popupMenuGameObject)
     {
@@ -49,7 +49,7 @@ public class ClickBlocker : MonoBehaviour,
 		// blockerImage.SetScale(new Vector3(1f, 1f, 1));
 		Vector3 position = -GetSumOfPositions(popupMenuGameObject);
 		blockerImage.SetPosition(position);
-		_popupMenu = gameObject.GetComponentInParent<PopupMenu>();
+		_popupMenu = gameObject.GetComponentInParent<IPopup>();
     }
 
 	private Vector3 GetSumOfPositions(GameObject obj)

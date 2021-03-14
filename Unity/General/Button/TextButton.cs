@@ -136,7 +136,7 @@ public class TextButton : MonoBehaviour
 			textField.color = _selectedColor;
 		} else if (!ClickButton.Enabled) {
 			textField.color = _disabledColor;
-		} else if (ClickButton.Pressed) {
+		} else if (ClickButton.Pressed && ClickButton.PointerInside) {
 			textField.color = _pressedColor;
 		} else if (ClickButton.PointerInside) {
 			textField.color = _highlightedColor;

@@ -237,7 +237,7 @@ public class ClickButton : MonoBehaviour,
             Image.sprite = SelectedSprite;
         } else if (!Enabled) {
             Image.sprite = DisabledSprite;
-        } else if (Pressed) {
+        } else if (Pressed && PointerInside) {
             Image.sprite = PressedSprite;
         } else if (PointerInside) {
             Image.sprite = HighlightedSprite;

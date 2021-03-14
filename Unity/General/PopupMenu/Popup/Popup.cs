@@ -1,8 +1,8 @@
 ﻿//
-//  PopupMenu - PopupMenu package
-//  Russell Lowke, October 14th 2020
+//  Popup - PopupMenu package
+//  Russell Lowke, March 11th 2021
 //
-//  Copyright (c) 2019-2020 Lowke Media
+//  Copyright (c) 2019-2021 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -30,22 +30,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
 using UnityEngine.UI;
+using PopupMenuTypes;
 
-[Serializable]
-public class PopupMenuEvent : UnityEvent<PopupMenuEventArgs> { }
-public class PopupMenuEventArgs
-{
-	public string MenuItem;
-	public int Index;
-
-	public PopupMenuEventArgs(string menuItem, int index)
-	{
-		MenuItem = menuItem;
-		Index = index;
-	}
-}
-
-public class PopupMenu : MonoBehaviour
+public class Popup : MonoBehaviour, IPopup
 {
 	// TODO: device version needs to behave differenetly from desktop
 	public delegate void Callback();
@@ -61,10 +48,10 @@ public class PopupMenu : MonoBehaviour
 
 	public float padding = 30;                      // padding around buttons
 
-	private GameObject _popupGameObject;
+	protected GameObject _popupGameObject;
 	protected GameObject _gameObjectMenu;
 	private int _selectedIndex;
-	private string[] _menuItems;
+	protected string[] _menuItems;
 
 	public string LabelText {
 		get { return popupLabel.text; }
@@ -100,17 +87,22 @@ public class PopupMenu : MonoBehaviour
 			// show correct menuItem on button
 			SelectedText = Selected;
 
-			// move popup according to location of selected item
-			float yPos = -_selectedIndex * (popupTextButton.GetHeight() + padding);
-			_gameObjectMenu.SetY(yPos);
+			UpdatePopupPosition();
 		}
+	}
+
+	protected virtual void UpdatePopupPosition()
+    {
+		// move popup according to location of selected item
+		float yPos = -_selectedIndex * (popupTextButton.GetHeight() + padding);
+		_gameObjectMenu.SetY(yPos);
 	}
 
 	protected virtual string SelectedText {
 		set { popupTextButton.textField.text = value; }
 	}
 
-	public void Start()
+	public virtual void Start()
 	{
 		popupTextButton.onClickEvent.AddListener(OnClickButton);
 	}
@@ -132,10 +124,9 @@ public class PopupMenu : MonoBehaviour
 		}
 
 		HidePopup();
-
 	}
 
-	private GameObject MakePopupGameObject(TextButton templateButton,
+	protected virtual GameObject MakePopupGameObject(TextButton templateButton,
 										   string selected = null)
 	{
 		// create popup menu
@@ -190,7 +181,7 @@ public class PopupMenu : MonoBehaviour
 		return textButton;
 	}
 
-	private void ShowPopup()
+	protected virtual void ShowPopup()
 	{
 		// move popup to top of display list
 		gameObject.MoveToTop();
@@ -203,7 +194,7 @@ public class PopupMenu : MonoBehaviour
 		popupTextButton.gameObject.SetActive(false);
 	}
 
-	private void HidePopup()
+	protected virtual void HidePopup()
 	{
 		_popupGameObject.SetActive(false);
 		popupTextButton.gameObject.SetActive(true);

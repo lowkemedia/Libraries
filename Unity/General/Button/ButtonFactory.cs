@@ -34,6 +34,13 @@ public static class ButtonFactory
                                               ClickButton template)
     {
         ClickButton clickButton = parent.MakeUiComponent(template, "Button");
+        // TODO: Check this. CopyComponent() in MakeUiComponent() should copy these?
+        clickButton.useDefaultSound = template.useDefaultSound;
+        clickButton.clickSound = template.clickSound;
+        clickButton.rollSound = template.rollSound;
+        clickButton.waitForClickSound = template.waitForClickSound;
+        // clickButton.SetStyle(template.style);
+
         clickButton.onClickEvent = new ClickButtonEvent();
 
         return clickButton;

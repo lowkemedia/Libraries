@@ -1,8 +1,8 @@
 //
-//  LocalizedMenu - PopupMenu package
-//  Russell Lowke, November 23rd 2020
+//  LocalizedPopup - PopupMenu package
+//  Russell Lowke, March 11th 2021
 //
-//  Copyright (c) 2019-2020 Lowke Media
+//  Copyright (c) 2019-2021 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -26,8 +26,11 @@
 //
 
 using UnityEngine.Events;
+using PopupMenuTypes;
 
-public class LocalizedMenu : PopupMenu
+// TODO: Extend Popup by using [RequireComponent(typeof(Popup))]
+//  rather than directly extending Popup. See TextButton class for implementation
+public class LocalizedPopup : Popup
 {
 	private string _style;
 	private string[] _variables;
