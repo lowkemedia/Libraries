@@ -83,7 +83,7 @@ public class Hamberger : Popup
 		GameObject popupGameObject = gameObject.MakeUiObject("Hamberger");
 
 		// create blocker
-		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(gameObject, popupGameObject);
+		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(popupGameObject, gameObject);
 
 		// create menu
 		_gameObjectMenu = popupGameObject.MakeUiObject("Menu");
@@ -113,6 +113,10 @@ public class Hamberger : Popup
 			clickButton.onClickEvent.AddListener(delegate { MenuButtonClicked(new PopupMenuEventArgs(menuItem, index)); });
 			clickButton.OnRolloverEvent += delegate { MenuButtonRolled(menuItem, index); };
 			yLoc += clickButton.GetHeight() + padding;
+			if (index == _selectedIndex) {
+				clickButton.Selected = true;
+				clickButton.Enabled = false;
+			}
 		}
 
 		// TODO: not this. Messy manipulation of popupTextButton

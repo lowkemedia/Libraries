@@ -1,6 +1,6 @@
 //
-//  SwipeDetector - Button package
-//  Russell Lowke, March 15th 2021
+//  SwipeCopier - Button package
+//  Russell Lowke, April 1st 2021
 //
 //  Copyright (c) 2021 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -26,54 +26,29 @@
 //
 
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-[System.Serializable]
-public class SwipeEvent : UnityEvent<float> { }
-
-public class SwipeDetector : MonoBehaviour, IPointerClickHandler, IDragHandler, IBeginDragHandler, IEndDragHandler
+public class SwipeCopier : MonoBehaviour, IPointerClickHandler, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
-    public SwipeEvent onSwipe;              // Unity event for swipe
-    public bool ignoreClicks = false;       // if true any clicks are ignored
-
-    private bool _dragging;
+    public PageSwiper pageSwiper;           // page swiper that drag events are sent to
 
     public void OnPointerClick(PointerEventData pointerEventData)
     {
-        _dragging = false;
-        
-        if (!ignoreClicks) {
-            HandleSwipe(pointerEventData);
-        }
+        pageSwiper.OnPointerClick(pointerEventData);
     }
 
     public void OnDrag(PointerEventData pointerEventData)
     {
-        // user dragging
-        //  Must have OnDrag() method for OnBeginDrag() and OnEndDrag() to work
+        pageSwiper.OnDrag(pointerEventData);
     }
 
     public void OnBeginDrag(PointerEventData pointerEventData)
     {
-        _dragging = true;
+        // pageSwiper.OnBeginDrag(pointerEventData);
     }
 
     public void OnEndDrag(PointerEventData pointerEventData)
     {
-        if (_dragging) {
-            HandleSwipe(pointerEventData);
-        }
-
-        _dragging = false;
-    }
-
-    private void HandleSwipe(PointerEventData pointerEventData)
-    {
-        Vector3 localPressPosition = this.GetLocalPosition(pointerEventData.pressPosition);
-        Vector3 localPosition = this.GetLocalPosition(pointerEventData.position);
-        float direction = localPosition.x - localPressPosition.x;
-
-        onSwipe?.Invoke(direction);
+        pageSwiper.OnEndDrag(pointerEventData);
     }
 }

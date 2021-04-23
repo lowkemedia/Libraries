@@ -28,6 +28,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using AnimatorTypes;
+using CallbackTypes;
 
 public class Animator : MonoBehaviour
 {

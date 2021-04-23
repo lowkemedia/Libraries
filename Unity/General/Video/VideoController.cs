@@ -29,11 +29,10 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using CallbackTypes;
 
 public class VideoController : MonoBehaviour
 {
-	public delegate void Callback();
-
 	public VideoPlayer videoPlayer;
 	public RenderTexture renderTexture;
 

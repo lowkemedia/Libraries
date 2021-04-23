@@ -27,7 +27,6 @@
 
 namespace AnimatorTypes
 {
-    public delegate void Callback();
     public delegate float EasingFunct(float time,
                                float begin,
                                float range,

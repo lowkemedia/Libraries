@@ -29,6 +29,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using CallbackTypes;
 
 [System.Serializable]
 public class ClickButtonEvent : UnityEvent<ClickButton> { }
@@ -37,8 +38,6 @@ public class ClickButtonEvent : UnityEvent<ClickButton> { }
 public class ClickButton : MonoBehaviour,
              IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
-    public delegate void Callback();
-
     public ClickButtonStyle style;
     public new bool enabled = true;                             // implements own enable, so disabled buttons still keep track of PointerInside, etc.
     public bool selected;
@@ -61,10 +60,19 @@ public class ClickButton : MonoBehaviour,
     public bool SkipPointerUp { get; set; }               // skips drawing the normal ("Up") state after a click
     public bool PointerInside { get; private set; }       // true if pointer inside button
 
+    private bool IsHandheld {
+        get { return SystemInfo.deviceType == DeviceType.Handheld;  }
+    }
+
     private bool _showAsPressed;                                // true if button override as pressed
     private bool _pressed;                                      // true if button is pressed
     public bool Pressed {                                       // true if pressed
-        get { return _pressed || _showAsPressed; }
+        get {
+            if (_showAsPressed) {
+                return true;
+            }
+            return _pressed && (IsHandheld || PointerInside);
+        }
     }
 
     
@@ -206,7 +214,7 @@ public class ClickButton : MonoBehaviour,
         OnRolloverEvent?.Invoke();
 
         if (rollSound != null) {
-            if (SystemInfo.deviceType == DeviceType.Handheld) {
+            if (IsHandheld) {
                 // don't play roll sound on handheld devices
                 return;
             }
@@ -237,7 +245,7 @@ public class ClickButton : MonoBehaviour,
             Image.sprite = SelectedSprite;
         } else if (!Enabled) {
             Image.sprite = DisabledSprite;
-        } else if (Pressed && PointerInside) {
+        } else if (Pressed) {
             Image.sprite = PressedSprite;
         } else if (PointerInside) {
             Image.sprite = HighlightedSprite;
@@ -250,8 +258,8 @@ public class ClickButton : MonoBehaviour,
 
     //
     // Click for pressDuration seconds
-    //
-    public virtual void Click(float pressDuration = 0)      // pressDuration = 0.33f
+    //  a good visual pressDuration is 0.33f
+    public virtual void Click(float pressDuration = 0)
     {
         if (!(isActiveAndEnabled && Enabled)) {
             // button must be active and enabled to click
@@ -278,7 +286,7 @@ public class ClickButton : MonoBehaviour,
 
         if (waitForClickSound) {
             if (pressDuration > 0) {
-                Logger.Warning("waitForClickSound should not be used with pressDuration > 0");
+                Logger.Warning("pressDuration = " + pressDuration + ". waitForClickSound should not be used with pressDuration > 0");
             }
             SoundHelper.SoundCallback(clickSound, unpressCallback);
         } else {

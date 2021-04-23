@@ -67,7 +67,7 @@ public class DropDown : Popup
 		GameObject popupGameObject = gameObject.MakeUiObject("DropDown");
 
 		// create blocker
-		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(gameObject, popupGameObject);
+		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(popupGameObject, gameObject);
 
 		// create menu
 		_gameObjectMenu = popupGameObject.MakeUiObject("Menu");

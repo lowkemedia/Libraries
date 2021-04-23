@@ -28,11 +28,10 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using CallbackTypes;
 
 public class Delayer : MonoBehaviour
 {
-    public delegate void Callback();
-
     private static Delayer _instance;
 
     public void Awake()

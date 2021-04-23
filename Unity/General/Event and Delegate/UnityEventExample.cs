@@ -1,5 +1,5 @@
 ﻿//
-//  UnityEventExample
+//  UnityEventExample - Event and Delegate package
 //  Russell Lowke, June 23rd 2020
 //
 //  Copyright (c) 2020 Lowke Media

@@ -1,6 +1,6 @@
 ﻿//
-//  PopupMenuTypes - PopupMenu package
-//  Russell Lowke, March 11th 2021
+//  ClickBlockerTypes - ClickBlocker package
+//  Russell Lowke, April 21st 2021
 //
 //  Copyright (c) 2021 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -25,22 +25,11 @@
 //
 //
 
-using System;
-using UnityEngine.Events;
-
-namespace PopupMenuTypes
+namespace ClickBlockerTypes
 {
-	[Serializable]
-	public class PopupMenuEvent : UnityEvent<PopupMenuEventArgs> { }
-	public class PopupMenuEventArgs
+	interface IBlockResolver
 	{
-		public string MenuItem;
-		public int Index;
-
-		public PopupMenuEventArgs(string menuItem, int index)
-		{
-			MenuItem = menuItem;
-			Index = index;
-		}
+		void OnBlockerRolled();
+		void OnBlockerClicked();
 	}
 }

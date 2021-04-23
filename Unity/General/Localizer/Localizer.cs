@@ -28,6 +28,7 @@
 using UnityEngine;
 using LocalizerTypes;
 using System.Collections.Generic;
+using CallbackTypes;
 
 public class Localizer : MonoBehaviour
 {
@@ -38,7 +39,6 @@ public class Localizer : MonoBehaviour
     public const char DELIMINATOR = ' ';            // deliminator added between keys, e.g. ".angry+.bees" returns "Angry Bees"
     public const string TEST_RETURN = "*";          // when testing, all keys return "*"
 
-    public delegate void Callback();
     public static event Callback OnLanguageChangedEvent;
 
     // delegate allowing external modification of variables passed into keys

@@ -27,13 +27,20 @@
 
 using UnityEngine;
 using System.Collections;
+using CallbackTypes;
 
 public class SoundHelper : MonoBehaviour
 {
-    public delegate void Callback();
+    public enum SoundType
+    {
+        Click,
+        Roll,
+        Beep
+    };
 
     public AudioSource click;                       // default click sound
     public AudioSource roll;                        // default roll sound
+    public AudioSource beep;                        // default beep sound
 
     private static SoundHelper _instance;
 
@@ -47,6 +54,30 @@ public class SoundHelper : MonoBehaviour
 
     public static AudioSource RollSound {
         get { return Instance.roll; }
+    }
+
+    public static AudioSource BeepSound {
+        get { return Instance.beep; }
+    }
+
+    public static void Play(SoundType soundType)
+	{
+        AudioSource audio = default;
+        switch (soundType) {
+            case SoundType.Click:
+                audio = ClickSound;
+                break;
+            case SoundType.Roll:
+                audio = RollSound;
+                break;
+            case SoundType.Beep:
+                audio = BeepSound;
+                break;
+        }
+
+        if (audio != default) {
+            audio.Play();
+        }
     }
 
     private void Awake()

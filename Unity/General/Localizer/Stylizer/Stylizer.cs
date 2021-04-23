@@ -127,7 +127,7 @@ public static class Stylizer
 	public static void AddKey(this TextMeshProUGUI textField,
                               string key,
                               string[] variables = default,
-                              string style = default,
+                              string style = default,               // TODO: Put style before variables, no need for AddStyle()
                               bool giveWarning = true)
     {
         GameObject gameObject = textField.gameObject;

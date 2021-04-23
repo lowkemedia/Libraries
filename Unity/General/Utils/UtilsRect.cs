@@ -39,16 +39,15 @@ public static class UtilsRect
                                           string name = null)
     {
         GameObject child = new GameObject();
-        if (!string.IsNullOrEmpty(name)) {
-            child.name = name;
-        }
-
         RectTransform rectTransform = child.AddComponent<RectTransform>();
         rectTransform.SetParent(parent.transform);
         rectTransform.sizeDelta = new Vector2(0, 0);        // width 0x0
         rectTransform.localScale = new Vector3(1, 1, 1);    // scale 1, 1, 1
         child.SetPosition(0, 0);                            // position 0, 0
 
+        if (! string.IsNullOrEmpty(name)) {
+            child.name = name;
+        }
         return child;
     }
 
@@ -60,11 +59,14 @@ public static class UtilsRect
                                        string name = null,
                                        string[] ignore = null) where T : Component
     {
-        GameObject gameObject = parent.MakeUiObject(name);
+        GameObject gameObject = parent.MakeUiObject();
         T component = gameObject.AddComponent<T>();
         component.CopyComponent(template, ignore);
         component.CopyRect(template);
 
+        if (name != null) {
+            component.name = name;
+        }
         return component;
     }
 

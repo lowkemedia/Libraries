@@ -1,8 +1,8 @@
 //
-//  ClickBlocker - PopupMenu package
-//  Russell Lowke, October 29th 2019
+//  ClickBlocker - ClickBlocker package
+//  Russell Lowke, April 21st 2021
 //
-//  Copyright (c) 2019 Lowke Media
+//  Copyright (c) 2019-2021 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,13 +28,22 @@
 using UnityEngine.EventSystems;
 using UnityEngine;
 using UnityEngine.UI;
-using PopupMenuTypes;
+using ClickBlockerTypes;
 
 public class ClickBlocker : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
 {
-    private IPopup _popupMenu;
-	
-	public void Initialize(GameObject popupMenuGameObject)
+    private IBlockResolver _iBlockResolver;			// whatever instance that deals with the blocker pointer events
+
+	public static ClickBlocker MakeClickBlocker(GameObject parentGameObject, GameObject focusGameObject)
+	{
+		GameObject clickBlockerGameObject = parentGameObject.MakeUiObject("Click Blocker");
+		ClickBlocker clickBlocker = clickBlockerGameObject.AddComponent<ClickBlocker>();
+		clickBlocker.Initialize(focusGameObject);
+
+		return clickBlocker;
+	}
+
+	private void Initialize(GameObject focusGameObject)
     {
         Image blockerImage = gameObject.AddComponent<Image>();
 
@@ -44,12 +53,12 @@ public class ClickBlocker : MonoBehaviour, IPointerDownHandler, IPointerEnterHan
         // blockerImage.color = Utils.ConvertColor("#FF000000");     // last two 00 are alpha
 
 		// Note: Assumption that all GameObjects are scaled at 100%
-        RectTransform canvasRect = popupMenuGameObject.GetCanvasRect();
+        RectTransform canvasRect = focusGameObject.GetCanvasRect();
 		blockerImage.SetSize(canvasRect.sizeDelta);
 		// blockerImage.SetScale(new Vector3(1f, 1f, 1));
-		Vector3 position = -GetSumOfPositions(popupMenuGameObject);
+		Vector3 position = -GetSumOfPositions(focusGameObject);
 		blockerImage.SetPosition(position);
-		_popupMenu = gameObject.GetComponentInParent<IPopup>();
+		_iBlockResolver = gameObject.GetComponentInParent<IBlockResolver>();
     }
 
 	private Vector3 GetSumOfPositions(GameObject obj)
@@ -66,20 +75,11 @@ public class ClickBlocker : MonoBehaviour, IPointerDownHandler, IPointerEnterHan
 
     public void OnPointerDown(PointerEventData clickEventData)
     {
-        _popupMenu.OnPopupCancelled();
+        _iBlockResolver.OnBlockerClicked();
     }
 
     public void OnPointerEnter(PointerEventData clickEventData)
     {
-        _popupMenu.OnPopupRollout();
-    }
-
-    public static ClickBlocker MakeClickBlocker(GameObject popupMenuGameObject, GameObject popupGameObject)
-    {
-        GameObject blockerGameObject = popupGameObject.MakeUiObject("Blocker");
-        ClickBlocker clickBlocker = blockerGameObject.AddComponent<ClickBlocker>();
-        clickBlocker.Initialize(popupMenuGameObject);
-
-        return clickBlocker;
+        _iBlockResolver.OnBlockerRolled();
     }
 }

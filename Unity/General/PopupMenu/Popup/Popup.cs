@@ -31,11 +31,12 @@ using UnityEngine.Events;
 using TMPro;
 using UnityEngine.UI;
 using PopupMenuTypes;
+using ClickBlockerTypes;
+using CallbackTypes;
 
-public class Popup : MonoBehaviour, IPopup
+public class Popup : MonoBehaviour, IBlockResolver
 {
 	// TODO: device version needs to behave differenetly from desktop
-	public delegate void Callback();
 	public delegate void PopupMenuCallback(string menuItem, int index);
 
 	public Sprite popupBgSprite;
@@ -50,7 +51,7 @@ public class Popup : MonoBehaviour, IPopup
 
 	protected GameObject _popupGameObject;
 	protected GameObject _gameObjectMenu;
-	private int _selectedIndex;
+	protected int _selectedIndex;
 	protected string[] _menuItems;
 
 	public string LabelText {
@@ -133,7 +134,7 @@ public class Popup : MonoBehaviour, IPopup
 		GameObject popupGameObject = gameObject.MakeUiObject("Popup");
 
 		// create blocker
-		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(gameObject, popupGameObject);
+		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(popupGameObject, gameObject);
 
 		// create menu
 		_gameObjectMenu = popupGameObject.MakeUiObject("Menu");
@@ -170,6 +171,10 @@ public class Popup : MonoBehaviour, IPopup
 			clickButton.onClickEvent.AddListener(delegate { MenuButtonClicked(new PopupMenuEventArgs(menuItem, index)); });
 			clickButton.OnRolloverEvent += delegate { MenuButtonRolled(menuItem, index); };
 			yLoc += clickButton.GetHeight() + padding;
+			if (index == _selectedIndex) {
+				clickButton.Selected = true;
+				clickButton.Enabled = false;
+			}
 		}
 
 		return popupGameObject;
@@ -223,12 +228,12 @@ public class Popup : MonoBehaviour, IPopup
 		OnMenuRollEvent?.Invoke(menuItem, index);
 	}
 
-	public void OnPopupRollout()
+	public void OnBlockerRolled()
 	{
 		OnPopupRolloutEvent?.Invoke();
 	}
 
-	public void OnPopupCancelled()
+	public void OnBlockerClicked()
 	{
 		HidePopup();
 	}

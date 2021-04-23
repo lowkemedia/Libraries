@@ -28,11 +28,10 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using CallbackTypes;
 
 public class Mover : MonoBehaviour
 {
-    public delegate void Callback();
-
     private static Mover _instance;
 
     public void Awake()

@@ -27,7 +27,7 @@
 
 using UnityEngine;
 using AnimatorTypes;
-
+using CallbackTypes;
 
 public abstract class AnimatorEffect
 {

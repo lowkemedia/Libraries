@@ -32,8 +32,6 @@ using UnityEngine.UI;
 
 public class Fader : MonoBehaviour
 {
-    public delegate void Callback();
-
     private static Fader _instance;
 
     public void Awake()

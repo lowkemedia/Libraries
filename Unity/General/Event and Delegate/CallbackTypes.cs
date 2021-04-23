@@ -1,6 +1,6 @@
 ﻿//
-//  PopupMenuTypes - PopupMenu package
-//  Russell Lowke, March 11th 2021
+//  CallbackTypes - Event and Delegate package
+//  Russell Lowke, April 23rd 2020
 //
 //  Copyright (c) 2021 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -25,22 +25,7 @@
 //
 //
 
-using System;
-using UnityEngine.Events;
-
-namespace PopupMenuTypes
+namespace CallbackTypes
 {
-	[Serializable]
-	public class PopupMenuEvent : UnityEvent<PopupMenuEventArgs> { }
-	public class PopupMenuEventArgs
-	{
-		public string MenuItem;
-		public int Index;
-
-		public PopupMenuEventArgs(string menuItem, int index)
-		{
-			MenuItem = menuItem;
-			Index = index;
-		}
-	}
+    public delegate void Callback();
 }

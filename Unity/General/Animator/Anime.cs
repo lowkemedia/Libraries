@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using AnimatorTypes;
+using CallbackTypes;
 
 // TODO: Anime should be a Coroutine for better performance
 
