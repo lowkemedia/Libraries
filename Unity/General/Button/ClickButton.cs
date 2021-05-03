@@ -131,11 +131,11 @@ public class ClickButton : MonoBehaviour,
         if (SoundHelper.IsAvalable) {
             // get default sound
             if (clickSound == default && useDefaultSound) {
-                clickSound = SoundHelper.ClickSound;
+                clickSound = SoundHelper.Click;
             }
 
             if (rollSound == default && useDefaultSound) {
-                rollSound = SoundHelper.RollSound;
+                rollSound = SoundHelper.Roll;
             }
         }
 
@@ -288,7 +288,7 @@ public class ClickButton : MonoBehaviour,
             if (pressDuration > 0) {
                 Logger.Warning("pressDuration = " + pressDuration + ". waitForClickSound should not be used with pressDuration > 0");
             }
-            SoundHelper.SoundCallback(clickSound, unpressCallback);
+            SoundHelper.Play(clickSound, unpressCallback);
         } else {
             if (clickSound) {
                 clickSound?.Play();
