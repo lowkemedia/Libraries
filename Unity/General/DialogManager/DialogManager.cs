@@ -83,43 +83,56 @@ public class DialogManager : MonoBehaviour, IBlockResolver
     // TODO: ShowCaution with caution icon
     // TODO: ShowError with error icon
 
-    public static void ShowAlert(string titleKey, string messageKey, Callback okCallback = default)
+    public static void ShowAlert(string titleKey, string messageKey,
+                                 Callback okCallback = default, AudioSource okSound = default)
     {
-        Instance.ShowNotification(titleKey, messageKey, ".ok", okCallback);
+        Instance.ShowNotification(titleKey, messageKey, ".ok", okCallback, okSound);
     }
 
-    public static void ShowOkayCancel(string titleKey, string messageKey, Callback okCallback)
+    public static void ShowOkayCancel(string titleKey, string messageKey,
+                                      Callback okCallback, AudioSource okSound = default)
     {
-        Instance.ShowNotification(titleKey, messageKey, ".cancel", default, ".ok", okCallback);
+        Instance.ShowNotification(titleKey, messageKey, ".cancel", default, default, ".ok", okCallback, okSound);
     }
 
-    public static void ShowYesNo(string titleKey, string messageKey, Callback yesCallback, Callback noCallback = default)
+    public static void ShowYesNo(string titleKey, string messageKey,
+                                 Callback yesCallback, AudioSource yesSound = default,
+                                 Callback noCallback = default, AudioSource noSound = default)
     {
-        Instance.ShowNotification(titleKey, messageKey, ".no", noCallback, ".yes", yesCallback);
+        Instance.ShowNotification(titleKey, messageKey, ".no", noCallback, noSound, ".yes", yesCallback, yesSound);
     }
 
 
     public void ShowNotification(string titleKey, string messageKey,
-                                 string firstButtonKey = ".ok", Callback firstBtnCallback = default,
-                                 string secondButtonKey = default, Callback sencondBtnCallback = default)
+                                 string firstButtonKey = ".ok", Callback firstBtnCallback = default, AudioSource firstBtnSound = default,
+                                 string secondButtonKey = default, Callback sencondBtnCallback = default, AudioSource secondButton = default)
 	{
         title.AddKey(titleKey, null, _titleStyle);
         message.AddKey(messageKey, null, _messageStyle);
-
         _firstBtnCallback = firstBtnCallback;
+        if (firstBtnSound == default) {
+            firstBtnSound = SoundHelper.Click;
+        }
+
         _sencondBtnCallback = sencondBtnCallback;
+        if (secondButton == default) {
+            secondButton = SoundHelper.Click;
+        }
 
         if (secondButtonKey == default) {
             firstButton.GetGameObject().SetActive(false);
-            secondButton.GetGameObject().SetActive(false);
+            this.secondButton.GetGameObject().SetActive(false);
             okButton.GetGameObject().SetActive(true);
             okButton.textField.AddKey(firstButtonKey, null, _buttonStyle);
+            okButton.ClickButton.clickSound = firstBtnSound;
         } else {
             okButton.GetGameObject().SetActive(false);
             firstButton.GetGameObject().SetActive(true);
             firstButton.textField.AddKey(firstButtonKey, null, _buttonStyle);
-            secondButton.GetGameObject().SetActive(true);
-            secondButton.textField.AddKey(secondButtonKey, null, _buttonStyle);
+            firstButton.ClickButton.clickSound = firstBtnSound;
+            this.secondButton.GetGameObject().SetActive(true);
+            this.secondButton.textField.AddKey(secondButtonKey, null, _buttonStyle);
+            this.secondButton.ClickButton.clickSound = secondButton;
         }
 
         if (_clickBlocker == default) {
@@ -132,14 +145,14 @@ public class DialogManager : MonoBehaviour, IBlockResolver
 
     public void OnClickFirst(ClickButton button)
     {
-        _firstBtnCallback?.Invoke();
         HideDialog();
+        _firstBtnCallback?.Invoke();
     }
 
     public void OnClickSecond(ClickButton button)
     {
-        _sencondBtnCallback?.Invoke();
         HideDialog();
+        _sencondBtnCallback?.Invoke();
     }
 
     private void HideDialog()
@@ -155,11 +168,6 @@ public class DialogManager : MonoBehaviour, IBlockResolver
 
     public void OnBlockerClicked()
     {
-        beep();
-    }
-
-    private void beep()
-	{
-        SoundHelper.Play(SoundHelper.SoundType.Beep);
+        SoundHelper.PlayBeep();
     }
 }
