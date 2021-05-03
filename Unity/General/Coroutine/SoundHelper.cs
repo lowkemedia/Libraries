@@ -31,90 +31,68 @@ using CallbackTypes;
 
 public class SoundHelper : MonoBehaviour
 {
-    public enum SoundType
-    {
-        Click,
-        Roll,
-        Beep
-    };
-
     public AudioSource click;                       // default click sound
     public AudioSource roll;                        // default roll sound
     public AudioSource beep;                        // default beep sound
 
+    public static AudioSource Click { get { return Instance.click; } }
+    public static AudioSource Roll { get { return Instance.roll; } }
+    public static AudioSource Beep { get { return Instance.beep; } }
+
+    public static void PlayClick(Callback callback = default)   { Play(Click, callback); }
+    public static void PlayRoll(Callback callback = default)    { Play(Roll, callback); }
+    public static void PlayBeep(Callback callback = default)    { Play(Beep, callback); }
+
     private static SoundHelper _instance;
+    private static SoundHelper Instance {
+        get {
+            if (_instance == default) {
+                Logger.Warning("SoundHelper must be attached to the Unity scene to work.");
+            }
+            return _instance;
+        }
+    }
 
     public static bool IsAvalable {
-        get { return _instance != null; }
+        get { return _instance != default; }
 	}
-
-    public static AudioSource ClickSound {
-        get { return Instance.click; }
-	}
-
-    public static AudioSource RollSound {
-        get { return Instance.roll; }
-    }
-
-    public static AudioSource BeepSound {
-        get { return Instance.beep; }
-    }
-
-    public static void Play(SoundType soundType)
-	{
-        AudioSource audio = default;
-        switch (soundType) {
-            case SoundType.Click:
-                audio = ClickSound;
-                break;
-            case SoundType.Roll:
-                audio = RollSound;
-                break;
-            case SoundType.Beep:
-                audio = BeepSound;
-                break;
-        }
-
-        if (audio != default) {
-            audio.Play();
-        }
-    }
 
     private void Awake()
     {
-        if (_instance != null) {
+        if (_instance != default) {
             Logger.Warning("SoundHelper should only be attached once.");
             return;
         }
         _instance = this;
     }
 
-    private static SoundHelper Instance {
-        get {
-            if (_instance is null) {
-                Logger.Warning("SoundHelper must be attached to the Unity scene to work.");
-            }
-
-            return _instance;
-        }
-    }
-
-    public static void SoundCallback(AudioSource sound, Callback callback, bool giveWarning = true)
+    public static void Play(AudioSource audio)
     {
-        if (giveWarning) {
-            if (sound is null) {
-                Logger.Warning("SoundCallback() called with an empty sound parameter");
-            }
-            if (callback is null) {
-                Logger.Warning("SoundCallback() called with an empty callback parameter");
-            }
+        if (audio != default) {
+            audio.Play();
         }
-
-        Instance.DoSoundCallback(sound, callback);
     }
 
+    public static void Play(AudioSource audio, Callback callback)
+    {
+        if (audio == default) {
+            // no need to wait for audio
+            callback?.Invoke();
+            return;
+        }
+
+        if (callback == default) {
+            // no need to wait for callback
+            Play(audio);
+            return;
+        }
+
+        Instance.DoPlayCallback(audio, callback);
+    }
+
+    //
     // StartCoroutine() requires a MonoBehaviour instance
-    protected void DoSoundCallback(AudioSource sound, Callback callback)
+    protected void DoPlayCallback(AudioSource sound, Callback callback)
     {
         if (sound) {
             sound.Play();
@@ -135,7 +113,14 @@ public class SoundHelper : MonoBehaviour
 }
 
 
-
+/*  should really be loading needed assets from the Assets folder at Start()
+void Start()
+{
+    // reading audio from Resurces folder
+    myAudio = GetComponent<AudioSource>();
+    myAudio.clip = Resources.Load<AudioClip>("mojo/gameover");
+}
+*/
 
 /* ClickSound
 //
