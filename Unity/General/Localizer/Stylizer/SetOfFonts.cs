@@ -7,11 +7,12 @@ using LocalizerTypes;
 public class SetOfFonts : ScriptableObject
 {
     // Primary fonts
-    public TMP_FontAsset goudy_lombardic_capitals_132;
+    public TMP_FontAsset goudy_lombardic_capitals_116;
     public TMP_FontAsset friz_quadrata_italic_32;
     public TMP_FontAsset friz_quadrata_italic_42;
     public TMP_FontAsset friz_quadrata_regular_36;
     public TMP_FontAsset friz_quadrata_regular_42;
+    public TMP_FontAsset friz_quadrata_regular_52;
 
     // Russian fonts - Cyrillic
     public TMP_FontAsset oswald_110;
@@ -46,8 +47,8 @@ public class SetOfFonts : ScriptableObject
         switch (font) {
 
             // Primary fonts
-            case "Goudy Text MT Lombardic Capitals SDF 132pt":
-                return goudy_lombardic_capitals_132;
+            case "Goudy Text MT Lombardic Capitals SDF 116pt":
+                return goudy_lombardic_capitals_116;
             case "Friz Quadrata Regular Italic SDF 32pt":
                 return friz_quadrata_italic_32;
             case "Friz Quadrata Regular Italic SDF 42pt":
@@ -56,6 +57,8 @@ public class SetOfFonts : ScriptableObject
                 return friz_quadrata_regular_36;
             case "Friz Quadrata Regular SDF 42pt":
                 return friz_quadrata_regular_42;
+            case "Friz Quadrata Regular SDF 52pt":
+                return friz_quadrata_regular_52;
 
             // Russian fonts - Cyrillic
             case "Oswald-VariableFont_wght SDF 110pt":
