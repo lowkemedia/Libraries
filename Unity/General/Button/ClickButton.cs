@@ -284,10 +284,7 @@ public class ClickButton : MonoBehaviour,
             UpdateButton();
         }
 
-        if (waitForClickSound) {
-            if (pressDuration > 0) {
-                Logger.Warning("pressDuration = " + pressDuration + ". waitForClickSound should not be used with pressDuration > 0");
-            }
+        if (waitForClickSound && pressDuration == 0) {
             SoundHelper.Play(clickSound, unpressCallback);
         } else {
             if (clickSound) {
