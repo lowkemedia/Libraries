@@ -1,6 +1,6 @@
 //
 //  DialogManager - DialogManager package
-//  Russell Lowke, April 20th 2021
+//  Russell Lowke, June 13th 2021
 //
 //  Copyright (c) 2021 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -25,25 +25,14 @@
 //
 //
 
-using TMPro;
 using UnityEngine;
 using ClickBlockerTypes;
-using CallbackTypes;
 
 public class DialogManager : MonoBehaviour, IBlockResolver
 {
-    public GameObject dialog;
-
-    public TextMeshProUGUI title;
-    public TextMeshProUGUI message;
-
-    public TextButton firstButton;
-    public TextButton secondButton;
-    public TextButton okButton;
+    public Dialog dialog;
 
     private ClickBlocker _clickBlocker;
-    private Callback _firstBtnCallback;
-    private Callback _sencondBtnCallback;
 
     private static DialogManager _instance;
     public static DialogManager Instance {
@@ -56,112 +45,60 @@ public class DialogManager : MonoBehaviour, IBlockResolver
         }
     }
 
-    private static string _titleStyle;
-    private static string _messageStyle;
-    private static string _buttonStyle;
+    public static string TitleStyle { get; private set; }
+    public static string MessageStyle { get; private set; }
+    public static string ButtonStyle { get; private set; }
 
     public static void SetStyle(string titleStyle, string messageStyle, string buttonStyle)
-	{
-        _titleStyle = titleStyle;
-        _messageStyle = messageStyle;
-        _buttonStyle = buttonStyle;
+    {
+        TitleStyle = titleStyle;
+        MessageStyle = messageStyle;
+        ButtonStyle = buttonStyle;
     }
 
-    private void Start()
+    private void Awake()
     {
+        if (_instance != null) {
+            Logger.Warning("DialogManager should only be attached once.");
+            return;
+        }
         _instance = this;
-        okButton.onClickEvent.AddListener(OnClickFirst);
-        firstButton.onClickEvent.AddListener(OnClickFirst);
-        secondButton.onClickEvent.AddListener(OnClickSecond);
 
-        HideDialog();
+
+        dialog.Initialize(this);
+        HideDialogs();
     }
 
-    // TODO: Bold style default button.
-    // TODO: Red style caution button 
-    // TODO: ShowInfo with info icon
-    // TODO: ShowCaution with caution icon
-    // TODO: ShowError with error icon
-
-    public static void ShowAlert(string titleKey, string messageKey,
-                                 Callback okCallback = default, AudioSource okSound = default)
+    public void HideDialogs()
     {
-        Instance.ShowNotification(titleKey, messageKey, ".ok", okCallback, okSound);
-    }
-
-    public static void ShowOkayCancel(string titleKey, string messageKey,
-                                      Callback okCallback, AudioSource okSound = default)
-    {
-        Instance.ShowNotification(titleKey, messageKey, ".cancel", default, default, ".ok", okCallback, okSound);
-    }
-
-    public static void ShowYesNo(string titleKey, string messageKey,
-                                 Callback yesCallback, AudioSource yesSound = default,
-                                 Callback noCallback = default, AudioSource noSound = default)
-    {
-        Instance.ShowNotification(titleKey, messageKey, ".no", noCallback, noSound, ".yes", yesCallback, yesSound);
-    }
-
-
-    public void ShowNotification(string titleKey, string messageKey,
-                                 string firstButtonKey = ".ok", Callback firstBtnCallback = default, AudioSource firstBtnSound = default,
-                                 string secondButtonKey = default, Callback sencondBtnCallback = default, AudioSource secondButton = default)
-	{
-        title.AddKey(titleKey, null, _titleStyle);
-        message.AddKey(messageKey, null, _messageStyle);
-        _firstBtnCallback = firstBtnCallback;
-        if (firstBtnSound == default) {
-            firstBtnSound = SoundHelper.Click;
-        }
-
-        _sencondBtnCallback = sencondBtnCallback;
-        if (secondButton == default) {
-            secondButton = SoundHelper.Click;
-        }
-
-        if (secondButtonKey == default) {
-            firstButton.GetGameObject().SetActive(false);
-            this.secondButton.GetGameObject().SetActive(false);
-            okButton.GetGameObject().SetActive(true);
-            okButton.textField.AddKey(firstButtonKey, null, _buttonStyle);
-            okButton.ClickButton.clickSound = firstBtnSound;
-        } else {
-            okButton.GetGameObject().SetActive(false);
-            firstButton.GetGameObject().SetActive(true);
-            firstButton.textField.AddKey(firstButtonKey, null, _buttonStyle);
-            firstButton.ClickButton.clickSound = firstBtnSound;
-            this.secondButton.GetGameObject().SetActive(true);
-            this.secondButton.textField.AddKey(secondButtonKey, null, _buttonStyle);
-            this.secondButton.ClickButton.clickSound = secondButton;
-        }
-
-        if (_clickBlocker == default) {
-            _clickBlocker = ClickBlocker.MakeClickBlocker(gameObject, dialog);
-        }
-        
-        dialog.MoveToTop();
-        dialog.SetActive(true);
-    }
-
-    public void OnClickFirst(ClickButton button)
-    {
-        HideDialog();
-        _firstBtnCallback?.Invoke();
-    }
-
-    public void OnClickSecond(ClickButton button)
-    {
-        HideDialog();
-        _sencondBtnCallback?.Invoke();
-    }
-
-    private void HideDialog()
-	{
+        // remove click blocker
         if (_clickBlocker != default) {
             Object.Destroy(_clickBlocker.GetGameObject());
             _clickBlocker = default;
         }
-        dialog.SetActive(false);
+
+        // hide all dialogs
+        HideDialog(dialog);
+    }
+
+    private void HideDialog(Dialog dialog)
+    {
+        GameObject dialogGameObject = dialog.gameObject;
+        dialogGameObject.SetActive(false);
+    }
+
+    public void ShowDialog(Dialog dialog)
+    {
+        GameObject dialogGameObject = dialog.gameObject;
+
+        // add the clock blocker
+        if (_clickBlocker == default) {
+            _clickBlocker = ClickBlocker.MakeClickBlocker(gameObject, dialogGameObject);
+        }
+
+        // move dialog to top and show
+        dialogGameObject.MoveToTop();
+        dialogGameObject.SetActive(true);
     }
 
     public void OnBlockerRolled() { }
