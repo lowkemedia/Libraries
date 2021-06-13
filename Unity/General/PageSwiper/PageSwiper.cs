@@ -40,8 +40,10 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
     private const float EASING = 0.5f;
 
     public Image swipeArea;
-    public UnityEvent onPageClick;                      // Unity event for page clicked or dragged
+    public UnityEvent onPageClick;                      // Unity event for page clicked
     public PageNumberEvent onPageChange;                // Unity event for page change
+    public bool clickAutoPagesForward = true;
+
     public event Callback OnSwipePastLastPage;          // C# event for swiping past the last page
     public event Callback OnSwipeBeforeFirstPage;       // C# event for swiping before the first page
 
@@ -53,10 +55,10 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
     private Vector3 _endLocation;
     private Vector3 _panelLocation;
     private bool _dragging;
+    private bool _pastBounds;       // special case flag to prevent user from clicking past bounds while page animating
 
     public void Initialize(int totalPages, float pageWidth)
     {
-
         // TODO: Implement SwipeDetector class
 
         if (_startLocation == default) {
@@ -72,27 +74,12 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
 
     public void OnPointerClick(PointerEventData pointerEventData = null)
     {
-        if (_dragging == false) {
-            OnPageForward();
+        if (_dragging == false && _pastBounds == false) {
+            if (clickAutoPagesForward) {
+                PageChange(+1);
+            }
+            onPageClick?.Invoke();
         }
-    }
-
-    public void OnPageForward()
-    {
-        // move forward a page
-        PageChange(+1);
-
-        // indicate page click
-        onPageClick?.Invoke();
-    }
-
-    public void OnPageBackward()
-    {
-        // move backward a page
-        PageChange(-1);
-
-        // indicate page click
-        onPageClick?.Invoke();
     }
 
     public void OnDrag(PointerEventData pointerEventData)
@@ -153,11 +140,6 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
             // bounce back to original position
             GotoPage(PageIndex);
         }
-
-        if (pagesMoved >= 0) {
-            // indicate page click
-            onPageClick?.Invoke();
-        }
     }
 
     private void PageChange(int pagesMoved)
@@ -165,8 +147,10 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
         if (pagesMoved == 0) {
             return; // not actually changing page
         } else if (PageIndex == TotalPages - 1 && pagesMoved > 0) {
+            _pastBounds = true;
             OnSwipePastLastPage?.Invoke();
         } else if (PageIndex == 0 && pagesMoved < 0) {
+            _pastBounds = true;
             OnSwipeBeforeFirstPage?.Invoke();
         }
         GotoPage(PageIndex + pagesMoved);
@@ -185,7 +169,12 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
         if (snapTo) {
             transform.localPosition = _panelLocation;
         } else {
-            Mover.SmoothMove(transform, newLocation, EASING, delegate() { callback?.Invoke(); });
+            Mover.SmoothMove(transform, newLocation, EASING, delegate() { FinishedAnimating(callback); });
         }
+    }
+
+    private void FinishedAnimating(Callback callback) {
+        _pastBounds = false;
+        callback?.Invoke();
     }
 }

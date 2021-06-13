@@ -32,6 +32,7 @@ using UnityEngine;
 public class PageNumber : MonoBehaviour
 {
 	public TextMeshProUGUI pageNumText;
+	public string style = default;
 
 	private PageSwiper _pageSwiper;
 	public PageSwiper PageSwiper {
@@ -56,6 +57,6 @@ public class PageNumber : MonoBehaviour
 	private void UpdatePageNumber()
 	{
 		// TODO: Pass in stylesheet properties etc
-		pageNumText.AddKey((PageSwiper.PageIndex + 1) + " +.of+ " + PageSwiper.TotalPages, null, "#smallitalic");
+		pageNumText.AddKey((PageSwiper.PageIndex + 1) + " +.of+ " + PageSwiper.TotalPages, null, style);
 	}
 }

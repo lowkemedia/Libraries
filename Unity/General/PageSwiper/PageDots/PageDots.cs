@@ -119,7 +119,7 @@ public class PageDots : MonoBehaviour
 		GameObject pageDots = pageDotTemplate.GetParent();
 		_pageDots = new PageDot[PageSwiper.TotalPages];
 
-		float originX = pageDotTemplate.GetX();
+		float originX = pageDotTemplate.GetX() + pageDotTemplate.GetWidth();
 		float dotWidth = pageDotTemplate.GetWidth();
 		float dotsWidth = (dotWidth + padding) * TotalDots;
 		for (int i = 0; i < TotalDots; ++i)
