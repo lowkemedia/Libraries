@@ -105,9 +105,12 @@ public static class Stylizer
                     textField.font = fontAsset;
                 }
             }
+
             if (!float.IsNaN(localizerStyle.fontSize)) {
+                // TODO: setting font size not always working?
                 textField.fontSize = localizerStyle.fontSize;
             }
+
             if (!float.IsNaN(localizerStyle.lineSpacing)) {
                 textField.lineSpacing = localizerStyle.lineSpacing;
             }

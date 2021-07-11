@@ -41,7 +41,9 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
 
     public Image swipeArea;
     public UnityEvent onPageClick;                      // Unity event for page clicked
-    public PageNumberEvent onPageChange;                // Unity event for page change
+    public PageNumberEvent onDragPageChange;            // Unity event for dragging page change
+    public PageNumberEvent onPageChange;                // Unity event for confirmed page change
+    
     public bool clickAutoPagesForward = true;
 
     public event Callback OnSwipePastLastPage;          // C# event for swiping past the last page
@@ -55,6 +57,7 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
     private Vector3 _endLocation;
     private Vector3 _panelLocation;
     private bool _dragging;
+    private int _dragIndex = -1;    // page index the swiper is currentlt dragged to
     private bool _pastBounds;       // special case flag to prevent user from clicking past bounds while page animating
 
     public void Initialize(int totalPages, float pageWidth)
@@ -86,10 +89,12 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
     {
         _dragging = true;
 
+        /*
         if (TotalPages < 2) {
             // PageSwiper doesn't swipe with only one or zero pages.
             return;
         }
+        */
 
         Vector3 localPressPosition = this.GetLocalPosition(pointerEventData.pressPosition);
         Vector3 localPosition = this.GetLocalPosition(pointerEventData.position);
@@ -118,20 +123,34 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
         }
 
         transform.localPosition = _panelLocation - new Vector3(difference, 0, 0);
+
+        int pagesMoved = PagesMoved(pointerEventData);
+        int dragIndex = PageIndex + pagesMoved;
+        if (dragIndex != _dragIndex) {
+            _dragIndex = dragIndex;
+            onDragPageChange?.Invoke(_dragIndex);
+        }
     }
 
-    public void OnEndDrag(PointerEventData pointerEventData)
+    private int PagesMoved(PointerEventData pointerEventData)
     {
         Vector3 localPressPosition = this.GetLocalPosition(pointerEventData.pressPosition);
         Vector3 localPosition = this.GetLocalPosition(pointerEventData.position);
         float difference = localPressPosition.x - localPosition.x;
-        float percentage = difference/_pageWidth;
+        float percentage = difference / _pageWidth;
 
         int pagesMoved = 0;
         if (Mathf.Abs(percentage) >= PERCENT_THRESHOLD) {
             pagesMoved = (int) percentage / 1;
             pagesMoved += (percentage < 0) ? -1 : +1;
         }
+
+        return pagesMoved;
+    }
+
+    public void OnEndDrag(PointerEventData pointerEventData)
+    {
+        int pagesMoved = PagesMoved(pointerEventData);
 
         if (pagesMoved != 0) {
             // move forward or backward page
@@ -140,6 +159,7 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
             // bounce back to original position
             GotoPage(PageIndex);
         }
+        _dragIndex = -1;
     }
 
     private void PageChange(int pagesMoved)
@@ -163,7 +183,7 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
         PageIndex = pageIndex;
         _panelLocation = newLocation;
         _dragging = false;
-
+        
         onPageChange?.Invoke(PageIndex);
 
         if (snapTo) {

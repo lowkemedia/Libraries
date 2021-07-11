@@ -7,7 +7,8 @@ using LocalizerTypes;
 public class SetOfFonts : ScriptableObject
 {
     // Primary fonts
-    public TMP_FontAsset black_castle_46;
+    public TMP_FontAsset black_castle_50;
+    public TMP_FontAsset black_castle_88;
     public TMP_FontAsset black_castle_96;
     public TMP_FontAsset black_castle_150;
 
@@ -51,8 +52,10 @@ public class SetOfFonts : ScriptableObject
             // Primary fonts
 
             //  title font
-            case "BlackCastleMF SDF 46 px":
-                return black_castle_46;
+            case "BlackCastleMF SDF 50 px":
+                return black_castle_50;
+            case "BlackCastleMF SDF 88 px":
+                return black_castle_88;
             case "BlackCastleMF SDF 96 px":
                 return black_castle_96;
             case "BlackCastleMF SDF 150 px":
