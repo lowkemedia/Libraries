@@ -32,11 +32,11 @@ using UnityEngine;
 public class TextButton : MonoBehaviour
 {
 	public TextMeshProUGUI textField;
-	public string NormalColor { get; private set; }   // up          #FFFFFF7F is white with 50% alpha
-	public string HighlightedColor { get; private set; }   // over
-	public string PressedColor { get; private set; }   // down
-	public string SelectedColor { get; private set; }   // selected    
-	public string DisabledColor { get; private set; }   // disabled
+	public string NormalColor { get; private set; }			// up          #FFFFFF7F is white with 50% alpha
+	public string HighlightedColor { get; private set; }	// over
+	public string PressedColor { get; private set; }		// down
+	public string SelectedColor { get; private set; }		// selected 
+	public string DisabledColor { get; private set; }		// disabled
 
 	public ClickButtonEvent onClickEvent {
 		get { return ClickButton.onClickEvent; }
