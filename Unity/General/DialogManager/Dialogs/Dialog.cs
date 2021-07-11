@@ -1,6 +1,6 @@
 //
 //  Dialog - DialogManager package
-//  Russell Lowke, June 13th 2021
+//  Russell Lowke, June 14th 2021
 //
 //  Copyright (c) 2021 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -29,7 +29,7 @@ using TMPro;
 using UnityEngine;
 using CallbackTypes;
 
-public class Dialog : MonoBehaviour
+public class Dialog : DialogBase
 {
     public TextMeshProUGUI title;
     public TextMeshProUGUI message;
@@ -37,8 +37,6 @@ public class Dialog : MonoBehaviour
     public TextButton firstButton;
     public TextButton secondButton;
     public TextButton okButton;
-
-    public static DialogManager _dialogManager;
 
     private Callback _firstBtnCallback;
     private Callback _sencondBtnCallback;
@@ -49,9 +47,9 @@ public class Dialog : MonoBehaviour
     // TODO: ShowCaution with caution icon
     // TODO: ShowError with error icon
 
-    public void Initialize(DialogManager dialogManager)
+    override public void Initialize(DialogManager dialogManager)
     {
-        _dialogManager = dialogManager;
+        base.Initialize(dialogManager);
 
         okButton.onClickEvent.AddListener(OnClickFirst);
         firstButton.onClickEvent.AddListener(OnClickFirst);

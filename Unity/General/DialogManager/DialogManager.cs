@@ -31,6 +31,7 @@ using ClickBlockerTypes;
 public class DialogManager : MonoBehaviour, IBlockResolver
 {
     public Dialog dialog;
+    public SettingsDialog settingsDialog;
 
     private ClickBlocker _clickBlocker;
 
@@ -56,7 +57,7 @@ public class DialogManager : MonoBehaviour, IBlockResolver
         ButtonStyle = buttonStyle;
     }
 
-    private void Awake()
+    private void Start()
     {
         if (_instance != null) {
             Logger.Warning("DialogManager should only be attached once.");
@@ -66,6 +67,7 @@ public class DialogManager : MonoBehaviour, IBlockResolver
 
 
         dialog.Initialize(this);
+        settingsDialog.Initialize(this);
         HideDialogs();
     }
 
@@ -79,15 +81,16 @@ public class DialogManager : MonoBehaviour, IBlockResolver
 
         // hide all dialogs
         HideDialog(dialog);
+        HideDialog(settingsDialog);
     }
 
-    private void HideDialog(Dialog dialog)
+    private void HideDialog(DialogBase dialog)
     {
         GameObject dialogGameObject = dialog.gameObject;
         dialogGameObject.SetActive(false);
     }
 
-    public void ShowDialog(Dialog dialog)
+    public void ShowDialog(DialogBase dialog)
     {
         GameObject dialogGameObject = dialog.gameObject;
 
