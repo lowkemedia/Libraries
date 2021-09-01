@@ -40,6 +40,7 @@ public class Dialog : DialogBase
 
     private Callback _firstBtnCallback;
     private Callback _sencondBtnCallback;
+    private float _defaultHeight;
 
     // TODO: Bold style default button.
     // TODO: Red style caution button 
@@ -54,6 +55,7 @@ public class Dialog : DialogBase
         okButton.onClickEvent.AddListener(OnClickFirst);
         firstButton.onClickEvent.AddListener(OnClickFirst);
         secondButton.onClickEvent.AddListener(OnClickSecond);
+        _defaultHeight = this.GetHeight();
     }
 
     public void SetupDialog(string titleKey, string messageKey,
@@ -61,8 +63,12 @@ public class Dialog : DialogBase
                              string secondButtonKey, Callback sencondBtnCallback = default, AudioSource secondButton = default)
 
     {
+        // restore default size
+        gameObject.SetSize(this.GetWidth(), _defaultHeight);
+
         title.AddKey(titleKey, null, DialogManager.TitleStyle);
         message.AddKey(messageKey, null, DialogManager.MessageStyle);
+
         _firstBtnCallback = firstBtnCallback;
         if (firstBtnSound == default) {
             firstBtnSound = SoundHelper.Click;
@@ -90,6 +96,10 @@ public class Dialog : DialogBase
         }
     }
 
+    public void EnlargeDialog(float extraHeight) {
+        gameObject.SetSize(this.GetWidth(), _defaultHeight + extraHeight);
+    }
+
     public void OnClickFirst(ClickButton button)
     {
         _dialogManager.HideDialogs();
@@ -110,6 +120,15 @@ public class Dialog : DialogBase
         ShowDialog(titleKey, messageKey, ".ok", okCallback, okSound);
     }
 
+    public static void ShowLargeAlert(string titleKey, string messageKey,
+                             Callback okCallback = default, AudioSource okSound = default)
+    {
+        ShowDialog(titleKey, messageKey, ".ok", okCallback, okSound);
+
+        // TODO: Shoud be finding depth of text block and adjusting appropriately
+        _dialogManager.dialog.EnlargeDialog(60);
+    }
+
     public static void ShowOkayCancel(string titleKey, string messageKey,
                                       Callback okCallback, AudioSource okSound = default)
     {
@@ -121,6 +140,16 @@ public class Dialog : DialogBase
                                  Callback noCallback = default, AudioSource noSound = default)
     {
         ShowDialog(titleKey, messageKey, ".no", noCallback, noSound, ".yes", yesCallback, yesSound);
+    }
+
+    public static void ShowLargeYesNo(string titleKey, string messageKey,
+                             Callback yesCallback, AudioSource yesSound = default,
+                             Callback noCallback = default, AudioSource noSound = default)
+    {
+        ShowDialog(titleKey, messageKey, ".no", noCallback, noSound, ".yes", yesCallback, yesSound);
+
+        // TODO: Shoud be finding depth of text block and adjusting appropriately
+        _dialogManager.dialog.EnlargeDialog(60);
     }
 
     public static void ShowDialog(string titleKey, string messageKey,
