@@ -49,7 +49,7 @@ public class ClickBlocker : MonoBehaviour, IPointerDownHandler, IPointerEnterHan
 
 		// TODO: Animate blocker's black cover alpha
 
-		blockerImage.color = UtilsColor.ConvertColor("#00000066");        // use black cover
+		blockerImage.color = UtilsColor.ConvertColor("#00000099");        // use black cover
         // blockerImage.color = Utils.ConvertColor("#FF000000");     // last two 00 are alpha
 
 		// Note: Assumption that all GameObjects are scaled at 100%
