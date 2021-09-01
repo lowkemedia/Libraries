@@ -1,6 +1,6 @@
 ﻿//
 //  Popup - PopupMenu package
-//  Russell Lowke, March 11th 2021
+//  Russell Lowke, August 21st 2021
 //
 //  Copyright (c) 2019-2021 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -53,6 +53,7 @@ public class Popup : MonoBehaviour, IBlockResolver
 	protected GameObject _gameObjectMenu;
 	protected int _selectedIndex;
 	protected string[] _menuItems;
+	protected ClickButton[] _menuButtons;
 
 	public string LabelText {
 		get { return popupLabel.text; }
@@ -89,6 +90,22 @@ public class Popup : MonoBehaviour, IBlockResolver
 			SelectedText = Selected;
 
 			UpdatePopupPosition();
+		}
+	}
+
+	public void Select(string value, bool giveWarning = true)
+	{
+		for (int i = 0; i < _menuItems.Length; ++i) {
+			string menuItem = _menuItems[i];
+			if (value == menuItem) {
+				ClickButton clickButton = _menuButtons[i];
+				ClickButtonEvent onClickEvent = clickButton.onClickEvent;
+				onClickEvent?.Invoke(clickButton);
+				return;
+			}
+		}
+		if (giveWarning) {
+			Logger.Warning("Could not select button \"" + value + "\" on popup.");
 		}
 	}
 
@@ -163,6 +180,7 @@ public class Popup : MonoBehaviour, IBlockResolver
 		// create selection buttons
 		float yLoc = 0;
 		int counter = 0;
+		_menuButtons = new ClickButton[_menuItems.Length];
 		foreach (string menuItem in _menuItems) {
 			int index = counter++;
 			TextButton textButton = MakeTextButton(templateButton, menuItem);
@@ -175,6 +193,7 @@ public class Popup : MonoBehaviour, IBlockResolver
 				clickButton.Selected = true;
 				clickButton.Enabled = false;
 			}
+			_menuButtons[index] = clickButton;
 		}
 
 		return popupGameObject;
