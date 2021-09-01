@@ -31,7 +31,7 @@ using LocalizerTypes;
 
 public class LanguageSwitcher : MonoBehaviour
 {
-    private static bool SHOW_LANGUAGE_TOGGLE = true;
+    private static bool SHOW_LANGUAGE_TOGGLE = false;
 
 	public ClickButton languageButton;
     public ClickButton foreignButton;

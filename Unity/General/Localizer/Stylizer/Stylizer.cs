@@ -122,7 +122,7 @@ public static class Stylizer
 
     public static void AddStyle(this TextMeshProUGUI textField,
                                 string text,
-                                string style = default)
+                                string style)
     {
         textField.AddKey(text, default, style, false);
     }

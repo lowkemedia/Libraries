@@ -9,13 +9,13 @@ public class SetOfFonts : ScriptableObject
     // Primary fonts
     public TMP_FontAsset black_castle_50;
     public TMP_FontAsset black_castle_88;
-    public TMP_FontAsset black_castle_96;
-    public TMP_FontAsset black_castle_150;
+    public TMP_FontAsset black_castle_118;
+    public TMP_FontAsset black_castle_166;
 
     public TMP_FontAsset bookerly_italic_32;
     public TMP_FontAsset bookerly_regular_38;
-    public TMP_FontAsset bookerly_regular_38_b_i;
     public TMP_FontAsset bookerly_regular_50;
+    public TMP_FontAsset bookerly_bold_54;
 
 
     // Russian fonts - Cyrillic
@@ -56,20 +56,20 @@ public class SetOfFonts : ScriptableObject
                 return black_castle_50;
             case "BlackCastleMF SDF 88 px":
                 return black_castle_88;
-            case "BlackCastleMF SDF 96 px":
-                return black_castle_96;
-            case "BlackCastleMF SDF 150 px":
-                return black_castle_150;
+            case "BlackCastleMF SDF 118 px":
+                return black_castle_118;
+            case "BlackCastleMF SDF 166 px":
+                return black_castle_166;
 
             //  body font
             case "Bookerly-RegularItalic SDF 32 px":
                 return bookerly_italic_32;
             case "Bookerly-Regular SDF 38 px":
                 return bookerly_regular_38;
-            case "Bookerly-Regular SDF 38 px bolded-italics":
-                return bookerly_regular_38_b_i;
             case "Bookerly-Regular SDF 50 px":
                 return bookerly_regular_50;
+            case "Bookerly-Bold SDF 54 px":
+                return bookerly_bold_54;
 
             //
             // Russian fonts - Cyrillic
