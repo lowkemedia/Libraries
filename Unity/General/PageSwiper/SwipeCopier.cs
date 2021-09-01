@@ -26,15 +26,33 @@
 //
 
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 public class SwipeCopier : MonoBehaviour, IPointerClickHandler, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
-    public PageSwiper pageSwiper;           // page swiper that drag events are sent to
+    public PageSwiper pageSwiper;               // page swiper that drag events are sent to
+    public UnityEvent onClickEvent;             // optional event for clicking
+
+    private bool _dragging;
 
     public void OnPointerClick(PointerEventData pointerEventData)
     {
-        pageSwiper.OnPointerClick(pointerEventData);
+        if (_dragging) {
+            return;
+        }
+
+        if (onClickEvent.GetPersistentEventCount() > 0) {
+            onClickEvent.Invoke();
+        } else {
+            pageSwiper.OnPointerClick(pointerEventData);
+        }
+    }
+
+    public void OnBeginDrag(PointerEventData pointerEventData)
+    {
+        _dragging = true;
+        // pageSwiper.OnBeginDrag(pointerEventData);
     }
 
     public void OnDrag(PointerEventData pointerEventData)
@@ -42,13 +60,9 @@ public class SwipeCopier : MonoBehaviour, IPointerClickHandler, IDragHandler, IB
         pageSwiper.OnDrag(pointerEventData);
     }
 
-    public void OnBeginDrag(PointerEventData pointerEventData)
-    {
-        // pageSwiper.OnBeginDrag(pointerEventData);
-    }
-
     public void OnEndDrag(PointerEventData pointerEventData)
     {
+        _dragging = false;
         pageSwiper.OnEndDrag(pointerEventData);
     }
 }
