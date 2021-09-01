@@ -1,8 +1,8 @@
 //
 //  ClickButton - Button package
-//  Russell Lowke, September 1st 2020
+//  Russell Lowke, August 19th 2021
 //
-//  Copyright (c) 2019-2020 Lowke Media
+//  Copyright (c) 2019-2021 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -100,15 +100,19 @@ public class ClickButton : MonoBehaviour,
         }
     }
 
+    public bool Interactable { get; set; } = true;
+
     // called by Unity on toggle
     private void OnEnable()
     {
+        Interactable = true;
         UpdateButton();
     }
 
     // called by Unity on toggle
     private void OnDisable()
     {
+        Interactable = false;
         _showAsPressed = false;
         _pressed = false;
         PointerInside = false;
@@ -200,7 +204,7 @@ public class ClickButton : MonoBehaviour,
     public virtual void OnPointerUp(PointerEventData pointerEventData)
     {
         _pressed = false;
-        if (!Enabled) { return; }
+        if (!Interactable) { return; }
 
         UpdateButton();
     }
@@ -208,12 +212,12 @@ public class ClickButton : MonoBehaviour,
     public virtual void OnPointerEnter(PointerEventData pointerEventData)
     {
         PointerInside = true;
-        if (!Enabled) { return; }
+        if (!Interactable) { return; }
 
         UpdateButton();
         OnRolloverEvent?.Invoke();
 
-        if (rollSound != null) {
+        if (rollSound != null && Enabled) {
             if (IsHandheld) {
                 // don't play roll sound on handheld devices
                 return;
@@ -225,7 +229,7 @@ public class ClickButton : MonoBehaviour,
     public virtual void OnPointerExit(PointerEventData pointerEventData)
     {
         PointerInside = false;
-        if (!Enabled) { return; }
+        if (!Interactable) { return; }
 
         UpdateButton();
         OnRolloutEvent?.Invoke();
@@ -234,7 +238,7 @@ public class ClickButton : MonoBehaviour,
     public virtual void OnPointerDown(PointerEventData pointerEventData)
     {
         _pressed = true;
-        if (!Enabled) { return; }
+        if (!Interactable) { return; }
 
         UpdateButton();
     }
@@ -261,8 +265,8 @@ public class ClickButton : MonoBehaviour,
     //  a good visual pressDuration is 0.33f
     public virtual void Click(float pressDuration = 0)
     {
-        if (!(isActiveAndEnabled && Enabled)) {
-            // button must be active and enabled to click
+        if (!(isActiveAndEnabled && Interactable)) {
+            // button must be active and interactable to click
             return;
         }
 
@@ -284,10 +288,10 @@ public class ClickButton : MonoBehaviour,
             UpdateButton();
         }
 
-        if (waitForClickSound && pressDuration == 0) {
+        if (waitForClickSound && pressDuration == 0 && Enabled) {
             SoundHelper.Play(clickSound, unpressCallback);
         } else {
-            if (clickSound) {
+            if (clickSound && Enabled) {
                 clickSound?.Play();
             }
             if (pressDuration > 0) {
