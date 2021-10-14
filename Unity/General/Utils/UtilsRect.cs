@@ -45,7 +45,7 @@ public static class UtilsRect
         rectTransform.localScale = new Vector3(1, 1, 1);    // scale 1, 1, 1
         child.SetPosition(0, 0);                            // position 0, 0
 
-        if (! string.IsNullOrEmpty(name)) {
+        if (!string.IsNullOrEmpty(name)) {
             child.name = name;
         }
         return child;
@@ -95,7 +95,11 @@ public static class UtilsRect
     public static RectTransform GetRectTransform(this Object obj)
     {
         GameObject gameObject = obj.GetGameObject();
-        return gameObject.GetComponent<RectTransform>();
+        RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
+        if (rectTransform == null) {
+            rectTransform = gameObject.AddComponent<RectTransform>();
+        }
+        return rectTransform;
     }
 
     //
@@ -245,8 +249,7 @@ public static class UtilsRect
         if (aCorners[0].x >= bCorners[0].x &&
             aCorners[2].x <= bCorners[2].x &&
             aCorners[0].y >= bCorners[0].y &&
-            aCorners[2].y <= bCorners[2].y)
-        {
+            aCorners[2].y <= bCorners[2].y) {
             return true;
         }
 
@@ -261,8 +264,9 @@ public static class UtilsRect
     //
     // Move child to top of display list
     //
-    public static void MoveToTop(this GameObject child)
+    public static void MoveToTop(this Object obj)
     {
+        /*
         // bring child GameObject to top of display list
         GameObject parent = child.GetParent();
         RectTransform rectTransform = child.GetComponent<RectTransform>();
@@ -270,9 +274,18 @@ public static class UtilsRect
         rectTransform.SetParent(null);
         rectTransform.SetParent(parent.transform);
         rectTransform.localPosition = vector3;
+        */
 
-        // TODO: use obj.GetRectTransform().SetAsFirstSibling ?!
+        RectTransform rectTransform = obj.GetRectTransform();
+        rectTransform.SetAsLastSibling();
     }
 
-    // TODO: MoveToBottom()
+    //
+    // Move child to bottom of display list
+    //
+    public static void MoveToBottom(this Object obj)
+    {
+        RectTransform rectTransform = obj.GetRectTransform();
+        rectTransform.SetAsFirstSibling();
+    }
 }
