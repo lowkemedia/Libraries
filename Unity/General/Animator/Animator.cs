@@ -39,9 +39,13 @@ public class Animator : MonoBehaviour
     private float _updateTime = 0f;                     // time when update was last called
     private float _timePassed = 0f;                     // time between updates
 
+    public static bool Active {
+        get { return _instance != default; }
+    }
+
     public static Animator Instance {
         get {
-            if (_instance is null) {
+            if (_instance == default) {
                 Logger.Warning("Animator must be attached to the Unity scene to work.", LogID.WARNING_ANIMATOR_NOT_ATTACHED);
             }
 
