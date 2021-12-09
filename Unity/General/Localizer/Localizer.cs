@@ -182,7 +182,7 @@ public class Localizer : MonoBehaviour
 
         bool found = _keyValuePairs.TryGetValue(key, out LocalizerValue stringKeyValue);
         if (!found && giveWarning) {
-            Logger.Warning("Can't find key:\"" + key + "\" in localization dictionary.", LocalizerID.WARNING_COULD_NOT_FIND_KEY, true);
+            Logger.Warning("Can't find key:\"" + key + "\" in localization dictionary " + LanguageCode + ".", LocalizerID.WARNING_COULD_NOT_FIND_KEY, true);
         }
 
         return stringKeyValue;
