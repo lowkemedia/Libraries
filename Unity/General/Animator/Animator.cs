@@ -32,17 +32,12 @@ using CallbackTypes;
 
 public class Animator : MonoBehaviour
 {
-    private static Animator _instance;
-
     private Dictionary<GameObject, Anime> _animeDict;   // dictionary of Anime objects, for fast lookup
     private List<Anime> _animeList;                     // List of Anime objects, for fast iteration
     private float _updateTime = 0f;                     // time when update was last called
     private float _timePassed = 0f;                     // time between updates
 
-    public static bool Active {
-        get { return _instance != default; }
-    }
-
+    private static Animator _instance;
     public static Animator Instance {
         get {
             if (_instance == default) {
@@ -53,7 +48,15 @@ public class Animator : MonoBehaviour
         }
     }
 
-    public Animator()
+    private bool IsHandheld {
+        get { return SystemInfo.deviceType == DeviceType.Handheld; }
+    }
+
+    public static bool Active {
+        get { return _instance != default; }
+    }
+
+    public void Awake()
     {
         _instance = this;
         _animeDict = new Dictionary<GameObject, Anime>();
@@ -63,13 +66,59 @@ public class Animator : MonoBehaviour
     public void Start()
     {
         // TODO: WebGL has issues with targetFrameRate = 60
-        Application.targetFrameRate = 60;
 
-        // change 0.2 into 1/60 ~ 0.01666667. 
-        Time.fixedDeltaTime   = 0.01666666f;     // Sets to 60 fps
-        Time.maximumDeltaTime = 0.05f;           // Sets worse case to 20 fps
-        // https://docs.unity3d.com/Manual/class-TimeManager.html
+        if (IsHandheld) {
+            Application.targetFrameRate = 60;
+
+            // change 0.2 into 1/60 ~ 0.01666667. 
+            Time.fixedDeltaTime = 0.01666666f;     // Sets to 60 fps
+            Time.maximumDeltaTime = 0.05f;           // Sets worse case to 20 fps
+                                                     // https://docs.unity3d.com/Manual/class-TimeManager.html
+
+            // TODO: maintaining a framerate of 60 fps will drain the battery!
+            // see blog "Precise frame rates in Unity"
+            //  https://blog.unity.com/technology/precise-framerates-in-unity
+
+            // it should be possible to balance fps load according to animation demand
+            // see class ForceRenderRate() below
+        }
     }
+
+    /* TODO: balance fps load according to animation demand
+    //  https://blog.unity.com/technology/precise-framerates-in-unity
+
+    using System.Collections;
+    using System.Threading;
+    using UnityEngine;
+
+    public class ForceRenderRate : MonoBehaviour
+    {
+        public float Rate = 50.0f;
+        float currentFrameTime;
+
+        void Start()
+        {
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = 9999;
+            currentFrameTime = Time.realtimeSinceStartup;
+            StartCoroutine("WaitForNextFrame");
+        }
+
+        IEnumerator WaitForNextFrame()
+        {
+            while (true) {
+                yield return new WaitForEndOfFrame();
+                currentFrameTime += 1.0f / Rate;
+                var t = Time.realtimeSinceStartup;
+                var sleepTime = currentFrameTime - t - 0.01f;
+                if (sleepTime > 0)
+                    Thread.Sleep((int) (sleepTime * 1000));
+                while (t < currentFrameTime)
+                    t = Time.realtimeSinceStartup;
+            }
+        }
+    }
+    */
 
     // FixedUpdate is a MonoBehaviour alternatuve to Update(),
     //  and called once per frame
