@@ -1,5 +1,5 @@
 ﻿//
-//  SoundFX - Chess Origins: Timeline package
+//  SoundFX - Chess Origins: Sound package
 //  Russell Lowke, January 17th 2021
 //
 //  Copyright (c) 2020-2021 Lowke Media
@@ -22,9 +22,12 @@ public class SoundFX : MonoBehaviour
     public AudioSource stalemate;
     public AudioSource castle;
     public AudioSource enPassant;
-    public AudioSource loser;
     public AudioSource pin;
     public AudioSource stuck;
+    public AudioSource leap;
+    public AudioSource jump;
+    public AudioSource exchange;
+    public AudioSource pass;
 
     public static AudioSource Start { get { return Instance.start; } }
     public static AudioSource Chime { get { return Instance.chime; } }
@@ -37,9 +40,12 @@ public class SoundFX : MonoBehaviour
     public static AudioSource Stalemate { get { return Instance.stalemate; } }
     public static AudioSource Castle { get { return Instance.castle; } }
     public static AudioSource EnPassant { get { return Instance.enPassant; } }
-    public static AudioSource Loser { get { return Instance.loser; } }
     public static AudioSource Pin { get { return Instance.pin; } }
     public static AudioSource Stuck { get { return Instance.stuck; } }
+    public static AudioSource Leap { get { return Instance.leap; } }
+    public static AudioSource Jump { get { return Instance.jump; } }
+    public static AudioSource Exchange { get { return Instance.exchange; } }
+    public static AudioSource Pass { get { return Instance.pass; } }
 
     public static void PlayStart(Callback callback = default) { SoundHelper.Play(Start, callback); }
     public static void PlayChime(Callback callback = default) { SoundHelper.Play(Chime, callback); }
@@ -52,9 +58,12 @@ public class SoundFX : MonoBehaviour
     public static void PlayStalemate(Callback callback = default) { SoundHelper.Play(Stalemate, callback); }
     public static void PlayCastle(Callback callback = default) { SoundHelper.Play(Castle, callback); }
     public static void PlayEnPassant(Callback callback = default) { SoundHelper.Play(EnPassant, callback); }
-    public static void PlayLoser(Callback callback = default) { SoundHelper.Play(Loser, callback); }
     public static void PlayPin(Callback callback = default) { SoundHelper.Play(Pin, callback); }
     public static void PlayStuck(Callback callback = default) { SoundHelper.Play(Stuck, callback); }
+    public static void PlayLeap(Callback callback = default) { SoundHelper.Play(Leap, callback); }
+    public static void PlayJump(Callback callback = default) { SoundHelper.Play(Jump, callback); }
+    public static void PlayExchange(Callback callback = default) { SoundHelper.Play(Exchange, callback); }
+    public static void PlayPass(Callback callback = default) { SoundHelper.Play(Pass, callback); }
 
 
     private static SoundFX _instance;
