@@ -31,14 +31,34 @@ using LocalizerTypes;
 
 public class LanguageSwitcher : MonoBehaviour
 {
-    private static bool SHOW_LANGUAGE_TOGGLE = false;
+    public const LanguageCode DEFAULT_LANGUAGE = LanguageCode.en_GB;
+    private static bool SHOW_ENGLISH_TOGGLE = false;
 
 	public ClickButton languageButton;
     public ClickButton foreignButton;
     public ClickButton englishButton;
 
-    // TODO: Build Languages array in set LanguageCodes or Initialize()
     public static LanguageCode[] LanguageCodes { get; } = new LanguageCode[] { LanguageCode.en_GB, LanguageCode.fr_FR, LanguageCode.de_DE, LanguageCode.ru, LanguageCode.ja };
+
+    private static LanguageSwitcher _instance;
+    public static LanguageSwitcher Instance {
+        get {
+            if (_instance == default) {
+                Logger.Warning("LanguageSwitcher must be attached to the Unity scene to work.");
+            }
+
+            return _instance;
+        }
+    }
+
+    private void Awake()
+    {
+        if (_instance != null) {
+            Logger.Warning("LanguageSwitcher should only be attached once.");
+            return;
+        }
+        _instance = this;
+    }
 
     private static string[] _languages;
     public static string[] Languages {
@@ -62,7 +82,7 @@ public class LanguageSwitcher : MonoBehaviour
         }
     }
 
-    public static LanguageCode StoredLanguage { get; private set; } = LanguageCode.en_GB;
+    public static LanguageCode StoredLanguage { get; private set; } = DEFAULT_LANGUAGE;
 
     public static void CycleLanguage()
     {
@@ -87,26 +107,35 @@ public class LanguageSwitcher : MonoBehaviour
             foreignButton = GameObject.Find("Foreign Button").GetComponent<ClickButton>();
         }
 		foreignButton.onClickEvent.AddListener(OnClickForeign);
-		foreignButton.gameObject.SetActive(false);
 
         if (englishButton is null) {
             englishButton = GameObject.Find("English Button").GetComponent<ClickButton>();
         } 
 		englishButton.onClickEvent.AddListener(OnClickEnglish);
-		englishButton.gameObject.SetActive(false);
 
-        UpdateButtons();
+        // languageButton defaults in the scene as visible,
+        //  if it's not visible, then it's not meant to be shown.
+        if (languageButton.gameObject.activeSelf) {
+            UpdateButtons();
+        }
     }
 
-    private void UpdateButtons()
+    public void UpdateButtons()
 	{
-        if (!SHOW_LANGUAGE_TOGGLE || StoredLanguage == LanguageCode.en_GB) {
+        languageButton.gameObject.SetActive(StoredGame.ShowLanguageSwitcher);
+
+        if (!SHOW_ENGLISH_TOGGLE || StoredLanguage == DEFAULT_LANGUAGE) {
             englishButton.gameObject.SetActive(false);
             foreignButton.gameObject.SetActive(false);
         } else {
-            englishButton.gameObject.SetActive(!(Localizer.LanguageCode == LanguageCode.en_GB));
-            foreignButton.gameObject.SetActive(Localizer.LanguageCode == LanguageCode.en_GB);
+            englishButton.gameObject.SetActive(!(Localizer.LanguageCode == DEFAULT_LANGUAGE));
+            foreignButton.gameObject.SetActive(Localizer.LanguageCode == DEFAULT_LANGUAGE);
         }
+    }
+
+    public static void UpdateLanguageButtons()
+    {
+        Instance.UpdateButtons();
     }
 
 	public void OnClickLanguage(ClickButton button)
@@ -117,7 +146,7 @@ public class LanguageSwitcher : MonoBehaviour
 
 	public void OnClickEnglish(ClickButton button)
 	{
-        Localizer.LanguageCode = LanguageCode.en_GB;
+        Localizer.LanguageCode = DEFAULT_LANGUAGE;
         UpdateButtons();
     }
 
@@ -125,5 +154,9 @@ public class LanguageSwitcher : MonoBehaviour
 	{
         Localizer.LanguageCode = StoredLanguage;
         UpdateButtons();
+    }
+
+    public static bool LanguageButtonActive {
+        get { return Instance.languageButton.gameObject.activeSelf; }
     }
 }
