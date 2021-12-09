@@ -113,6 +113,15 @@ public static class Utils
         return output;
     }
 
+    //
+    // Swap a value
+    public static void Swap<T>(ref T x, ref T y)
+    {
+        T t = y;
+        y = x;
+        x = t;
+    }
+
     public static bool IsDestroyed(GameObject gameObject)
     {
         // UnityEngine overloads the == opeator for the GameObject type
