@@ -156,7 +156,7 @@ public static class UtilsRect
 
     // TODO: GetCanvasPosition
 
-    public static RectTransform GetCanvasRect(this Object obj)      // TODO: Does this work?
+    public static RectTransform GetCanvasRect(this Object obj)
     {
         Canvas[] canvases = obj.GetRectTransform().GetComponentsInParent<Canvas>();
         if (canvases.Length != 1) {
@@ -232,6 +232,12 @@ public static class UtilsRect
     public static float GetScale(this Object obj)
     {
         return obj.GetRectTransform().GetScale();
+    }
+
+    public static void SetRotation(this Object obj, float angle)
+    {
+        RectTransform rectTransform = obj.GetRectTransform();
+        rectTransform.Rotate(new Vector3(0, 0, angle));
     }
 
     //

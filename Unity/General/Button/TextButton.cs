@@ -61,6 +61,11 @@ public class TextButton : MonoBehaviour
 		set { ClickButton.Enabled = value; }
 	}
 
+	public bool Interactable {
+		get { return ClickButton.Interactable; }
+		set { ClickButton.Interactable = value; }
+	}
+
 	public bool Selected {
 		get { return ClickButton.Selected; }
 		set { ClickButton.Selected = value; }

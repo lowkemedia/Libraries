@@ -48,7 +48,33 @@ public static class UtilsNumber
         return degrees * 0.01745329251994f;
     }
 
+    public static string PadZerosToNumber(int value, int n)
+    {
+        string result = "" + value;
+        while (result.Length < n) {
+            result = '0' + result;
+        }
 
+        return result;
+    }
+
+    public static string AddCommasToNumber(int value)
+    {
+        string intString = "" + value;
+        string result = "";
+
+        while (intString.Length > 3) {
+            string chunk = intString.Substring(intString.Length - 3);
+            intString = intString.Substring(0, intString.Length - 3);
+            result = ',' + chunk + result;
+        }
+
+        if (intString.Length > 0) {
+            result = intString + result;
+        }
+
+        return result;
+    }
 
     /*
         //
@@ -265,7 +291,7 @@ public static class UtilsNumber
         
         //
         // given a looping sequence in both directions with a range of max
-        // if at n which direction (+ or -) is quickest to get to dest
+        // if at n which direction (+ or -) is quickest to get to destination
         public static function incOrDec(n:uint,
                                         dest:uint,
                                         max:uint):int
@@ -280,8 +306,7 @@ public static class UtilsNumber
             } else {
                 if (n < dest) {
                     inc = dest - n;
-                    dec = n + (
-                        max - dest);
+                    dec = n + (max - dest);
                 } else {
                     if (n > dest) {
                         inc = dest + (max - n);
@@ -417,27 +442,6 @@ public static class UtilsNumber
 
             return value;
         }
-    
-        public static function addCommasToNumber(number:Number):String
-        {
-            var numString:String = "" + number;
-            var result:String = '';
-
-            while (numString.length > 3)
-            {
-                var chunk:String = numString.substr(-3);
-                numString = numString.substr(0, numString.length - 3);
-                result = ',' + chunk + result
-            }
-
-            if (numString.length > 0)
-            {
-                result = numString + result;
-            }
-
-            return result
-        }
-
 
         public static function convertMillisecondsToTimeRemaining(milliseconds:Number):Object
 		{
