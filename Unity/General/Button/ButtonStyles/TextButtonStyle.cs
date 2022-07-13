@@ -1,8 +1,8 @@
 ﻿//
-//  ClickButtonStyle - Button package
-//  Russell Lowke, July 12th 2020
+//  TextButtonStyle - Button package
+//  Russell Lowke, July 13th 2022
 //
-//  Copyright (c) 2020 Lowke Media
+//  Copyright (c) 2020-2022 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,21 +28,15 @@
 using UnityEngine;
 
 [CreateAssetMenu]
-public class ClickButtonStyle : ScriptableObject
+public class TextButtonStyle : ScriptableObject
 {
-    // Sprite skin used for each state
-    public Sprite normalSprite;         // up
-    public Sprite highlightedSprite;    // over
-    public Sprite pressedSprite;        // down
-    public Sprite selectedSprite;       // selected
-    public Sprite disabledSprite;       // disabled
+    // text color associated with each state
+    public string normalColor;
+    public string highlightedColor;     // e.g. #FFFFFF7F is white with 50% alpha
+    public string pressedColor;
+    public string selectedColor;
+    public string disabledColor;
 
-    // text style for this utton
-    public TextButtonStyle textButtonStyle;
-
-    // if true, omits drawing the Normal ("up") state after
-    //  a click, this is useful for tab menus or button toggles,
-    //  as otherwise you see the normal state flicker.
-    public bool skipPointerUp;
+    // TODO: deal with outline color and similar
 
 }

@@ -61,7 +61,9 @@ public static class ButtonFactory
         // create TextButton
         TextButton textButton = gameObject.AddComponent<TextButton>();
         textButton.textField = textField;
-        textButton.SetStyle(template.ClickButton.style);
+        textButton.SetStyle(template.ClickButton.style.textButtonStyle);
+
+        // TODO: create IconButton
 
         return textButton;
     }

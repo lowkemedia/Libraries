@@ -1,5 +1,5 @@
 //
-//  SwipeCopier - Button package
+//  SwipeCopier - PageSwiper package
 //  Russell Lowke, April 1st 2021
 //
 //  Copyright (c) 2021 Lowke Media

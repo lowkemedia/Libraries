@@ -32,6 +32,8 @@ using UnityEngine;
 public class TextButton : MonoBehaviour
 {
 	public TextMeshProUGUI textField;
+	public TextButtonStyle textStyle;       // if empty, textStyle is taken from ClickButton.style.textStyle
+
 	public string NormalColor { get; private set; }			// up          #FFFFFF7F is white with 50% alpha
 	public string HighlightedColor { get; private set; }	// over
 	public string PressedColor { get; private set; }		// down
@@ -75,18 +77,25 @@ public class TextButton : MonoBehaviour
 	{
 		ClickButton.OnUpdateEvent += UpdateButton;
 
-		if (ClickButton.style) {
-			SetStyle(ClickButton.style);
+		if (textStyle == default) {
+			ClickButtonStyle clickButtonStyle = ClickButton.style;
+			if (clickButtonStyle != default) {
+				textStyle = clickButtonStyle.textButtonStyle;
+			}
 		}
+		
+		SetStyle(textStyle);
 	}
 
-	public void SetStyle(ClickButtonStyle style)
+	public void SetStyle(TextButtonStyle style)
 	{
-		SetStyle(style.normalColor,
-				 style.highlightedColor,
-				 style.pressedColor,
-				 style.selectedColor,
-				 style.disabledColor);
+		if (style != default) {
+			SetStyle(style.normalColor,
+				style.highlightedColor,
+				style.pressedColor,
+				style.selectedColor,
+				style.disabledColor);
+		}
 	}
 
 	public void SetStyle(string normalColor,
@@ -132,6 +141,8 @@ public class TextButton : MonoBehaviour
 		} else {
 			_disabledColor = UtilsColor.ConvertColor(DisabledColor);
 		}
+
+		textField.raycastTarget = false;
 	}
 
 	// Update is called once per frame
@@ -141,6 +152,9 @@ public class TextButton : MonoBehaviour
 			textField.color = _selectedColor;
 		} else if (!ClickButton.Enabled) {
 			textField.color = _disabledColor;
+			if (textField.outlineColor != Color.black) {
+				textField.outlineColor = Color.black;       // TODO: Deal with outlineColor
+			}
 		} else if (ClickButton.Pressed) {
 			textField.color = _pressedColor;
 		} else if (ClickButton.PointerInside) {

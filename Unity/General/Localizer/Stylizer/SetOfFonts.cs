@@ -8,6 +8,8 @@ public class SetOfFonts : ScriptableObject
 {
     // Primary fonts
     public TMP_FontAsset black_castle_50;
+    public TMP_FontAsset black_castle_72_ruby;
+    public TMP_FontAsset black_castle_72_coin;
     public TMP_FontAsset black_castle_88;
     public TMP_FontAsset black_castle_118;
     public TMP_FontAsset black_castle_166;
@@ -54,6 +56,10 @@ public class SetOfFonts : ScriptableObject
             //  title font
             case "BlackCastleMF SDF 50 px":
                 return black_castle_50;
+            case "BlackCastleMF SDF 72 px 12 pd ruby #":
+                return black_castle_72_ruby;
+            case "BlackCastleMF SDF 72 px 12 pd coin #":
+                return black_castle_72_coin;
             case "BlackCastleMF SDF 88 px":
                 return black_castle_88;
             case "BlackCastleMF SDF 118 px":

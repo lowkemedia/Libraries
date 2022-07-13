@@ -117,6 +117,14 @@ public static class Stylizer
             if (!float.IsNaN(localizerStyle.characterSpacing)) {
                 textField.characterSpacing = localizerStyle.characterSpacing;
             }
+
+            if (localizerStyle.color != default) {
+                // TODO: Should this be textField.faceColor instead?
+                textField.color = UtilsColor.ConvertColor(localizerStyle.color);
+            }
+            if (localizerStyle.outlineColor != default) {
+                textField.outlineColor = UtilsColor.ConvertColor(localizerStyle.outlineColor);
+            }
         }
     }
 

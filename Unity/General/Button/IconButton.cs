@@ -40,6 +40,7 @@ public class IconButton : MonoBehaviour
 			if (!_image) {
 				_image = GetComponent<Image>();
 				_startSprite = _image.sprite;
+				Image.raycastTarget = false;
 			}
 			return _image;
 		}

@@ -28,9 +28,11 @@
 [System.Serializable]
 public class LocalizerStyle
 {
-    public string style;
+    public string style;                    // TODO: Rename "style" to "styleName" or "name"
     public string font;
     public float fontSize;
     public float lineSpacing;
     public float characterSpacing;
+    public string color;
+    public string outlineColor;
 }
