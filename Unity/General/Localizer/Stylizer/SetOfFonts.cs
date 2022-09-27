@@ -37,9 +37,9 @@ public class SetOfFonts : ScriptableObject
     public static SetOfFonts Instance {
         get {
             if (_instance == default) {
-                _instance = Resources.Load("LocalizerFonts") as SetOfFonts;
+                _instance = Resources.Load("Localizer Fonts") as SetOfFonts;
                 if (_instance == default) {
-                    throw new Exception("Could not find \"LocalizerFonts\" Scriptable resource.");
+                    throw new Exception("Could not find \"Localizer Fonts\" Scriptable resource.");
 				}
             }
             return _instance;

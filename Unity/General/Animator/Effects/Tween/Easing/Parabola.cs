@@ -42,7 +42,7 @@ public class Parabola
     // ctrlTime overrides ctrlTimePerc if used
     // ctrlValue overrides ctrlValuePerc if used
     public Parabola(float ctrlValuePerc = 0.75f,        // defaults to EaseOut
-                    float ctrlTimePerc = 0.5f,    //  be 75% done at half time.
+                    float ctrlTimePerc = 0.5f,          //  be 75% done at half time.
                     float ctrlValue = float.NaN,
                     float ctrlTime = float.NaN)
     {
@@ -124,7 +124,7 @@ public class Parabola
     }
 
     //
-    // Example heper methods
+    // Example helper methods
     //
 
     public static EasingFunct EaseIn

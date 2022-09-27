@@ -57,12 +57,8 @@ public class ClickButton : MonoBehaviour,
     public Sprite PressedSprite { get; private set; }           // down
     public Sprite SelectedSprite { get; private set; }          // selected
     public Sprite DisabledSprite { get; private set; }          // disabled
-    public bool SkipPointerUp { get; set; }               // skips drawing the normal ("Up") state after a click
-    public bool PointerInside { get; private set; }       // true if pointer inside button
-
-    private bool IsHandheld {
-        get { return SystemInfo.deviceType == DeviceType.Handheld;  }
-    }
+    public bool SkipPointerUp { get; set; }                     // skips drawing the normal ("Up") state after a click
+    public bool PointerInside { get; private set; }             // true if pointer inside button
 
     private bool _showAsPressed;                                // true if button override as pressed
     private bool _pressed;                                      // true if button is pressed
@@ -71,7 +67,7 @@ public class ClickButton : MonoBehaviour,
             if (_showAsPressed) {
                 return true;
             }
-            return _pressed && (IsHandheld || PointerInside);
+            return _pressed && (GlobalState.IsHandheld || PointerInside);
         }
     }
 
@@ -198,11 +194,13 @@ public class ClickButton : MonoBehaviour,
 
     public virtual void OnPointerClick(PointerEventData pointerEventData)
     {
+        if (GlobalState.IsDragging) { return; }
         Click();
     }
 
     public virtual void OnPointerUp(PointerEventData pointerEventData)
     {
+        if (GlobalState.IsDragging) { return; }
         _pressed = false;
         if (!Interactable) { return; }
 
@@ -211,6 +209,7 @@ public class ClickButton : MonoBehaviour,
 
     public virtual void OnPointerEnter(PointerEventData pointerEventData)
     {
+        if (GlobalState.IsDragging) { return; }
         PointerInside = true;
         if (!Interactable) { return; }
 
@@ -218,7 +217,7 @@ public class ClickButton : MonoBehaviour,
         OnRolloverEvent?.Invoke();
 
         if (rollSound != null && Enabled) {
-            if (IsHandheld) {
+            if (GlobalState.IsHandheld) {
                 // don't play roll sound on handheld devices
                 return;
             }
@@ -228,6 +227,7 @@ public class ClickButton : MonoBehaviour,
 
     public virtual void OnPointerExit(PointerEventData pointerEventData)
     {
+        if (GlobalState.IsDragging) { return; }
         PointerInside = false;
         if (!Interactable) { return; }
 
@@ -237,6 +237,7 @@ public class ClickButton : MonoBehaviour,
 
     public virtual void OnPointerDown(PointerEventData pointerEventData)
     {
+        if (GlobalState.IsDragging) { return; }
         _pressed = true;
         if (!Interactable) { return; }
 

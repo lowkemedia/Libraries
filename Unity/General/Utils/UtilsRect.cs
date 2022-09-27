@@ -1,8 +1,8 @@
 //
 //  UtilsRect - Utils package
-//  Russell Lowke, May 11th 2020
+//  Russell Lowke, September 21st 2022
 //
-//  Copyright (c) 2019-20 Lowke Media
+//  Copyright (c) 2019-22 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -43,7 +43,7 @@ public static class UtilsRect
         rectTransform.SetParent(parent.transform);
         rectTransform.sizeDelta = new Vector2(0, 0);        // width 0x0
         rectTransform.localScale = new Vector3(1, 1, 1);    // scale 1, 1, 1
-        child.SetPosition(0, 0);                            // position 0, 0
+        child.SetLocalPosition(0, 0);                            // position 0, 0
 
         if (!string.IsNullOrEmpty(name)) {
             child.name = name;
@@ -105,14 +105,13 @@ public static class UtilsRect
     //
     // set and get local position of UnityEngine Object
     //
-    public static void SetPosition(this Object obj, Vector3 localPosition)
+    public static void SetLocalPosition(this Object obj, Vector3 localPosition)
     {
-        // TODO: want GetRectTransform().canvasPosition, etc
         obj.GetRectTransform().localPosition = localPosition;
     }
 
-    public static void SetPosition(this Object obj,
-                                   float x, float y, float z = float.NaN)
+    public static void SetLocalPosition(this Object obj,
+                                        float x, float y, float z = float.NaN)
     {
         RectTransform rectTransform = obj.GetRectTransform();
         Vector3 localPosition = rectTransform.localPosition;        // TODO: SetPosition using canvasPosition
@@ -128,9 +127,15 @@ public static class UtilsRect
         rectTransform.localPosition = localPosition;
     }
 
-    public static Vector3 GetPosition(this Object obj)
+    public static Vector3 GetLocalPosition(this Object obj)
     {
         return obj.GetRectTransform().localPosition;
+    }
+
+    public static Vector3 GetLocalPosition(this Object obj, Object worldObj)
+    {
+        Vector3 worldPosition = worldObj.GetRectTransform().position;
+        return obj.GetLocalPosition(worldPosition);
     }
 
     public static Vector3 GetLocalPosition(this Object obj, Vector3 worldPosition)
@@ -145,17 +150,6 @@ public static class UtilsRect
         return rectTransform.TransformPoint(localPosition);
     }
 
-    /* TODO: Ensure ConvertPosition works
-    public static Vector3 ConvertPosition(this Object obj, Object source, Vector3 position)
-	{
-        Vector3 worldPosition = source.GetWorldPosition(position);
-        Vector3 localPosition = obj.GetLocalPosition(worldPosition);
-        return localPosition;
-	}
-    */
-
-    // TODO: GetCanvasPosition
-
     public static RectTransform GetCanvasRect(this Object obj)
     {
         Canvas[] canvases = obj.GetRectTransform().GetComponentsInParent<Canvas>();
@@ -169,22 +163,22 @@ public static class UtilsRect
 
     public static void SetX(this Object obj, float x)
     {
-        obj.SetPosition(x, float.NaN);
+        obj.SetLocalPosition(x, float.NaN);
     }
 
     public static void SetY(this Object obj, float y)
     {
-        obj.SetPosition(float.NaN, y);
+        obj.SetLocalPosition(float.NaN, y);
     }
 
     public static float GetX(this Object obj)
     {
-        return obj.GetPosition().x;
+        return obj.GetLocalPosition().x;
     }
 
     public static float GetY(this Object obj)
     {
-        return obj.GetPosition().y;
+        return obj.GetLocalPosition().y;
     }
 
     //
@@ -223,10 +217,13 @@ public static class UtilsRect
         obj.SetScale(new Vector3(scale, scale, 1));
     }
 
-    public static float GetScale(this RectTransform rectTransform)
+    public static float GetScale(this RectTransform rectTransform, bool giveWarnig = true)
     {
-        // TODO: verify localScale.x == localScale.y
-        return rectTransform.localScale.x;
+        Vector3 localScale = rectTransform.localScale;
+        if (giveWarnig && localScale.x != localScale.y) {
+            Logger.Warning("localScale.x != localScale.y in GetScale()");
+        }
+        return localScale.x;
     }
 
     public static float GetScale(this Object obj)
@@ -269,29 +266,39 @@ public static class UtilsRect
 
     //
     // Move child to top of display list
-    //
     public static void MoveToTop(this Object obj)
     {
-        /*
-        // bring child GameObject to top of display list
-        GameObject parent = child.GetParent();
-        RectTransform rectTransform = child.GetComponent<RectTransform>();
-        Vector3 vector3 = rectTransform.localPosition;
-        rectTransform.SetParent(null);
-        rectTransform.SetParent(parent.transform);
-        rectTransform.localPosition = vector3;
-        */
-
-        RectTransform rectTransform = obj.GetRectTransform();
-        rectTransform.SetAsLastSibling();
+        Transform transform = obj.GetRectTransform();
+        transform.SetAsLastSibling();
     }
 
     //
     // Move child to bottom of display list
-    //
     public static void MoveToBottom(this Object obj)
     {
-        RectTransform rectTransform = obj.GetRectTransform();
-        rectTransform.SetAsFirstSibling();
+        Transform transform = obj.GetRectTransform();
+        transform.SetAsFirstSibling();
+    }
+
+    public static int GetLayer(this Object obj)
+    {
+        Transform transform = obj.GetRectTransform();
+        return transform.GetSiblingIndex();
+    }
+
+    public static void SetLayer(this Object obj, int index)
+    {
+        Transform transform = obj.GetRectTransform();
+        transform.SetSiblingIndex(index);
+    }
+
+    // attach to parent, and set width and height to 1
+    public static RectTransform AttachChild(GameObject parent, GameObject child)
+    {
+        RectTransform rectTransform = child.GetRectTransform();
+        rectTransform.SetParent(parent.transform);
+        rectTransform.sizeDelta = new Vector2(1, 1);
+
+        return rectTransform;
     }
 }

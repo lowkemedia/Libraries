@@ -57,7 +57,7 @@ public class ClickBlocker : MonoBehaviour, IPointerDownHandler, IPointerEnterHan
 		blockerImage.SetSize(canvasRect.sizeDelta);
 		// blockerImage.SetScale(new Vector3(1f, 1f, 1));
 		Vector3 position = -GetSumOfPositions(focusGameObject);
-		blockerImage.SetPosition(position);
+		blockerImage.SetLocalPosition(position);
 		_iBlockResolver = gameObject.GetComponentInParent<IBlockResolver>();
     }
 
@@ -66,20 +66,20 @@ public class ClickBlocker : MonoBehaviour, IPointerDownHandler, IPointerEnterHan
 		// Note: The root Canvas position not included in sum
 		Vector3 position = Vector3.one;
 		do {
-			position += obj.GetPosition();
+			position += obj.GetLocalPosition();
 			obj = obj.GetParent();
 		} while (obj.GetParent() != null);	// ignore canvas root
 
 		return position;
 	}
 
-    public void OnPointerDown(PointerEventData clickEventData)
+    public void OnPointerDown(PointerEventData pointerEventData)
     {
-        _iBlockResolver.OnBlockerClicked();
+		if (GlobalState.IsDragging) { return; }
+		_iBlockResolver.OnBlockerClicked();
     }
 
-    public void OnPointerEnter(PointerEventData clickEventData)
-    {
+    public void OnPointerEnter(PointerEventData pointerEventData) {
         _iBlockResolver.OnBlockerRolled();
     }
 }

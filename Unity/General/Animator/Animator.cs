@@ -48,10 +48,6 @@ public class Animator : MonoBehaviour
         }
     }
 
-    private bool IsHandheld {
-        get { return SystemInfo.deviceType == DeviceType.Handheld; }
-    }
-
     public static bool Active {
         get { return _instance != default; }
     }
@@ -67,7 +63,7 @@ public class Animator : MonoBehaviour
     {
         // TODO: WebGL has issues with targetFrameRate = 60
 
-        if (IsHandheld) {
+        if (GlobalState.IsHandheld) {
             Application.targetFrameRate = 60;
 
             // change 0.2 into 1/60 ~ 0.01666667. 

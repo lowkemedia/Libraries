@@ -20,6 +20,7 @@ public class SoundFX : MonoBehaviour
     public AudioSource check;
     public AudioSource checkmate;
     public AudioSource stalemate;
+    public AudioSource cant;
     public AudioSource castle;
     public AudioSource enPassant;
     public AudioSource pin;
@@ -38,6 +39,7 @@ public class SoundFX : MonoBehaviour
     public static AudioSource Check { get { return Instance.check; } }
     public static AudioSource Checkmate { get { return Instance.checkmate; } }
     public static AudioSource Stalemate { get { return Instance.stalemate; } }
+    public static AudioSource Cant { get { return Instance.cant; } }
     public static AudioSource Castle { get { return Instance.castle; } }
     public static AudioSource EnPassant { get { return Instance.enPassant; } }
     public static AudioSource Pin { get { return Instance.pin; } }
@@ -56,6 +58,7 @@ public class SoundFX : MonoBehaviour
     public static void PlayCheck(Callback callback = default) { SoundHelper.Play(Check, callback); }
     public static void PlayCheckmate(Callback callback = default) { SoundHelper.Play(Checkmate, callback); }
     public static void PlayStalemate(Callback callback = default) { SoundHelper.Play(Stalemate, callback); }
+    public static void PlayCant(Callback callback = default) { SoundHelper.Play(Cant, callback); }
     public static void PlayCastle(Callback callback = default) { SoundHelper.Play(Castle, callback); }
     public static void PlayEnPassant(Callback callback = default) { SoundHelper.Play(EnPassant, callback); }
     public static void PlayPin(Callback callback = default) { SoundHelper.Play(Pin, callback); }

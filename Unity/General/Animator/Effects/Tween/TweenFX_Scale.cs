@@ -1,8 +1,8 @@
 ﻿//
 //  TweenFX v 2.0 - Animator package
-//  Russell Lowke, October 29th 2019
+//  Russell Lowke, August 12th 2022
 //
-//  Copyright (c) 2009-2019 Lowke Media
+//  Copyright (c) 2009-2022 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a 
@@ -30,29 +30,30 @@ using AnimatorTypes;
 
 public class TweenFX_Scale : TweenFX
 {
-    private RectTransform _rectTransform;
+    private Transform _trasform;
 
     public TweenFX_Scale(float start,
-                        float end,
-                        float duration,
-                        EasingFunct easingFunct = null,
-                        EffectType type = EffectType.END) : 
-    base(start, end, duration, easingFunct, type, "TweenFX_Size") {}
+                         float end,
+                         float duration,
+                         EasingFunct easingFunct = null,
+                         EffectType type = EffectType.END) : 
+    base(start, end, duration, easingFunct, type, "TweenFX_Scale") {}
 
     protected override void Initialize()
     {
-        _rectTransform = _target.GetComponent<RectTransform>();
+        _trasform = _target.GetComponent<Transform>();
         base.Initialize();
     }
 
     public override float Value
     {
-        get { return _rectTransform.sizeDelta.magnitude; }
-        set
-        {
-            base.Value = value;
+        get {
+            return _trasform.localScale.x;
+        }
 
-            _rectTransform.sizeDelta = new Vector2(value, value);
+        set {
+            base.Value = value;
+            _trasform.localScale = new Vector3(value, value, 1);
         }
     }
 }

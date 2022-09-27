@@ -1,8 +1,8 @@
-﻿//
-//  PressButton - Button package
-//  Russell Lowke, August 22nd 2020
 //
-//  Copyright (c) 2020 Lowke Media
+//  GlobalState
+//  Russell Lowke, September 24th 2022
+//
+//  Copyright (c) 2022 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -25,38 +25,44 @@
 //
 //
 
+using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public class PressButton : ClickButton
+public static class GlobalState
 {
-    private float _pressTime;                           // time of last press
-    private float _pressInvokeTime;                     // time of last invoke while pressed
-    public float invokeInterval = 0.15f;                // interval between press invokes, in seconds
-
-    public override void OnPointerDown(PointerEventData pointerEventData = null)
-    {
-        _pressTime = Time.time;
-        base.OnPointerDown(pointerEventData);
-    }
-
-    private void Update()
-    {
-        float timeNow = Time.time;
-        if (Pressed && PointerInside &&
-            timeNow - _pressTime >= invokeInterval) {
-            _pressTime = timeNow;
-            _pressInvokeTime = _pressTime;
-            base.Click();
+    // DragObject variable for dealing with global drag state
+    private static GameObject _dragObject;
+    public static GameObject DragObject {
+        get { return _dragObject; }
+        set {
+            if (value != default && IsDragging) {
+                throw new Exception("DragObject must be cleared before setting");
+            }
+            _dragObject = value;
         }
     }
 
-    public override void Click(float pressDuration = 0)
-    {
-        if (GlobalState.IsDragging) { return; }
-        float timeNow = Time.time;
-        if (timeNow - _pressInvokeTime >= invokeInterval) {
-            base.Click(pressDuration);
+    public static void ClearDragObject() {
+        DragObject = default;
+    }
+
+    // TODO: find universal way to detect if Unity is performing a drag.
+    //  Note: pointerEventData.dragging may be used for a specific pointer event
+
+    // true if a DragObject is being dragged
+    public static bool IsDragging {
+        get {
+            return DragObject != default;
+        }
+    }
+
+
+
+    // true if device used is a handheld
+    public static bool IsHandheld {
+        get {
+            // return true;
+            return SystemInfo.deviceType == DeviceType.Handheld;
         }
     }
 }

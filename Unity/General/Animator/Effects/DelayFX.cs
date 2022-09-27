@@ -47,7 +47,7 @@ public class DelayFX : AnimatorEffect
     {
         if (_updateTime >= _triggerTime)
         {
-            // incement _triggerTime in case effect persists or similar
+            // increment _triggerTime in case effect persists or similar
             _triggerTime += _delay;
             return true;
         }
