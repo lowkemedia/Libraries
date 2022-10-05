@@ -1,6 +1,6 @@
 //
 //  Utils - Utils package
-//  Russell Lowke, October 29th 2019
+//  Russell Lowke, October 5th 2022
 //
 //  Copyright (c) 2019 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
@@ -28,6 +28,7 @@
 using System;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 public static class Utils
@@ -51,9 +52,13 @@ public static class Utils
         return gameObject;
     }
 
-    //
-    // set and get UnityEngine Object parent
-    //
+
+    public static Transform GetTransform(this Object obj)
+    {
+        GameObject gameObject = obj.GetGameObject();
+        return gameObject.transform;
+    }
+
     public static void SetParent(this Object child, Object parent)
     {
         // TODO: Include optional straight transform.parent assign?
@@ -68,6 +73,172 @@ public static class Utils
     {
         Transform parent = obj.GetGameObject().transform.parent;
         return parent is null ? null : parent.gameObject;
+    }
+
+
+    public static GameObject GetChild(this Object obj, string name)
+    {
+        Transform transform = obj.GetTransform();
+
+        // iterate through children loking for named child
+        foreach(Transform childTransform in transform) {
+            GameObject childGameObject = childTransform.GetGameObject();
+            if (childGameObject.name == name) {
+                return childGameObject;
+            }
+        }
+
+        return default;
+    }
+
+    //
+    // Move child to top of display list
+    public static void MoveToTop(this Object obj)
+    {
+        Transform transform = obj.GetTransform();
+        transform.SetAsLastSibling();
+    }
+
+    //
+    // Move child to bottom of display list
+    public static void MoveToBottom(this Object obj)
+    {
+        Transform transform = obj.GetTransform();
+        transform.SetAsFirstSibling();
+    }
+
+    public static int GetLayer(this Object obj)
+    {
+        Transform transform = obj.GetTransform();
+        return transform.GetSiblingIndex();
+    }
+
+    public static void SetLayer(this Object obj, int index)
+    {
+        Transform transform = obj.GetTransform();
+        transform.SetSiblingIndex(index);
+    }
+
+    //
+    // set and get local position of UnityEngine Object
+    //
+    public static void SetLocalPosition(this Object obj, Vector3 localPosition)
+    {
+        obj.GetTransform().localPosition = localPosition;
+    }
+
+    public static void SetLocalPosition(this Object obj,
+                                        float x, float y, float z = float.NaN)
+    {
+        Transform transform = obj.GetTransform();
+        Vector3 localPosition = transform.localPosition;
+        if (!float.IsNaN(x)) {
+            localPosition.x = x;
+        }
+        if (!float.IsNaN(y)) {
+            localPosition.y = y;
+        }
+        if (!float.IsNaN(z)) {
+            localPosition.z = z;
+        }
+        transform.localPosition = localPosition;
+    }
+
+    public static Vector3 GetLocalPosition(this Object obj)
+    {
+        return obj.GetTransform().localPosition;
+    }
+
+    // get local position of world Vector3
+    public static Vector3 GetLocalPosition(this Object obj, Vector3 worldPosition)
+    {
+        Transform transform = obj.GetTransform();
+        return transform.InverseTransformPoint(worldPosition);
+    }
+
+    // get local position of a world object
+    public static Vector3 GetLocalPosition(this Object obj, Object worldObj)
+    {
+        Vector3 worldPosition = worldObj.GetTransform().position;
+        return obj.GetLocalPosition(worldPosition);
+    }
+
+    // get world position of local Vector3
+    public static Vector3 GetWorldPosition(this Object obj, Vector3 localPosition)
+    {
+        Transform transform = obj.GetTransform();
+        return transform.TransformPoint(localPosition);
+    }
+
+    public static void SetX(this Object obj, float x)
+    {
+        obj.SetLocalPosition(x, float.NaN);
+    }
+
+    public static void SetY(this Object obj, float y)
+    {
+        obj.SetLocalPosition(float.NaN, y);
+    }
+
+    public static float GetX(this Object obj)
+    {
+        return obj.GetLocalPosition().x;
+    }
+
+    public static float GetY(this Object obj)
+    {
+        return obj.GetLocalPosition().y;
+    }
+
+    //
+    // set and get scale of UnityEngine Object
+    //
+    public static void SetScale(this Object obj, Vector3 scale)
+    {
+        obj.GetTransform().localScale = scale;
+    }
+
+    public static void SetScale(this Object obj, float scale)
+    {
+        obj.SetScale(new Vector3(scale, scale, 1));
+    }
+
+    public static float GetScale(this Transform transform, bool giveWarnig = true)
+    {
+        Vector3 localScale = transform.localScale;
+        if (giveWarnig && localScale.x != localScale.y) {
+            Logger.Warning("localScale.x != localScale.y in GetScale()");
+        }
+        return localScale.x;
+    }
+
+    public static float GetScale(this Object obj)
+    {
+        return obj.GetTransform().GetScale();
+    }
+
+    public static void SetRotation(this Object obj, float angle)
+    {
+        Transform transform = obj.GetTransform();
+        transform.Rotate(new Vector3(0, 0, angle));
+    }
+
+    // clear all child gameObjects from this parent
+    public static void ClearChildren(this GameObject parent)
+    {
+        Transform transform = parent.GetTransform();
+        foreach (Transform child in transform) {
+            GameObject.Destroy(child.gameObject);
+        }
+    }
+
+    // set the raycastTarget of all children in this gameObject
+    public static void RaycastGraphics(this GameObject gameObject, bool raycastTarget)
+    {
+        Graphic[] graphics = gameObject.GetComponentsInChildren<Graphic>();
+        foreach (Graphic graphic in graphics) {
+            graphic.raycastTarget = raycastTarget;
+        }
     }
 
     //

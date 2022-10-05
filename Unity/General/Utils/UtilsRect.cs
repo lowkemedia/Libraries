@@ -102,83 +102,15 @@ public static class UtilsRect
         return rectTransform;
     }
 
-    //
-    // set and get local position of UnityEngine Object
-    //
-    public static void SetLocalPosition(this Object obj, Vector3 localPosition)
-    {
-        obj.GetRectTransform().localPosition = localPosition;
-    }
-
-    public static void SetLocalPosition(this Object obj,
-                                        float x, float y, float z = float.NaN)
-    {
-        RectTransform rectTransform = obj.GetRectTransform();
-        Vector3 localPosition = rectTransform.localPosition;        // TODO: SetPosition using canvasPosition
-        if (!float.IsNaN(x)) {
-            localPosition.x = x;
-        }
-        if (!float.IsNaN(y)) {
-            localPosition.y = y;
-        }
-        if (!float.IsNaN(z)) {
-            localPosition.z = z;
-        }
-        rectTransform.localPosition = localPosition;
-    }
-
-    public static Vector3 GetLocalPosition(this Object obj)
-    {
-        return obj.GetRectTransform().localPosition;
-    }
-
-    public static Vector3 GetLocalPosition(this Object obj, Object worldObj)
-    {
-        Vector3 worldPosition = worldObj.GetRectTransform().position;
-        return obj.GetLocalPosition(worldPosition);
-    }
-
-    public static Vector3 GetLocalPosition(this Object obj, Vector3 worldPosition)
-    {
-        RectTransform rectTransform = obj.GetRectTransform();
-        return rectTransform.InverseTransformPoint(worldPosition);
-    }
-
-    public static Vector3 GetWorldPosition(this Object obj, Vector3 localPosition)
-    {
-        RectTransform rectTransform = obj.GetRectTransform();
-        return rectTransform.TransformPoint(localPosition);
-    }
-
     public static RectTransform GetCanvasRect(this Object obj)
     {
-        Canvas[] canvases = obj.GetRectTransform().GetComponentsInParent<Canvas>();
+        Canvas[] canvases = obj.GetTransform().GetComponentsInParent<Canvas>();
         if (canvases.Length != 1) {
-            throw new Exception("Could not find Canvas on obj.");
+            throw new Exception("Could not find Canvas on object");
         }
 
         Canvas canvas = canvases[0];
         return canvas.GetRectTransform();
-    }
-
-    public static void SetX(this Object obj, float x)
-    {
-        obj.SetLocalPosition(x, float.NaN);
-    }
-
-    public static void SetY(this Object obj, float y)
-    {
-        obj.SetLocalPosition(float.NaN, y);
-    }
-
-    public static float GetX(this Object obj)
-    {
-        return obj.GetLocalPosition().x;
-    }
-
-    public static float GetY(this Object obj)
-    {
-        return obj.GetLocalPosition().y;
     }
 
     //
@@ -202,39 +134,6 @@ public static class UtilsRect
     public static float GetWidth(this Object obj)
     {
         return obj.GetRectTransform().sizeDelta.x;
-    }
-
-    //
-    // set and get scale of UnityEngine Object
-    //
-    public static void SetScale(this Object obj, Vector3 scale)
-    {
-        obj.GetRectTransform().localScale = scale;
-    }
-
-    public static void SetScale(this Object obj, float scale)
-    {
-        obj.SetScale(new Vector3(scale, scale, 1));
-    }
-
-    public static float GetScale(this RectTransform rectTransform, bool giveWarnig = true)
-    {
-        Vector3 localScale = rectTransform.localScale;
-        if (giveWarnig && localScale.x != localScale.y) {
-            Logger.Warning("localScale.x != localScale.y in GetScale()");
-        }
-        return localScale.x;
-    }
-
-    public static float GetScale(this Object obj)
-    {
-        return obj.GetRectTransform().GetScale();
-    }
-
-    public static void SetRotation(this Object obj, float angle)
-    {
-        RectTransform rectTransform = obj.GetRectTransform();
-        rectTransform.Rotate(new Vector3(0, 0, angle));
     }
 
     //
@@ -262,34 +161,6 @@ public static class UtilsRect
     public static bool AinsideB(Object objA, Object objB)
     {
         return AinsideB(objA.GetRectTransform(), objB.GetRectTransform());
-    }
-
-    //
-    // Move child to top of display list
-    public static void MoveToTop(this Object obj)
-    {
-        Transform transform = obj.GetRectTransform();
-        transform.SetAsLastSibling();
-    }
-
-    //
-    // Move child to bottom of display list
-    public static void MoveToBottom(this Object obj)
-    {
-        Transform transform = obj.GetRectTransform();
-        transform.SetAsFirstSibling();
-    }
-
-    public static int GetLayer(this Object obj)
-    {
-        Transform transform = obj.GetRectTransform();
-        return transform.GetSiblingIndex();
-    }
-
-    public static void SetLayer(this Object obj, int index)
-    {
-        Transform transform = obj.GetRectTransform();
-        transform.SetSiblingIndex(index);
     }
 
     // attach to parent, and set width and height to 1
