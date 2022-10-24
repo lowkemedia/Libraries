@@ -36,6 +36,9 @@ public static class UtilsColor
     //  use black cover, last two values are alpha
     public static Color ConvertColor(string colorString)
     {
+		if (string.IsNullOrEmpty(colorString)) {
+			return Color.black;
+        }
         ColorUtility.TryParseHtmlString(colorString, out Color returnColor);
         return returnColor;
     }

@@ -1,8 +1,8 @@
 //
 //  Utils - Utils package
-//  Russell Lowke, October 5th 2022
+//  Russell Lowke, October 6th 2022
 //
-//  Copyright (c) 2019 Lowke Media
+//  Copyright (c) 2019-2022 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -52,11 +52,21 @@ public static class Utils
         return gameObject;
     }
 
-
     public static Transform GetTransform(this Object obj)
     {
         GameObject gameObject = obj.GetGameObject();
         return gameObject.transform;
+    }
+
+    public static Canvas GetCanvas(this Object obj)
+    {
+        Canvas[] canvases = obj.GetTransform().GetComponentsInParent<Canvas>();
+        if (canvases.Length != 1) {
+            throw new Exception("Could not find Canvas on object");
+        }
+
+        Canvas canvas = canvases[0];
+        return canvas;
     }
 
     public static void SetParent(this Object child, Object parent)
@@ -232,13 +242,32 @@ public static class Utils
         }
     }
 
-    // set the raycastTarget of all children in this gameObject
+    // set the raycastTarget of all Graphics on this gameObject
     public static void RaycastGraphics(this GameObject gameObject, bool raycastTarget)
     {
         Graphic[] graphics = gameObject.GetComponentsInChildren<Graphic>();
         foreach (Graphic graphic in graphics) {
             graphic.raycastTarget = raycastTarget;
         }
+    }
+
+    // make all Graphics on this gameObject invisible (color = Color.clear)
+    public static void MakeInvisible(this GameObject gameObject)
+    {
+        Graphic[] graphics = gameObject.GetComponentsInChildren<Graphic>();
+        foreach (Graphic graphic in graphics) {
+            graphic.color = Color.clear;
+        }
+    }
+
+    // return the root Image on this gameObject
+    public static Image RootImage(this GameObject gameObject)
+    {
+        Image image = gameObject.GetComponent<Image>();
+        if (image == default) {
+            throw new Exception("Could not find root Image on gameObject");
+        }
+        return image;
     }
 
     //

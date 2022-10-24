@@ -1,8 +1,8 @@
 //
 //  UtilsRect - Utils package
-//  Russell Lowke, September 21st 2022
+//  Russell Lowke, October 6th 2022
 //
-//  Copyright (c) 2019-22 Lowke Media
+//  Copyright (c) 2019-2022 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -25,7 +25,6 @@
 //
 //
 
-using System;
 using UnityEngine;
 using TMPro;
 using Object = UnityEngine.Object;
@@ -100,17 +99,6 @@ public static class UtilsRect
             rectTransform = gameObject.AddComponent<RectTransform>();
         }
         return rectTransform;
-    }
-
-    public static RectTransform GetCanvasRect(this Object obj)
-    {
-        Canvas[] canvases = obj.GetTransform().GetComponentsInParent<Canvas>();
-        if (canvases.Length != 1) {
-            throw new Exception("Could not find Canvas on object");
-        }
-
-        Canvas canvas = canvases[0];
-        return canvas.GetRectTransform();
     }
 
     //
