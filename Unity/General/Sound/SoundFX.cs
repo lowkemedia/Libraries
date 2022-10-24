@@ -17,6 +17,7 @@ public class SoundFX : MonoBehaviour
     public AudioSource promote;
     public AudioSource restart;
     public AudioSource undo;
+    public AudioSource hint;
     public AudioSource check;
     public AudioSource checkmate;
     public AudioSource stalemate;
@@ -36,6 +37,7 @@ public class SoundFX : MonoBehaviour
     public static AudioSource Promote { get { return Instance.promote; } }
     public static AudioSource Restart { get { return Instance.restart; } }
     public static AudioSource Undo { get { return Instance.undo; } }
+    public static AudioSource Hint { get { return Instance.hint; } }
     public static AudioSource Check { get { return Instance.check; } }
     public static AudioSource Checkmate { get { return Instance.checkmate; } }
     public static AudioSource Stalemate { get { return Instance.stalemate; } }
@@ -55,6 +57,7 @@ public class SoundFX : MonoBehaviour
     public static void PlayPromote(Callback callback = default) { SoundHelper.Play(Promote, callback); }
     public static void PlayRestart(Callback callback = default) { SoundHelper.Play(Restart, callback); }
     public static void PlayUndo(Callback callback = default) { SoundHelper.Play(Undo, callback); }
+    public static void PlayHint(Callback callback = default) { SoundHelper.Play(Hint, callback); }
     public static void PlayCheck(Callback callback = default) { SoundHelper.Play(Check, callback); }
     public static void PlayCheckmate(Callback callback = default) { SoundHelper.Play(Checkmate, callback); }
     public static void PlayStalemate(Callback callback = default) { SoundHelper.Play(Stalemate, callback); }

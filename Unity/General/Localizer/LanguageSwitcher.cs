@@ -38,7 +38,8 @@ public class LanguageSwitcher : MonoBehaviour
     public ClickButton foreignButton;
     public ClickButton englishButton;
 
-    public static LanguageCode[] LanguageCodes { get; } = new LanguageCode[] { LanguageCode.en_GB, LanguageCode.fr_FR, LanguageCode.de_DE, LanguageCode.ru, LanguageCode.ja };
+    public static LanguageCode[] LanguageCodes { get; } = new LanguageCode[] { LanguageCode.en_GB, LanguageCode.fr_FR };
+    // LanguageCode.de_DE, LanguageCode.ru, LanguageCode.ja
 
     private static LanguageSwitcher _instance;
     public static LanguageSwitcher Instance {
