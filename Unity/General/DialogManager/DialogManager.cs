@@ -71,15 +71,18 @@ public class DialogManager : MonoBehaviour, IBlockResolver
         HideDialogs();
     }
 
-    public void HideDialogs()
+    public void HideClickBlocker()
     {
         // remove click blocker
         if (_clickBlocker != default) {
             Object.Destroy(_clickBlocker.GetGameObject());
             _clickBlocker = default;
         }
+    }
 
-        // hide all dialogs
+    public void HideDialogs()
+    {
+        HideClickBlocker();
         HideDialog(dialog);
         HideDialog(settingsDialog);
     }
@@ -90,16 +93,21 @@ public class DialogManager : MonoBehaviour, IBlockResolver
         dialogGameObject.SetActive(false);
     }
 
-    public void ShowDialog(DialogBase dialog)
+    public void ShowClickBlocker()
     {
-        GameObject dialogGameObject = dialog.gameObject;
-
         // add the clock blocker
+        GameObject dialogGameObject = dialog.gameObject;
         if (_clickBlocker == default) {
             _clickBlocker = ClickBlocker.MakeClickBlocker(gameObject, dialogGameObject);
         }
+    }
+
+    public void ShowDialog(DialogBase dialog)
+    {
+        ShowClickBlocker();
 
         // move dialog to top and show
+        GameObject dialogGameObject = dialog.gameObject;
         dialogGameObject.MoveToTop();
         dialogGameObject.SetActive(true);
     }
