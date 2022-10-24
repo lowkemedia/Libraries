@@ -53,6 +53,15 @@ public class Delayer : MonoBehaviour
         }
     }
 
+    //
+    // allow space for mouse clicks to flush, and updates be called
+    public static void DoNext(Callback callback)
+    {
+        // wait 1/10th to allow Update() on MonoBehaviours
+        // TODO: find a cleaner way to ensure an Update()
+        Instance.DoDelay(0.1f, callback);
+    }
+
     public static void Delay(float seconds, Callback callback, bool giveWarning = true)
     {
         if (giveWarning) {
