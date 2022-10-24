@@ -50,10 +50,11 @@ public class ClickBlocker : MonoBehaviour, IPointerDownHandler, IPointerEnterHan
 		// TODO: Animate blocker's black cover alpha
 
 		blockerImage.color = UtilsColor.ConvertColor("#00000099");        // use black cover
-        // blockerImage.color = Utils.ConvertColor("#FF000000");     // last two 00 are alpha
+																		  // blockerImage.color = Utils.ConvertColor("#FF000000");     // last two 00 are alpha
 
 		// Note: Assumption that all GameObjects are scaled at 100%
-        RectTransform canvasRect = focusGameObject.GetCanvasRect();
+		Canvas canvas = focusGameObject.GetCanvas();
+		RectTransform canvasRect = canvas.GetRectTransform();
 		blockerImage.SetSize(canvasRect.sizeDelta);
 		// blockerImage.SetScale(new Vector3(1f, 1f, 1));
 		Vector3 position = -GetSumOfPositions(focusGameObject);
