@@ -49,30 +49,17 @@ public class ClickBlocker : MonoBehaviour, IPointerDownHandler, IPointerEnterHan
 
 		// TODO: Animate blocker's black cover alpha
 
-		blockerImage.color = UtilsColor.ConvertColor("#00000099");        // use black cover
-																		  // blockerImage.color = Utils.ConvertColor("#FF000000");     // last two 00 are alpha
+		// use black cover 
+		blockerImage.color = UtilsColor.ConvertColor("#00000099");		// last two 99 are alpha
 
 		// Note: Assumption that all GameObjects are scaled at 100%
 		Canvas canvas = focusGameObject.GetCanvas();
 		RectTransform canvasRect = canvas.GetRectTransform();
 		blockerImage.SetSize(canvasRect.sizeDelta);
-		// blockerImage.SetScale(new Vector3(1f, 1f, 1));
-		Vector3 position = -GetSumOfPositions(focusGameObject);
-		blockerImage.SetLocalPosition(position);
-		_iBlockResolver = gameObject.GetComponentInParent<IBlockResolver>();
+		Vector3 localPosition = blockerImage.GetLocalPosition(canvasRect.position);
+        blockerImage.SetLocalPosition(localPosition);
+        _iBlockResolver = gameObject.GetComponentInParent<IBlockResolver>();
     }
-
-	private Vector3 GetSumOfPositions(GameObject obj)
-	{
-		// Note: The root Canvas position not included in sum
-		Vector3 position = Vector3.one;
-		do {
-			position += obj.GetLocalPosition();
-			obj = obj.GetParent();
-		} while (obj.GetParent() != null);	// ignore canvas root
-
-		return position;
-	}
 
     public void OnPointerDown(PointerEventData pointerEventData)
     {
