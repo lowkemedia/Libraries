@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Logger : MonoBehaviour
 {
     public enum LogLevel
@@ -70,8 +71,9 @@ public class Logger : MonoBehaviour
 
         if (logLevel <= _logLevel)
         {
-            string logMessage = LogPrefix(logLevel, id) + message;
+            string logMessage = LogPrefix(logLevel, id) + message + "\n";
 
+            /*
             if (showStackTrace)
             {
                 try {
@@ -82,9 +84,11 @@ public class Logger : MonoBehaviour
                     logMessage += error.StackTrace + '\n';
                 }
             }
+            */
 
-            // TODO: use Debug.Log(logMessage); instead?
-            print(logMessage);
+            // TODO: use more features from UnityEngine.Debug
+            // print(logMessage);       // identical to UnityEngine.Debug.Log()
+            UnityEngine.Debug.Log(logMessage);
         }
     }
 

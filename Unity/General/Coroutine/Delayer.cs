@@ -95,7 +95,10 @@ public class Delayer : MonoBehaviour
         callback?.Invoke();
     }
 
-
+    // TODO: async, await, and Task in C# are easier and cleaner to implement than coroutines
+    //    e.g.     async public void OpenSocket() { _webSocket = new WebSocket("wss://api..." ...   await _webSocket.Connect();
+    // see https://blog.logrocket.com/performance-unity-async-await-tasks-coroutines-c-job-system-burst-compiler/#what-is-async    
+    //  Unity yield instructions... WaitForSeconds, WaitForEndOfFrame, WaitUntil, or WaitWhile.
     // TODO: keep dictionary of Delay calls
     // TODO: Give warning if _instance is destroyed while callback still pending
     // TODO: Add cancel() and trigger() functionality

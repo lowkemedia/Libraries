@@ -83,7 +83,7 @@ public static class UtilsArray
         return updatedArray;
     }
 
-    public static bool HasValue<T>(T[] array)
+    public static bool HasValue<T>(T[] array)           // TODO: rename IsNullOrEmpty
     {
         return array != null && array.Length > 0;
     }

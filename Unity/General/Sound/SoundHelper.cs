@@ -43,6 +43,9 @@ public class SoundHelper : MonoBehaviour
     public static void PlayRoll(Callback callback = default)    { Play(Roll, callback); }
     public static void PlayBeep(Callback callback = default)    { Play(Beep, callback); }
 
+    // example cancel sound.  AudioSource audioSource = PlayDialTone(callback); ... audioSource.Stop();
+    // public static AudioSource PlayDialTone(Callback callback = default) { return Play(DialTone, callback); }
+
     private static SoundHelper _instance;
     private static SoundHelper Instance {
         get {
@@ -66,28 +69,30 @@ public class SoundHelper : MonoBehaviour
         _instance = this;
     }
 
-    public static void Play(AudioSource audio)
+    public static AudioSource Play(AudioSource audio)
     {
         if (audio != default) {
             audio.Play();
         }
+        return audio;
     }
 
-    public static void Play(AudioSource audio, Callback callback)
+    public static AudioSource Play(AudioSource audio, Callback callback)
     {
         if (audio == default) {
             // no need to wait for audio
             callback?.Invoke();
-            return;
+            return audio;
         }
 
         if (callback == default) {
             // no need to wait for callback
             Play(audio);
-            return;
+            return audio;
         }
 
         Instance.DoPlayCallback(audio, callback);
+        return audio;
     }
 
     //
