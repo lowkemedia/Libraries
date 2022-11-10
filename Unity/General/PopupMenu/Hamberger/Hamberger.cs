@@ -83,7 +83,7 @@ public class Hamberger : Popup
 		GameObject popupGameObject = gameObject.MakeUiObject("Hamberger");
 
 		// create blocker
-		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(popupGameObject, gameObject);
+		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(popupGameObject);
 
 		// create menu
 		_gameObjectMenu = popupGameObject.MakeUiObject("Menu");
@@ -110,7 +110,7 @@ public class Hamberger : Popup
 			TextButton textButton = MakeTextButton(templateButton, menuItem);
 			ClickButton clickButton = textButton.ClickButton;
 			clickButton.SetY(yLoc);
-			clickButton.onClickEvent.AddListener(delegate { MenuButtonClicked(new PopupMenuEventArgs(menuItem, index)); });
+			clickButton.onClickEvent.AddListener(delegate { MenuButtonClicked(new PopupMenuEventArgs(this, menuItem, index)); });
 			clickButton.OnRolloverEvent += delegate { MenuButtonRolled(menuItem, index); };
 			yLoc += clickButton.GetHeight() + padding;
 			if (index == _selectedIndex) {
@@ -120,7 +120,7 @@ public class Hamberger : Popup
 		}
 
 		// TODO: not this. Messy manipulation of popupTextButton
-		// move popupTextButton offscreen.  Can't hide it as factory it won't duplicate it when hidden.
+		// move popupTextButton offscreen.  Can't hide it as factory won't duplicate it when hidden.
 		popupTextButton.SetX(-10000);
 
 		return popupGameObject;

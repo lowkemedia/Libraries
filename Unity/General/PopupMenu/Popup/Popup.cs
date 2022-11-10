@@ -31,10 +31,10 @@ using UnityEngine.Events;
 using TMPro;
 using UnityEngine.UI;
 using PopupMenuTypes;
-using ClickBlockerTypes;
 using CallbackTypes;
+using UnityEngine.EventSystems;
 
-public class Popup : MonoBehaviour, IBlockResolver
+public class Popup : MonoBehaviour
 {
 	// TODO: device version needs to behave differenetly from desktop
 	public delegate void PopupMenuCallback(string menuItem, int index);
@@ -79,7 +79,8 @@ public class Popup : MonoBehaviour, IBlockResolver
 		get { return _selectedIndex; }
 
 		set {
-			_selectedIndex = value;
+			PreviousIndex = _selectedIndex;
+            _selectedIndex = value;
 
 			if (_selectedIndex < 0 ||
 				_selectedIndex > _menuItems.Length - 1) {
@@ -92,6 +93,9 @@ public class Popup : MonoBehaviour, IBlockResolver
 			UpdatePopupPosition();
 		}
 	}
+
+	// useful for reverting to previous popup menu selection.
+	public int PreviousIndex { get; private set; } = -1;
 
 	public void Select(string value, bool giveWarning = true)
 	{
@@ -151,7 +155,7 @@ public class Popup : MonoBehaviour, IBlockResolver
 		GameObject popupGameObject = gameObject.MakeUiObject("Popup");
 
 		// create blocker
-		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(popupGameObject, gameObject);
+		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(popupGameObject, OnBlockerClicked, OnBlockerRolled);
 
 		// create menu
 		_gameObjectMenu = popupGameObject.MakeUiObject("Menu");
@@ -186,7 +190,7 @@ public class Popup : MonoBehaviour, IBlockResolver
 			TextButton textButton = MakeTextButton(templateButton, menuItem);
 			ClickButton clickButton = textButton.ClickButton;
 			clickButton.SetY(yLoc);
-			clickButton.onClickEvent.AddListener(delegate { MenuButtonClicked(new PopupMenuEventArgs(menuItem, index)); });
+			clickButton.onClickEvent.AddListener(delegate { MenuButtonClicked(new PopupMenuEventArgs(this, menuItem, index)); });
 			clickButton.OnRolloverEvent += delegate { MenuButtonRolled(menuItem, index); };
 			yLoc += clickButton.GetHeight() + padding;
 			if (index == _selectedIndex) {
@@ -236,9 +240,7 @@ public class Popup : MonoBehaviour, IBlockResolver
 	public void MenuButtonClicked(PopupMenuEventArgs popupMenuEventArgs)
 	{
 		Selected = popupMenuEventArgs.MenuItem;
-		if (onMenuSelectedEvent != null) {
-			onMenuSelectedEvent.Invoke(popupMenuEventArgs);
-		}
+		onMenuSelectedEvent?.Invoke(popupMenuEventArgs);
 		HidePopup();
 	}
 
@@ -247,13 +249,13 @@ public class Popup : MonoBehaviour, IBlockResolver
 		OnMenuRollEvent?.Invoke(menuItem, index);
 	}
 
-	public void OnBlockerRolled()
+    public void OnBlockerClicked(PointerEventData pointerEventData)
+    {
+        HidePopup();
+    }
+
+	public void OnBlockerRolled(PointerEventData pointerEventData)
 	{
 		OnPopupRolloutEvent?.Invoke();
-	}
-
-	public void OnBlockerClicked()
-	{
-		HidePopup();
 	}
 }

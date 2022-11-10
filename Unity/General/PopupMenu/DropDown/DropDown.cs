@@ -67,7 +67,7 @@ public class DropDown : Popup
 		GameObject popupGameObject = gameObject.MakeUiObject("DropDown");
 
 		// create blocker
-		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(popupGameObject, gameObject);
+		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(popupGameObject);
 
 		// create menu
 		_gameObjectMenu = popupGameObject.MakeUiObject("Menu");
@@ -93,7 +93,7 @@ public class DropDown : Popup
 			TextButton textButton = MakeTextButton(templateButton, menuItem);
 			ClickButton clickButton = textButton.ClickButton;
 			clickButton.SetY(yLoc);
-			clickButton.onClickEvent.AddListener(delegate { MenuButtonClicked(new PopupMenuEventArgs(menuItem, index)); });
+			clickButton.onClickEvent.AddListener(delegate { MenuButtonClicked(new PopupMenuEventArgs(this, menuItem, index)); });
 			clickButton.OnRolloverEvent += delegate { MenuButtonRolled(menuItem, index); };
 			yLoc += clickButton.GetHeight() + padding;
 		}

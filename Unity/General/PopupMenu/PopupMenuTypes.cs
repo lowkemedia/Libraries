@@ -34,12 +34,14 @@ namespace PopupMenuTypes
 	public class PopupMenuEvent : UnityEvent<PopupMenuEventArgs> { }
 	public class PopupMenuEventArgs
 	{
+		public Popup Popup;
 		public string MenuItem;
 		public int Index;
 
-		public PopupMenuEventArgs(string menuItem, int index)
+		public PopupMenuEventArgs(Popup popup, string menuItem, int index)
 		{
-			MenuItem = menuItem;
+			Popup = popup;
+            MenuItem = menuItem;
 			Index = index;
 		}
 	}
