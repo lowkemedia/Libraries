@@ -137,6 +137,7 @@ public class Logger : MonoBehaviour
                               bool showOnlyOnce = false,
                               bool stackTrace = false) {
         Log(LogLevel.SEVERE, message, id, showOnlyOnce, stackTrace);
+        // TODO: Severe logs optionally throw an Exception.
     }
 
     public static void Warning(string message,

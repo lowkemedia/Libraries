@@ -25,7 +25,10 @@
 //
 //
 
+using UnityEngine.EventSystems;
+
 namespace CallbackTypes
 {
     public delegate void Callback();
+    public delegate void OnPointerEvent(PointerEventData pointerEventData);
 }

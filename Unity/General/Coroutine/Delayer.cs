@@ -58,7 +58,7 @@ public class Delayer : MonoBehaviour
     public static void DoNext(Callback callback)
     {
         // wait 1/10th to allow Update() on MonoBehaviours
-        // TODO: find a cleaner way to ensure an Update()
+        // TODO: find a cleaner way to ensure an Update()? Trigger on Update()? Or WaitForEndOfFrame
         Instance.DoDelay(0.1f, callback);
     }
 

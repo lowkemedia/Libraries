@@ -123,7 +123,8 @@ public class LanguageSwitcher : MonoBehaviour
 
     public void UpdateButtons()
 	{
-        languageButton.gameObject.SetActive(StoredGame.ShowLanguageSwitcher);
+        // languageButton.gameObject.SetActive(StoredGame.ShowLanguageSwitcher);
+        languageButton.gameObject.SetActive(true);
 
         if (!SHOW_ENGLISH_TOGGLE || StoredLanguage == DEFAULT_LANGUAGE) {
             englishButton.gameObject.SetActive(false);
