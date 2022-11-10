@@ -94,6 +94,8 @@ public class Dialog : DialogBase
             this.secondButton.textField.AddKey(secondButtonKey, null, DialogManager.ButtonStyle);
             this.secondButton.ClickButton.clickSound = secondButton;
         }
+
+        base.SetupDialog();
     }
 
     public void EnlargeDialog(float extraHeight) {
@@ -102,13 +104,13 @@ public class Dialog : DialogBase
 
     public void OnClickFirst(ClickButton button)
     {
-        _dialogManager.HideDialogs();
+        HideDialog();
         _firstBtnCallback?.Invoke();
     }
 
     public void OnClickSecond(ClickButton button)
     {
-        _dialogManager.HideDialogs();
+        HideDialog();
         _sencondBtnCallback?.Invoke();
     }
 
@@ -124,9 +126,7 @@ public class Dialog : DialogBase
                              Callback okCallback = default, AudioSource okSound = default)
     {
         ShowDialog(titleKey, messageKey, ".ok", okCallback, okSound);
-
-        // TODO: Shoud be finding depth of text block and adjusting appropriately
-        _dialogManager.dialog.EnlargeDialog(60);
+        Enlarge(60);
     }
 
     public static void ShowOkayCancel(string titleKey, string messageKey,
@@ -147,19 +147,26 @@ public class Dialog : DialogBase
                              Callback noCallback = default, AudioSource noSound = default)
     {
         ShowDialog(titleKey, messageKey, ".no", noCallback, noSound, ".yes", yesCallback, yesSound);
-
-        // TODO: Shoud be finding depth of text block and adjusting appropriately
-        _dialogManager.dialog.EnlargeDialog(60);
+        Enlarge(60);
     }
 
-    public static void ShowDialog(string titleKey, string messageKey,
+    private static void Enlarge(float extraHeight)
+    {
+        // TODO: Shoud be finding depth of text block and adjusting appropriately
+        DialogManager dialogManager = DialogManager.Instance;
+        Dialog dialog = dialogManager.GetDialog("Dialog") as Dialog;
+        dialog.EnlargeDialog(60);
+    }
+
+    private static void ShowDialog(string titleKey, string messageKey,
                            string firstButtonKey = ".ok", Callback firstBtnCallback = default, AudioSource firstBtnSound = default,
                            string secondButtonKey = default, Callback sencondBtnCallback = default, AudioSource secondButton = default)
     {
-        Dialog dialog = _dialogManager.dialog;
+        DialogManager dialogManager = DialogManager.Instance;
+        Dialog dialog = dialogManager.GetDialog("Dialog") as Dialog;
         dialog.SetupDialog(titleKey, messageKey,
             firstButtonKey, firstBtnCallback, firstBtnSound,
             secondButtonKey, sencondBtnCallback, secondButton);
-        _dialogManager.ShowDialog(dialog);
+        dialog.ShowDialog();
     }
 }

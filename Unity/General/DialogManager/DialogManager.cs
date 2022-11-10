@@ -1,8 +1,8 @@
 //
 //  DialogManager - DialogManager package
-//  Russell Lowke, June 13th 2021
+//  Russell Lowke, November 8th 2022
 //
-//  Copyright (c) 2021 Lowke Media
+//  Copyright (c) 2021-2022 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -26,14 +26,15 @@
 //
 
 using UnityEngine;
-using ClickBlockerTypes;
+using UnityEngine.EventSystems;
+using CallbackTypes;
+using System.Collections.Generic;
+using System.Collections;
 
-public class DialogManager : MonoBehaviour, IBlockResolver
+public class DialogManager : MonoBehaviour
 {
+    public DialogBase[] dialogs;
     public Dialog dialog;
-    public SettingsDialog settingsDialog;
-
-    private ClickBlocker _clickBlocker;
 
     private static DialogManager _instance;
     public static DialogManager Instance {
@@ -43,6 +44,16 @@ public class DialogManager : MonoBehaviour, IBlockResolver
             }
 
             return _instance;
+        }
+    }
+
+    private static Stack<DialogBase> _stack;
+    public static DialogBase ActiveDialog {
+        get {
+            if (_stack.Count > 0) {
+                return _stack.Peek();
+            }
+            return default;
         }
     }
 
@@ -63,58 +74,68 @@ public class DialogManager : MonoBehaviour, IBlockResolver
             Logger.Warning("DialogManager should only be attached once.");
             return;
         }
+
         _instance = this;
+        _stack = new Stack<DialogBase>();
 
-
-        dialog.Initialize(this);
-        settingsDialog.Initialize(this);
-        HideDialogs();
-    }
-
-    public void HideClickBlocker()
-    {
-        // remove click blocker
-        if (_clickBlocker != default) {
-            Object.Destroy(_clickBlocker.GetGameObject());
-            _clickBlocker = default;
+        foreach (DialogBase dialog in dialogs) {
+            dialog.Initialize(this);
         }
     }
 
-    public void HideDialogs()
+    public DialogBase GetDialog(string name)
     {
-        HideClickBlocker();
-        HideDialog(dialog);
-        HideDialog(settingsDialog);
-    }
-
-    private void HideDialog(DialogBase dialog)
-    {
-        GameObject dialogGameObject = dialog.gameObject;
-        dialogGameObject.SetActive(false);
-    }
-
-    public void ShowClickBlocker()
-    {
-        // add the clock blocker
-        GameObject dialogGameObject = dialog.gameObject;
-        if (_clickBlocker == default) {
-            _clickBlocker = ClickBlocker.MakeClickBlocker(gameObject, dialogGameObject);
+        foreach(DialogBase dialog in dialogs) {
+            if (dialog.name == name) {
+                return dialog;
+            }
         }
+
+        Logger.Severe("Could not find dialog called \"" + name + "\"");
+        return default;
     }
+
 
     public void ShowDialog(DialogBase dialog)
     {
-        ShowClickBlocker();
+        foreach (DialogBase openDialog in _stack) {
+            if (openDialog == dialog) {
+                Logger.Severe("Dialog \"" + dialog.name + "\" is already open.");
+                return;
+            }
+        }
+        if (!dialog.DialogIsSetup) {
+            Logger.Severe("Dialog \"" + dialog.name + "\" has not been setup yet. SetupDialog() needs to be called before ShowDialog()");
+        }
 
-        // move dialog to top and show
-        GameObject dialogGameObject = dialog.gameObject;
-        dialogGameObject.MoveToTop();
-        dialogGameObject.SetActive(true);
+        // make open dialog object with click blocker
+        Canvas canvas = gameObject.GetCanvas();
+        GameObject canvasGameObject = canvas.gameObject;
+        GameObject dialogParent = canvasGameObject.MakeUiObject();
+        dialogParent.CopyRect(gameObject);
+        dialogParent.name = "Open Dialog";
+        ClickBlocker.MakeClickBlocker(dialogParent, OnBlockerClicked);
+
+        // move dialog to open dialog object and show
+        dialog.SetParent(dialogParent);
+        dialog.gameObject.SetActive(true);
+        dialog.DialogShown();
+        _stack.Push(dialog);
     }
 
-    public void OnBlockerRolled() { }
+    public void HideDialog(DialogBase dialog)
+    {
+        // give dialog back and hide
+        GameObject dialogParent = dialog.GetParent();
+        dialog.SetParent(gameObject);
+        dialog.gameObject.SetActive(false);
 
-    public void OnBlockerClicked()
+        // destroy open dialog object
+        Destroy(dialogParent);
+        _stack.Pop();
+    }
+
+    public void OnBlockerClicked(PointerEventData pointerEventData)
     {
         SoundHelper.PlayBeep();
     }

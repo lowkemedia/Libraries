@@ -1,8 +1,8 @@
 //
 //  DialogBase - DialogManager package
-//  Russell Lowke, June 14th 2021
+//  Russell Lowke, November 8th 2022
 //
-//  Copyright (c) 2021 Lowke Media
+//  Copyright (c) 2021-2022 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -29,10 +29,35 @@ using UnityEngine;
 
 public abstract class DialogBase : MonoBehaviour
 {
-    protected static DialogManager _dialogManager;
+    protected DialogManager _dialogManager;
+
+    public bool DialogIsSetup { get; private set; }
 
     virtual public void Initialize(DialogManager dialogManager)
     {
         _dialogManager = dialogManager;
+        this.gameObject.SetActive(false);
+    }
+
+    virtual public void SetupDialog()
+    {
+        // declare that dialog has been setup
+        DialogIsSetup = true;
+    }
+
+    public void ShowDialog()
+    {
+        _dialogManager.ShowDialog(this);
+    }
+
+    public void HideDialog()
+    {
+        _dialogManager.HideDialog(this);
+    }
+
+    public void DialogShown()
+    {
+        // shown dialogs need to be setup before being shown again.
+        DialogIsSetup = false;
     }
 }
