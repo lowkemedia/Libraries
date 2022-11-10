@@ -1,8 +1,8 @@
 //
 //  ClickBlocker - ClickBlocker package
-//  Russell Lowke, April 21st 2021
+//  Russell Lowke, November 8th 2022
 //
-//  Copyright (c) 2019-2021 Lowke Media
+//  Copyright (c) 2019-2022 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,22 +28,15 @@
 using UnityEngine.EventSystems;
 using UnityEngine;
 using UnityEngine.UI;
-using ClickBlockerTypes;
+using CallbackTypes;
 
 public class ClickBlocker : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
 {
-    private IBlockResolver _iBlockResolver;			// whatever instance that deals with the blocker pointer events
+    private OnPointerEvent _blockerClicked;
+    private OnPointerEvent _blockerRolled;
 
-	public static ClickBlocker MakeClickBlocker(GameObject parentGameObject, GameObject focusGameObject)
-	{
-		GameObject clickBlockerGameObject = parentGameObject.MakeUiObject("Click Blocker");
-		ClickBlocker clickBlocker = clickBlockerGameObject.AddComponent<ClickBlocker>();
-		clickBlocker.Initialize(focusGameObject);
-
-		return clickBlocker;
-	}
-
-	private void Initialize(GameObject focusGameObject)
+    private void Initialize(OnPointerEvent blockerClicked = default,
+                            OnPointerEvent blockerRolled = default)
     {
         Image blockerImage = gameObject.AddComponent<Image>();
 
@@ -53,21 +46,38 @@ public class ClickBlocker : MonoBehaviour, IPointerDownHandler, IPointerEnterHan
 		blockerImage.color = UtilsColor.ConvertColor("#00000099");		// last two 99 are alpha
 
 		// Note: Assumption that all GameObjects are scaled at 100%
-		Canvas canvas = focusGameObject.GetCanvas();
+		Canvas canvas = gameObject.GetCanvas();
 		RectTransform canvasRect = canvas.GetRectTransform();
 		blockerImage.SetSize(canvasRect.sizeDelta);
 		Vector3 localPosition = blockerImage.GetLocalPosition(canvasRect.position);
         blockerImage.SetLocalPosition(localPosition);
-        _iBlockResolver = gameObject.GetComponentInParent<IBlockResolver>();
+
+        _blockerClicked = blockerClicked;
+        _blockerRolled = blockerRolled;
     }
 
     public void OnPointerDown(PointerEventData pointerEventData)
     {
 		if (GlobalState.IsDragging) { return; }
-		_iBlockResolver.OnBlockerClicked();
+        _blockerClicked?.Invoke(pointerEventData);
     }
 
     public void OnPointerEnter(PointerEventData pointerEventData) {
-        _iBlockResolver.OnBlockerRolled();
+        _blockerRolled?.Invoke(pointerEventData);
+    }
+
+
+    //
+    // factory
+
+    public static ClickBlocker MakeClickBlocker(GameObject blockerParent,
+                                                OnPointerEvent blockerClicked = default,
+                                                OnPointerEvent blockerRolled = default)
+    {
+        GameObject clickBlockerGameObject = blockerParent.MakeUiObject("Click Blocker");
+        ClickBlocker clickBlocker = clickBlockerGameObject.AddComponent<ClickBlocker>();
+        clickBlocker.Initialize(blockerClicked, blockerRolled);
+
+        return clickBlocker;
     }
 }
