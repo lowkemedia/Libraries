@@ -72,7 +72,6 @@ public static class UtilsString
 
     public static string CorrectForTabs(string value)
     {
-        // return Replace(value, '\t', "\\t");     //TODO: just use value.Replace() ?
         return value.Replace("\t", "    ");
     }
 
@@ -91,14 +90,14 @@ public static class UtilsString
             if (start != -1) {
                 int end = start + value.Substring(start).IndexOf(">") + 1;
                 if (end != -1) {
-                    string result = RemoveCunk(value, start, end);
+                    string result = RemoveChunk(value, start, end);
 
                     // remove ending tag, if any
                     string endTag = "</" + tag + ">";
                     start = result.IndexOf(endTag);
                     if (start != -1) {
                         end = start + endTag.Length;
-                        result = RemoveCunk(result, start, end);
+                        result = RemoveChunk(result, start, end);
                     }
 
                     // save result
@@ -111,7 +110,7 @@ public static class UtilsString
     }
 
     // remove a "chunk" of characters from middle of string
-    public static string RemoveCunk(string value, int start, int end)
+    public static string RemoveChunk(string value, int start, int end)
     {
         if (start != -1) {
             string front = value.Substring(0, start);

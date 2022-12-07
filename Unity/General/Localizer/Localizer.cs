@@ -228,7 +228,7 @@ public class Localizer : MonoBehaviour
         key = strlist[0];
 
         // if assigned, use VariablesTinkerer delegate to modify variables list
-        if (VariablesTinkerer != null && UtilsArray.HasValue(variables)) {
+        if (VariablesTinkerer != null && !UtilsArray.IsNullOrEmpty(variables)) {
             variables = VariablesTinkerer(variables);
         }
 

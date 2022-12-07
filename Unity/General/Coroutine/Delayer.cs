@@ -95,6 +95,8 @@ public class Delayer : MonoBehaviour
         callback?.Invoke();
     }
 
+    // TODO: detect if Delay has been cut short due to change of scene and trigger. Try OnDestroy() perhaps.
+
     // TODO: async, await, and Task in C# are easier and cleaner to implement than coroutines
     //    e.g.     async public void OpenSocket() { _webSocket = new WebSocket("wss://api..." ...   await _webSocket.Connect();
     // see https://blog.logrocket.com/performance-unity-async-await-tasks-coroutines-c-job-system-burst-compiler/#what-is-async    

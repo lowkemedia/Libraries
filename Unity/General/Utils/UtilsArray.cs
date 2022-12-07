@@ -26,6 +26,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 public static class UtilsArray
@@ -83,9 +84,9 @@ public static class UtilsArray
         return updatedArray;
     }
 
-    public static bool HasValue<T>(T[] array)           // TODO: rename IsNullOrEmpty
+    public static bool IsNullOrEmpty<T>(T[] array)
     {
-        return array != null && array.Length > 0;
+        return array == null || array.Length == 0;
     }
 
     public static string Print<T>(T[] array)
@@ -96,6 +97,27 @@ public static class UtilsArray
         for (int i = 0; i < array.Length; ++i) {
             str += array[i];
             str += (i < array.Length - 1) ? ", " : " ]";
+        }
+        return str;
+    }
+
+
+    // using System.Linq;
+    //
+    // convert an Array to a List
+    // T[] array = list.ToArray();
+    //
+    // convert List to an Array
+    // List<T> list = array.ToList();
+
+    public static string Print<T>(List<T> list)
+    {
+        if (list == default) { return "default"; }
+
+        string str = "[ ";
+        for (int i = 0; i < list.Count; ++i) {
+            str += list[i];
+            str += (i < list.Count - 1) ? ", " : " ]";
         }
         return str;
     }
