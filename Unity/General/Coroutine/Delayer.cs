@@ -66,9 +66,13 @@ public class Delayer : MonoBehaviour
 
     private void Update()
     {
-        while(_doNextCallbacks.Count > 0) {
-            Callback callback = _doNextCallbacks.Dequeue();
-            callback?.Invoke();
+        if (_doNextCallbacks.Count > 0) {
+            Queue<Callback> callbacksQueue = _doNextCallbacks;
+            _doNextCallbacks = new Queue<Callback>();
+            while (callbacksQueue.Count > 0) {
+                Callback callback = callbacksQueue.Dequeue();
+                callback?.Invoke();
+            }
         }
     }
 
