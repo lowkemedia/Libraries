@@ -1,8 +1,8 @@
 ﻿//
 //  Delayer
-//  Russell Lowke, April 28th 2020
+//  Russell Lowke, December 10th 2022
 //
-//  Copyright (c) 2020 Lowke Media
+//  Copyright (c) 2020-2022 Lowke Media
 //  see https://github.com/lowkemedia/Libraries for more information
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a 
