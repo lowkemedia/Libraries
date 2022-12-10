@@ -27,6 +27,7 @@
 
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 using CallbackTypes;
 
@@ -34,12 +35,17 @@ public class Delayer : MonoBehaviour
 {
     private static Delayer _instance;
 
+    // queue of callbacks waiting trigger on next Update();
+    private Queue<Callback> _doNextCallbacks;
+
     public void Awake()
     {
         if (_instance != null) {
             Logger.Warning("Delayer should only be attached once.");
             return;
         }
+
+        _doNextCallbacks = new Queue<Callback>();
         _instance = this;
     }
 
@@ -53,13 +59,25 @@ public class Delayer : MonoBehaviour
         }
     }
 
+    public void NoNext(Callback callback)
+    {
+        _doNextCallbacks.Enqueue(callback);
+    }
+
+    private void Update()
+    {
+        while(_doNextCallbacks.Count > 0) {
+            Callback callback = _doNextCallbacks.Dequeue();
+            callback?.Invoke();
+        }
+    }
+
+
     //
     // allow space for mouse clicks to flush, and updates be called
     public static void DoNext(Callback callback)
     {
-        // wait 1/10th to allow Update() on MonoBehaviours
-        // TODO: find a cleaner way to ensure an Update()? Trigger on Update()? Or WaitForEndOfFrame
-        Instance.DoDelay(0.1f, callback);
+        Instance.NoNext(callback);
     }
 
     public static void Delay(float seconds, Callback callback, bool giveWarning = true)
@@ -101,7 +119,7 @@ public class Delayer : MonoBehaviour
     //    e.g.     async public void OpenSocket() { _webSocket = new WebSocket("wss://api..." ...   await _webSocket.Connect();
     // see https://blog.logrocket.com/performance-unity-async-await-tasks-coroutines-c-job-system-burst-compiler/#what-is-async    
     //  Unity yield instructions... WaitForSeconds, WaitForEndOfFrame, WaitUntil, or WaitWhile.
-    // TODO: keep dictionary of Delay calls
+    // TODO: keep list of Delay calls?
     // TODO: Give warning if _instance is destroyed while callback still pending
     // TODO: Add cancel() and trigger() functionality
 
