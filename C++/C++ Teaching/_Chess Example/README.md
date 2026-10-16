@@ -18,7 +18,7 @@ Read each worksheet and attempt its tasks in order. Start from that part's start
 | 4 | [PDF](chess4/Chess%20-%20Part%204.pdf) | A Chess class, member state, constructors/destructors, and separate source/header files. | [Starter](chess4/chess4.cpp) | [Solution](chess4/chess4_solved/) |
 | 5 | [PDF](chess5/Chess%20-%20Part%205.pdf) | Heap allocation and ownership; extract a Piece class. | [Starter](chess5/chess5/) | [Solution](chess5/chess5_solved/) |
 | 6 | [PDF](chess6/Chess%20-%20Part%206.pdf) | Move piece-specific drawing into Piece.getSymbolAt(). | [Starter](chess6/chess6/) | [Solution](chess6/chess6_solved/) |
-| 7 | [PDF](chess7/Chess%20-%20Part%207.pdf) | Inheritance: derive Rook from Piece. At this stage all pieces draw as rooks. | [Starter](chess7/chess7/) | [Solution](chess7/chess7_solved/) |
+| 7 | [PDF](chess7/Chess%20-%20Part%207.pdf) | Inheritance: derive Rook from Piece, with a virtual base destructor. At this stage all pieces draw as rooks. | [Starter](chess7/chess7/) | [Solution](chess7/chess7_solved/) |
 | 8 | [PDF](chess8/Chess%20-%20Part%208.pages.pdf) | Polymorphism: virtual dispatch and separate rook, knight, bishop, queen and king classes. | [Starter](chess8/chess8/) | [Solution](chess8/chess8_solved/) |
 
 Part 4 also has a [single-file solved version](chess4/chess4_solved.cpp) for comparison with the split-file version. All worksheets have editable Pages originals in the same folders.
@@ -48,8 +48,10 @@ c++ -std=c++11 -Wall -Wextra main.cpp chess.cpp piece.cpp rook.cpp knight.cpp bi
 
 The final solution asks for row, column and a piece letter (`R`, `N`, `B`, `Q` or `K`). The later project folders also contain makefiles. Compile within one selected starter or solution directory; do not combine source from multiple stages. To build other single-file stages, substitute the selected `.cpp` file in the first command.
 
-## Verification and known limits
+## Verification
 
-On 16 October 2026, the part 1 starter compiled with Apple Clang 21.0.0 (`-std=c++11 -Wall -Wextra`) and accepted `4`, `4`, `0`, reporting a rook. The part 8 solved project compiled and linked with the same options, but was not runtime-validated. The other stages were inspected, not all built or tested.
+On 16 October 2026, all 17 starter and solved variants compiled with Apple Clang 21.0.0 using `-std=c++11 -Wall -Wextra`. The part 1 starter accepted `4`, `4`, `0`, reporting a rook. Every letter-input variant accepted uppercase and lowercase choices, and all 14 versions using `askType()` correctly retried after an invalid letter.
 
-The part 8 build reports substantive warnings in the original code: `Chess::askType()` checks an uninitialized `type`, and `Chess::~Chess()` deletes through a `Piece*` whose base destructor is not virtual. There are also unused-parameter warnings. A successful build does not resolve these issues. The teaching sources are unchanged; the warnings are useful follow-up exercises in initialization and object lifetime. Input failure handling and every piece's attack pattern have not been exhaustively checked.
+The part 8 solved project also built with `-Werror` and passed AddressSanitizer/UndefinedBehaviorSanitizer runs for all five piece types in both cases, including out-of-range row/column and invalid-letter retries. Separate sanitized checks confirmed that deleting a derived object through `Piece*` calls its derived destructor in the inherited-class versions (part 7 solved and both part 8 variants).
+
+These checks cover compilation, selected input paths and object destruction. They are not exhaustive tests of every attack pattern or malformed input/end-of-file handling.

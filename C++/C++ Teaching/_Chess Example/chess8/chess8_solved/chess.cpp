@@ -108,7 +108,7 @@ bool Chess::isValidType(char pieceType)
 
 char Chess::askType()
 {
-    char type;
+    char type = '\0';
     while (! isValidType(type))
     {
         cout << "Enter a letter for the piece type: ";

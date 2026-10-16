@@ -50,4 +50,4 @@ Most examples use standard-library console facilities, but portability varies. F
 
 ## Checks recorded for this guide
 
-On 16 October 2026, `hello.cpp` and `range_based_for.cpp` compiled with Apple Clang 21.0.0 using the options above and produced the stated output. The [chess guide](../_Chess%20Example/README.md#verification-and-known-limits) records the narrower checks and warnings for its examples. The course has no automated test suite; a successful build is not a check of every algorithm or input case.
+On 16 October 2026, `hello.cpp` and `range_based_for.cpp` compiled with Apple Clang 21.0.0 using the options above and produced the stated output. The [chess guide](../_Chess%20Example/README.md#verification) records compilation, input and object-lifetime checks for its examples. The course has no automated test suite; a successful build is not a check of every algorithm or input case.

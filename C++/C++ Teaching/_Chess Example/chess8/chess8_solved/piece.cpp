@@ -23,7 +23,7 @@ Piece::~Piece()    // destructor
     cout << "Piece object being deleted. " << this << endl;
 }
 
-char Piece::getSymbolAt(int indexRow, int indexColumn)
+char Piece::getSymbolAt(int, int)
 {
     return ' ';
 }

@@ -10,7 +10,7 @@ class Piece
     
 public:
     Piece(int row, int column, char type);
-    ~Piece();
+    virtual ~Piece();
     
     void print();
     virtual char getSymbolAt(int row, int column);
