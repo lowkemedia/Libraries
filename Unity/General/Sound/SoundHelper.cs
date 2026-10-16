@@ -110,7 +110,7 @@ public class SoundHelper : MonoBehaviour
 
     private IEnumerator InvokeAfterSound(AudioSource sound, Callback callback)
     {
-        sound.Play();
+        // DoPlayCallback already started playback; only wait for completion here.
         yield return new WaitWhile(() => sound.isPlaying);
 
         callback?.Invoke();

@@ -36,16 +36,16 @@ public class Delayer : MonoBehaviour
     private static Delayer _instance;
 
     // queue of callbacks waiting trigger on next Update();
-    private Queue<Callback> _doNextCallbacks;
+    private Queue<Callback> _doNextCallbacks = new Queue<Callback>();
 
     public void Awake()
     {
         if (_instance != null) {
             Logger.Warning("Delayer should only be attached once.");
+            enabled = false; // Disable only this duplicate, not its GameObject.
             return;
         }
 
-        _doNextCallbacks = new Queue<Callback>();
         _instance = this;
     }
 

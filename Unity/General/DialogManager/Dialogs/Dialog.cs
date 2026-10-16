@@ -155,7 +155,7 @@ public class Dialog : DialogBase
         // TODO: Shoud be finding depth of text block and adjusting appropriately
         DialogManager dialogManager = DialogManager.Instance;
         Dialog dialog = dialogManager.GetDialog("Dialog") as Dialog;
-        dialog.EnlargeDialog(60);
+        dialog.EnlargeDialog(extraHeight);
     }
 
     private static void ShowDialog(string titleKey, string messageKey,

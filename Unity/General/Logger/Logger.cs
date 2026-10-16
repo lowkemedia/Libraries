@@ -42,7 +42,12 @@ public class Logger : MonoBehaviour
         DEBUG
     };
 
-    // private static bool _showAlert = true;      // TODO: if true Alert box is shown
+    // Optional automatic alerts preserve the existing log-only default.
+    private static bool _showAlert;
+    public static bool ShowAlert {
+        get { return _showAlert; }
+        set { _showAlert = value; }
+    }
 
     private static LogLevel _logLevel = LogLevel.PRINT; // default logging level is LOG_LEVEL_PRINT
 
@@ -53,7 +58,8 @@ public class Logger : MonoBehaviour
                            string message,
                            string id = null,
                            bool showOnlyOnce = false,
-                           bool showStackTrace = false)
+                           bool showStackTrace = false,
+                           bool allowAlert = true)
     {
         // some errors are displayed only once, otherwise they get too spammy
         if (showOnlyOnce)
@@ -73,22 +79,40 @@ public class Logger : MonoBehaviour
         {
             string logMessage = LogPrefix(logLevel, id) + message + "\n";
 
-            /*
-            if (showStackTrace)
-            {
-                try {
-                    // intentionally throw error so we can get a stack trace
-                    throw new Exception();
-                }
-                catch (Exception error) {
-                    logMessage += error.StackTrace + '\n';
+            if (showStackTrace) {
+                logMessage += Environment.StackTrace + "\n";
+            }
+
+            switch (logLevel) {
+                case LogLevel.SEVERE:
+                    UnityEngine.Debug.LogError(logMessage);
+                    break;
+                case LogLevel.WARNING:
+                    UnityEngine.Debug.LogWarning(logMessage);
+                    break;
+                default:
+                    UnityEngine.Debug.Log(logMessage);
+                    break;
+            }
+
+            if (_showAlert && allowAlert) {
+                switch (logLevel) {
+                    case LogLevel.SEVERE:
+                        Alert.Severe(logMessage, log: false);
+                        break;
+                    case LogLevel.WARNING:
+                        Alert.Warning(logMessage, log: false);
+                        break;
+                    case LogLevel.INFO:
+                        Alert.Info(logMessage, log: false);
+                        break;
+                    case LogLevel.PRINT:
+                    case LogLevel.DEBUG:
+                    case LogLevel.NONE:
+                    default:
+                        break;
                 }
             }
-            */
-
-            // TODO: use more features from UnityEngine.Debug
-            // print(logMessage);       // identical to UnityEngine.Debug.Log()
-            UnityEngine.Debug.Log(logMessage);
         }
     }
 
@@ -132,12 +156,12 @@ public class Logger : MonoBehaviour
     //
     // static helper methods
 
+
     public static void Severe(string message,
                               string id = null,
                               bool showOnlyOnce = false,
                               bool stackTrace = false) {
         Log(LogLevel.SEVERE, message, id, showOnlyOnce, stackTrace);
-        // TODO: Severe logs optionally throw an Exception.
     }
 
     public static void Warning(string message,

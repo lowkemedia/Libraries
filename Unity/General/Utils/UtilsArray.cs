@@ -89,6 +89,11 @@ public static class UtilsArray
         return array == null || array.Length == 0;
     }
 
+    public static int Length<T>(T[] array)
+    {
+        return IsNullOrEmpty(array) ? 0 : array.Length;
+    }
+
     public static string Print<T>(T[] array)
     {
         if (array is null) { return "null"; }
