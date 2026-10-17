@@ -4,7 +4,7 @@ Small, useful libraries and examples from Lowke Media, primarily Unity/C# and Ad
 
 **“Do one thing well and people will use it.”** The aim is many focused utilities that interconnect naturally. Prefer straightforward code, clear responsibilities and few dependencies. Changes should solve a concrete problem; age alone is not a reason to replace useful code, and cosmetic consistency is not a reason to introduce an overarching architecture.
 
-**Learning C++?** Explore [Russell Lowke's C++ teaching collection](C%2B%2B/C%2B%2B%20Teaching/README.md), assembled while teaching at the Seattle Art Institute: 34 topics with PDF notes, source examples, homework and solutions, quizzes, an eight-part chess exercise and final game projects. Start with the course guide for a reading path and runnable examples.
+**Learning C++?** Explore [Russell Lowke's C++ teaching collection](C%2B%2B%20Teaching/README.md), assembled while teaching at the Seattle Art Institute: 34 topics with PDF notes, source examples, homework and solutions, quizzes, an eight-part chess exercise and final game projects. Start with the course guide for a reading path and runnable examples.
 
 ## Directory guide
 
@@ -13,7 +13,7 @@ Small, useful libraries and examples from Lowke Media, primarily Unity/C# and Ad
 | [Unity/General](Unity/General/) | C# utilities for alerts, logging, synthesized and configured audio, animation/tweening, coroutines, buttons, dialogs, localization, paging, pointer events, video and general helpers. |
 | [Adobe/src/com/lowke](Adobe/src/com/lowke/) | ActionScript 3 utilities for animation, action queues, asset loading/caching, sound, buttons, alerts, fonts, tooltips and display/data helpers; includes some FLA/SWC examples. |
 | [C++/C++/src](C%2B%2B/C%2B%2B/src/) | Matrix and other helpers, plus an OpenGL/GLUT sprite animator. |
-| [C++/C++ Teaching](C%2B%2B/C%2B%2B%20Teaching/README.md) | C++ Programming I and II teaching materials: a linked course guide, PDF lessons, exercises, worked solutions, quizzes and projects. |
+| [C++ Teaching](C%2B%2B%20Teaching/README.md) | C++ Programming I and II teaching materials: a linked course guide, PDF lessons, exercises, worked solutions, quizzes and projects. |
 | [C++/Mersenne Twister](C%2B%2B/Mersenne%20Twister/) | Historical random-number implementation with external `ig*` dependencies and unresolved licensing notices; see below before reuse. |
 
 ## Using the code

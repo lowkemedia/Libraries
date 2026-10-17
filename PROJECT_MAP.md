@@ -25,7 +25,7 @@ Most C# classes live in the global namespace. Check name collisions and the full
 
 The ActionScript collection under `Adobe/src/com/lowke` includes `Animator`/effects, `ActionQueue`, `AssetLoader`, `AssetManager`, `SoundManager`, UI helpers and `util`. Keep imported event, loader and value-object classes with the selected utility. Source comments provide examples and historical runtime annotations (for example, the Adobe Animator says ActionScript 3.0 / Flash 10); these do not establish a tested minimum for the entire tree. FLA/SWC examples and bundled FZip/easing code retain their own provenance. Some imports refer to Flex or older package paths; a complete ActionScript build has not been verified here.
 
-The C++ tree contains independent helpers, an OpenGL/GLUT animator and substantial teaching material rather than one application. The Mersenne Twister files depend on `ig*` headers not supplied here, and their permission status is unresolved; see [licensing](README.md#licensing-and-attribution).
+The `C++` tree contains independent helpers and an OpenGL/GLUT animator. The separate root-level [C++ Teaching](C%2B%2B%20Teaching/README.md) collection contains the course notes, exercises and projects. The Mersenne Twister files depend on `ig*` headers not supplied here, and their permission status is unresolved; see [licensing](README.md#licensing-and-attribution).
 
 ## Latest source update
 
