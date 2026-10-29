@@ -37,7 +37,7 @@ public class Mover : MonoBehaviour
     public void Awake()
     {
         if (_instance != null) {
-            Logger.Warning("Mover should only be attached once.");
+            Logger.Warning("Mover should only be attached once.", MoverID.WARNING_ALREADY_ATTACHED);
             return;
         }
         _instance = this;
@@ -77,4 +77,10 @@ public class Mover : MonoBehaviour
 
         callback?.Invoke();
     }
+}
+
+public static class MoverID
+{
+    // Error, warning and info IDs.
+    public const string WARNING_ALREADY_ATTACHED = "MOV00";
 }

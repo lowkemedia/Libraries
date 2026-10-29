@@ -155,7 +155,7 @@ public class VideoController : MonoBehaviour
 
 	private void OnVideoPrepared(VideoPlayer value)
 	{
-		Logger.Print("Video ready (URL):" + videoPlayer.url);
+		Logger.Info("Video ready (URL):" + videoPlayer.url, VideoID.INFO_VIDEO_READY);
 		// Logger.Print("Height:" + videoPlayer.height + " Width:" + videoPlayer.width);
 
 		//  VideoPlayer set to AspectRatio = "Stretch", no need for sized render texture
@@ -266,13 +266,21 @@ private void Update()
 		//if the video time is the same as the previous check, that means it's buffering cuz the video is Playing.
 		if (lastTimePlayed == videoPlayer.time)//buffering
 		{
-			Debug.Log("buffering");
+			Logger.Debug("buffering", VideoID.DEBUG_BUFFERING);
 		} else//not buffering
 		  {
-			Debug.Log("Not buffering");
+			Logger.Debug("Not buffering", VideoID.DEBUG_NOT_BUFFERING);
 		}
 		lastTimePlayed = videoPlayer.time;
 	}
 }
 
 */
+
+public static class VideoID
+{
+    // Error, warning and info IDs.
+    public const string INFO_VIDEO_READY = "VID00";
+    public const string DEBUG_BUFFERING = "VID01";
+    public const string DEBUG_NOT_BUFFERING = "VID02";
+}

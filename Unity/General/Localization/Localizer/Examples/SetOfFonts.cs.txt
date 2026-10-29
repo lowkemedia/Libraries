@@ -1,0 +1,22 @@
+// Copy into your application as SetOfFonts.cs (remove the .txt suffix).
+// This catalogue depends only on Unity and TextMesh Pro.
+using TMPro;
+using UnityEngine;
+
+[CreateAssetMenu(menuName = "Localization/Set of Fonts", fileName = "My Fonts")]
+public class SetOfFonts : ScriptableObject
+{
+    [SerializeField] private TMP_FontAsset _title;
+    [SerializeField] private TMP_FontAsset _body;
+
+    // These names match the "font" strings in your style JSON exactly.
+    // They are aliases: the assigned assets can have any filename.
+    public TMP_FontAsset GetFont(string name)
+    {
+        switch (name) {
+            case "Title": return _title;
+            case "Body": return _body;
+            default: return null; // Stylizer reports unresolved fonts.
+        }
+    }
+}

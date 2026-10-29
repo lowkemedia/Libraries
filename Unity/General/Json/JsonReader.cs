@@ -29,7 +29,6 @@ public static class JsonReaderID
 {
 	//
 	// error, warning and info IDs
-	public const string LOG_PREFIX = "JSN";
-	public const string WARNING_CANT_LOAD_FILE = LOG_PREFIX + "00";
-	public const string SEVERE_CANT_LOAD_FILE = LOG_PREFIX + "01";
+	public const string SEVERE_CANT_LOAD_FILE = "JSN00";
+	public const string WARNING_CANT_LOAD_FILE = "JSN01";
 }

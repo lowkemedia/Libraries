@@ -38,7 +38,8 @@ public class Logger : MonoBehaviour
         SEVERE,
         WARNING,
         INFO,
-        PRINT,               // PRINT is a less spammy version of DEBUG for one-off testing
+        DETAIL,              // lasting diagnostics below Info; never automatic alerts
+        PRINT,               // "old-school" development trace; repeated calls remain visible
         DEBUG
     };
 
@@ -49,12 +50,28 @@ public class Logger : MonoBehaviour
         set { _showAlert = value; }
     }
 
+    // Optional presentation hook. Console logging works without a subscriber.
+    // Receives the filtered, formatted message on the logging caller's thread.
+    private static Action<LogLevel, string> _alertRequested;
+    public static event Action<LogLevel, string> AlertRequested {
+        add { _alertRequested += value; }
+        remove { _alertRequested -= value; }
+    }
+
     private static LogLevel _logLevel = LogLevel.PRINT; // default logging level is LOG_LEVEL_PRINT
 
     // map of "once only" reports that have been logged so far
     private static Dictionary<string, bool> _onceOnlyErrors = new Dictionary<string, bool>();
 
-    public static void Log(LogLevel logLevel,
+    // For explicit Alert logging only: prevents duplicate automatic alerts.
+    // Use the severity helpers for ordinary diagnostics; they honour ShowAlert.
+    internal static void LogNoAlert(LogLevel logLevel, string message, string id = null)
+    {
+        Log(logLevel, message, id, allowAlert: false);
+    }
+
+    // Internal logging pipeline. Call Severe, Warning, Info, Detail, Print or Debug instead.
+    private static void Log(LogLevel logLevel,
                            string message,
                            string id = null,
                            bool showOnlyOnce = false,
@@ -98,14 +115,11 @@ public class Logger : MonoBehaviour
             if (_showAlert && allowAlert) {
                 switch (logLevel) {
                     case LogLevel.SEVERE:
-                        Alert.Severe(logMessage, log: false);
-                        break;
                     case LogLevel.WARNING:
-                        Alert.Warning(logMessage, log: false);
-                        break;
                     case LogLevel.INFO:
-                        Alert.Info(logMessage, log: false);
+                        _alertRequested?.Invoke(logLevel, logMessage);
                         break;
+                    case LogLevel.DETAIL:
                     case LogLevel.PRINT:
                     case LogLevel.DEBUG:
                     case LogLevel.NONE:
@@ -144,6 +158,8 @@ public class Logger : MonoBehaviour
                 return "WARNING";
             case LogLevel.INFO:
                 return "INFO";
+            case LogLevel.DETAIL:
+                return "DETAIL";
             case LogLevel.PRINT:
                 return "PRINT";
             case LogLevel.DEBUG:
@@ -178,11 +194,19 @@ public class Logger : MonoBehaviour
         Log(LogLevel.INFO, message, id, showOnlyOnce, stackTrace);
     }
 
-    public static void Print(string message,
-                             string id = null,
-                             bool stackTrace = false,
-                             bool showOnlyOnce = false) {
-        Log(LogLevel.PRINT, message, id, showOnlyOnce, stackTrace);
+    // Useful diagnostic detail that does not warrant Info or an automatic alert.
+    public static void Detail(string message,
+                              string id = null,
+                              bool showOnlyOnce = false,
+                              bool stackTrace = false) {
+        Log(LogLevel.DETAIL, message, id, showOnlyOnce, stackTrace);
+    }
+
+    // "Old-school" development trace: repeat every call that passes the log level.
+    // No IDs or once-only suppression. Use Debug for once-only traces, or a higher
+    // severity for diagnostics that deserve an ID. Stack traces are optional.
+    public static void Print(string message, bool stackTrace = false) {
+        Log(LogLevel.PRINT, message, showStackTrace: stackTrace);
     }
 
     public static void Debug(string message,

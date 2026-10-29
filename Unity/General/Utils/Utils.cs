@@ -33,6 +33,9 @@ using Object = UnityEngine.Object;
 
 public static class Utils
 {
+    // Error, warning and info IDs.
+    public const string WARNING_NONUNIFORM_SCALE = "UTL00";
+
     //
     // Get GameObject of UnityEngine.Object
     //
@@ -217,7 +220,7 @@ public static class Utils
     {
         Vector3 localScale = transform.localScale;
         if (giveWarnig && localScale.x != localScale.y) {
-            Logger.Warning("localScale.x != localScale.y in GetScale()");
+            Logger.Warning("localScale.x != localScale.y in GetScale()", WARNING_NONUNIFORM_SCALE);
         }
         return localScale.x;
     }

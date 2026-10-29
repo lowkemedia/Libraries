@@ -27,6 +27,9 @@
 
 public static class UtilsString
 {
+    // Error, warning and info IDs.
+    public const string WARNING_STRAIGHT_QUOTE = "UTS00";
+
     public static char First(this string value)
     {
         if (string.IsNullOrEmpty(value)) {
@@ -57,7 +60,7 @@ public static class UtilsString
         //  see https://practicaltypography.com/straight-and-curly-quotes.html
         if (value.IndexOf("\'") != -1) {
             if (giveWarning) {
-                Logger.Warning("Found single quote (\') in value:\"" + value + "\"  Should use ’ ");
+                Logger.Warning("Found single quote (\') in value:\"" + value + "\"  Should use ’ ", WARNING_STRAIGHT_QUOTE);
             }
             return true;
         }

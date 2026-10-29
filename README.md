@@ -24,7 +24,7 @@ Copy the utilities you need and their dependencies into your project, retaining 
 - **ActionScript:** use `Adobe/src` as a source root, preserve package paths, and include imported helpers and any required assets. The source includes Flash APIs and some Flex dependencies; inspect the chosen utility's imports and comments rather than assuming every file has the same runtime requirements.
 - **C++:** integrate individual sources/examples with their required headers and libraries. No single build configuration covers this collection.
 
-See the [project map](PROJECT_MAP.md) for important dependencies and integration boundaries, [System alerts](Unity/General/Alert/README%20System%20Alerts.md) for Alert/Logger setup and lifecycle, and [Sound helpers](Unity/General/Sound/README.md) for Click, Beep and SoundHelper. Most other API documentation is in source comments; [Event and Delegate](Unity/General/Event%20and%20Delegate/) contains usage examples.
+See the [project map](PROJECT_MAP.md) for important dependencies and integration boundaries, [System alerts](Unity/General/Alert/README%20System%20Alerts.md) for Alert/Logger setup and lifecycle, [Sound helpers](Unity/General/Sound/README.md) for Click, Beep and SoundHelper, and [Language preferences](Unity/General/LanguagePreference/README.md) for iOS/tvOS and macOS Editor preference detection and native plug-in setup. Most other API documentation is in source comments; [Event and Delegate](Unity/General/Event%20and%20Delegate/) contains usage examples.
 
 ## Compatibility and verification
 

@@ -97,6 +97,7 @@ public static class UtilsArray
     public static string Print<T>(T[] array)
     {
         if (array is null) { return "null"; }
+        if (array.Length == 0) { return "[]"; }
 
         string str = "[ ";
         for (int i = 0; i < array.Length; ++i) {
@@ -118,6 +119,7 @@ public static class UtilsArray
     public static string Print<T>(List<T> list)
     {
         if (list == default) { return "default"; }
+        if (list.Count == 0) { return "[]"; }
 
         string str = "[ ";
         for (int i = 0; i < list.Count; ++i) {

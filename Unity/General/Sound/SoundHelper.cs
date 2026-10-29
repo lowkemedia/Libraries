@@ -50,7 +50,7 @@ public class SoundHelper : MonoBehaviour
     private static SoundHelper Instance {
         get {
             if (_instance == default) {
-                Logger.Warning("SoundHelper must be attached to the Unity scene to work.");
+                Logger.Warning("SoundHelper must be attached to the Unity scene to work.", SoundHelperID.WARNING_NOT_ATTACHED);
             }
             return _instance;
         }
@@ -63,7 +63,7 @@ public class SoundHelper : MonoBehaviour
     private void Awake()
     {
         if (_instance != default) {
-            Logger.Warning("SoundHelper should only be attached once.");
+            Logger.Warning("SoundHelper should only be attached once.", SoundHelperID.WARNING_ALREADY_ATTACHED);
             return;
         }
         _instance = this;
@@ -172,3 +172,10 @@ public class ClickSound : MonoBehaviour
     }
 }
 */
+
+public static class SoundHelperID
+{
+    // Error, warning and info IDs.
+    public const string WARNING_NOT_ATTACHED = "SND00";
+    public const string WARNING_ALREADY_ATTACHED = "SND01";
+}
