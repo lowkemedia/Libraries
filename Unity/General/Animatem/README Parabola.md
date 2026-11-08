@@ -57,7 +57,7 @@ The orange dot is the point passed to `GetEasing(value, time)`. Grey dashed line
 show linear motion; the shaded band shows progress between 0 and 1.
 These plots describe the first forward leg, before any reversal.
 
-The piece-movement illustration uses `(0.8, 0.5)`; the app uses the subtler
+The piece-movement illustration uses `(0.85, 0.5)`; the app uses the subtler
 `(0.765, 0.5)` setting documented below.
 
 At half time, the presets make a useful starting point:
@@ -68,7 +68,7 @@ At half time, the presets make a useful starting point:
 | `GetEasing(0.5f, 0.5f)` | 50% done halfway | Linear. |
 | `GetEasing(0.75f, 0.5f)` / `Parabola.EaseOut` | 75% done halfway | Starts quickly and reaches the end at rest. |
 | `GetEasing(0.765f, 0.5f)` | 76.5% done halfway | Slightly stronger than EaseOut; a small overshoot before settling. |
-| `GetEasing(0.8f, 0.5f)` | 80% done halfway | Slight overshoot; used in the piece-movement illustration. |
+| `GetEasing(0.85f, 0.5f)` | 85% done halfway | Slight overshoot; used in the piece-movement illustration. |
 
 `new Parabola().Ease` also defaults to `(0.75, 0.5)`.
 `Parabola.EaseBounce` uses `(0.35, 0.7)`: it initially moves **behind the start**
