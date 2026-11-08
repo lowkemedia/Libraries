@@ -37,7 +37,7 @@ public class Fader : MonoBehaviour
     public void Awake()
     {
         if (_instance != null) {
-            Logger.Warning("Fader should only be attached once.", FaderID.WARNING_ALREADY_ATTACHED);
+            Logger.Warning("Fader should only be attached once.", FaderID.WARNING_ALREADY_ATTACHED_ID);
             return;
         }
         _instance = this;
@@ -78,5 +78,5 @@ public class Fader : MonoBehaviour
 public static class FaderID
 {
     // Error, warning and info IDs.
-    public const string WARNING_ALREADY_ATTACHED = "FDR00";
+    public const string WARNING_ALREADY_ATTACHED_ID = "FDR00";
 }

@@ -41,7 +41,7 @@ public class Animatem : MonoBehaviour
     public static Animatem Instance {
         get {
             if (_instance == default) {
-                Logger.Warning("Animatem must be attached to the Unity scene to work.", LogID.WARNING_ANIMATOR_NOT_ATTACHED);
+                Logger.Warning("Animatem must be attached to the Unity scene to work.", LogID.WARNING_ANIMATOR_NOT_ATTACHED_ID);
             }
 
             return _instance;
@@ -209,7 +209,7 @@ public class Animatem : MonoBehaviour
     private void OnDestroy()
     {
         if (_animeList.Count > 0) {
-            Logger.Warning("Animatem destroyed while still animating.", LogID.WARNING_ANIMATOR_DESTROYED_WHILE_ANIMATING);
+            Logger.Warning("Animatem destroyed while still animating.", LogID.WARNING_ANIMATOR_DESTROYED_WHILE_ANIMATING_ID);
         }
     }
 

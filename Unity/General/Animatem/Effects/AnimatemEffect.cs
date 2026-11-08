@@ -176,12 +176,12 @@ public abstract class AnimatemEffect
 
     public virtual void Cycle()
     {
-        Logger.Warning("Effect " + _name + " does not support Cycle() method.", LogID.WARNING_CYCLE_NOT_SUPPORTED);
+        Logger.Warning("Effect " + _name + " does not support Cycle() method.", LogID.WARNING_CYCLE_NOT_SUPPORTED_ID);
     }
         
     public virtual void Reverse()
     {
-        Logger.Warning("Effect " + _name + " does not support Reverse() method.", LogID.WARNING_REVERSE_NOT_SUPPORTED);
+        Logger.Warning("Effect " + _name + " does not support Reverse() method.", LogID.WARNING_REVERSE_NOT_SUPPORTED_ID);
     }
 
     /*

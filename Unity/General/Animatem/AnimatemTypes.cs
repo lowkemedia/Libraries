@@ -62,12 +62,12 @@ namespace AnimatemTypes
     {
         //
         // error, warning and info IDs
-        public const string WARNING_ANIMATOR_NOT_ATTACHED = "ANI00";
-        public const string WARNING_ANIMATOR_DESTROYED_WHILE_ANIMATING = "ANI01";
-        public const string WARNING_CANT_FIND_EFFECT = "ANI02";
-        public const string WARNING_CANT_REMOVE_EFFECT = "ANI03";
-        public const string WARNING_CYCLE_NOT_SUPPORTED = "ANI04";
-        public const string WARNING_REVERSE_NOT_SUPPORTED = "ANI05";
-        public const string DEBUG_EFFECT_BEING_REPLACED = "ANI06";
+        public const string WARNING_ANIMATOR_NOT_ATTACHED_ID = "ANI00";
+        public const string WARNING_ANIMATOR_DESTROYED_WHILE_ANIMATING_ID = "ANI01";
+        public const string WARNING_CANT_FIND_EFFECT_ID = "ANI02";
+        public const string WARNING_CANT_REMOVE_EFFECT_ID = "ANI03";
+        public const string WARNING_CYCLE_NOT_SUPPORTED_ID = "ANI04";
+        public const string WARNING_REVERSE_NOT_SUPPORTED_ID = "ANI05";
+        public const string DEBUG_EFFECT_BEING_REPLACED_ID = "ANI06";
     }
 }

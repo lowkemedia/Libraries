@@ -43,6 +43,16 @@ public class Logger : MonoBehaviour
         DEBUG
     };
 
+    // Diagnostic IDs owned by Logger.
+    public const string DETAIL_LEVEL_CHANGED_ID = "LOG00";
+
+    // Shared with log assertions; includes the closing bracket and trailing space.
+    public const string TEST_EXPECTED_FORMAT = "[TEST EXPECTED: {0}] ";
+
+    // One shared label for a sequential diagnostic scenario, not a test assertion.
+    // Callers must clear it after all related work (including worker logs) completes.
+    private static volatile string _testExpected;
+
     // Optional automatic alerts preserve the existing log-only default.
     private static bool _showAlert;
     public static bool ShowAlert {
@@ -95,6 +105,10 @@ public class Logger : MonoBehaviour
         if (logLevel <= _logLevel)
         {
             string logMessage = LogPrefix(logLevel, id) + message + "\n";
+            string testExpected = _testExpected;
+            if (!string.IsNullOrEmpty(testExpected)) {
+                logMessage += string.Format(TEST_EXPECTED_FORMAT, testExpected) + "\n";
+            }
 
             if (showStackTrace) {
                 logMessage += Environment.StackTrace + "\n";
@@ -173,6 +187,23 @@ public class Logger : MonoBehaviour
     // static helper methods
 
 
+    // Replaces the label; null/empty clears it. The Print announcement is unlabelled
+    // and obeys the normal threshold. This does not suppress errors or automatic alerts.
+    public static void TestExpected(string testExpected)
+    {
+        ClearTestExpected();
+        if (string.IsNullOrEmpty(testExpected)) {
+            return;
+        }
+        Print("TESTING-> " + testExpected);
+        _testExpected = testExpected;
+    }
+
+    public static void ClearTestExpected()
+    {
+        _testExpected = null;
+    }
+
     public static void Severe(string message,
                               string id = null,
                               bool showOnlyOnce = false,
@@ -195,6 +226,7 @@ public class Logger : MonoBehaviour
     }
 
     // Useful diagnostic detail that does not warrant Info or an automatic alert.
+    // Normally ID-free; add an ID only when a named, searchable reference is useful.
     public static void Detail(string message,
                               string id = null,
                               bool showOnlyOnce = false,
@@ -223,7 +255,7 @@ public class Logger : MonoBehaviour
         set {
             if (value != _logLevel) {
                 _logLevel = value;
-                print("Logging level set to " + LogLevelString(_logLevel));
+                Detail("Logging level set to " + LogLevelString(_logLevel), DETAIL_LEVEL_CHANGED_ID);
             }
         }
     }

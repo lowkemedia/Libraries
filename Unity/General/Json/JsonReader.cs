@@ -10,7 +10,7 @@ public static class JsonReader
         T gameValue = default(T);
         TextAsset textJsonAsset = Resources.Load<TextAsset>(path);
         if (textJsonAsset is null) {
-            Logger.Warning("Coudn't load file \"" + path + "\".", JsonReaderID.WARNING_CANT_LOAD_FILE);
+            Logger.Warning("Coudn't load file \"" + path + "\".", JsonReaderID.WARNING_CANT_LOAD_FILE_ID);
         } else {
             string jsonString = textJsonAsset.ToString();
             try {
@@ -18,7 +18,7 @@ public static class JsonReader
             } catch (Exception error) {
                 string errorMessage = error.Message;
                 string className = typeof(T).FullName;
-                Logger.Severe("Coudn't read JSON file \"" + path + "\" for class: " + className + " with error:" + errorMessage, JsonReaderID.SEVERE_CANT_LOAD_FILE);
+                Logger.Severe("Coudn't read JSON file \"" + path + "\" for class: " + className + " with error:" + errorMessage, JsonReaderID.SEVERE_CANT_LOAD_FILE_ID);
             }
         }
 		return gameValue;
@@ -29,6 +29,6 @@ public static class JsonReaderID
 {
 	//
 	// error, warning and info IDs
-	public const string SEVERE_CANT_LOAD_FILE = "JSN00";
-	public const string WARNING_CANT_LOAD_FILE = "JSN01";
+	public const string SEVERE_CANT_LOAD_FILE_ID = "JSN00";
+	public const string WARNING_CANT_LOAD_FILE_ID = "JSN01";
 }

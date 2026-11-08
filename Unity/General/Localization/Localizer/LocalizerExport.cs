@@ -46,7 +46,7 @@ public static class LocalizerExport
                         // skip duplicate key
                         if (keysList.IndexOf(expandedKey) == -1) {
                             // Warn that file must contain unique keys for all parameters
-                            Logger.Warning("Key won't localize. Parameters passed are different.   key A: " + expandedKey + "  key B: " + keysList[index], LocalizerID.WARNING_EXPORT_PARAMETER_MISMATCH);
+                            Logger.Warning("Key won't localize. Parameters passed are different.   key A: " + expandedKey + "  key B: " + keysList[index], LocalizerID.WARNING_EXPORT_PARAMETER_MISMATCH_ID);
                         }
                     } else {
                         // add key
@@ -99,14 +99,14 @@ public static class LocalizerExport
             string[] variables = variablesInKeys ? null : value.Variables;
             string export = Localizer.Value(key, variables);
             if (string.IsNullOrEmpty(export)) {
-                Logger.Warning("key:" + key + " is empty value.", LocalizerID.WARNING_EXPORT_EMPTY_VALUE);
+                Logger.Warning("key:" + key + " is empty value.", LocalizerID.WARNING_EXPORT_EMPTY_VALUE_ID);
             }
             export = UtilsString.CorrectForQuotes(export);
             export = UtilsString.CorrectForTabs(export);
 
             // check for single quote
             if (UtilsString.CheckForQuote(export, false)) {
-                Logger.Warning("Found \' in key:" + key, LocalizerID.WARNING_EXPORT_STRAIGHT_QUOTE);
+                Logger.Warning("Found \' in key:" + key, LocalizerID.WARNING_EXPORT_STRAIGHT_QUOTE_ID);
 			}
             
             streamWriter.WriteLine("            \"original\": \"" + export + "\",");
@@ -152,7 +152,7 @@ public static class LocalizerExport
 
             // check for single quote
             if (UtilsString.CheckForQuote(export, false)) {
-                Logger.Warning("Found \' in key:" + key, LocalizerID.WARNING_EXPORT_STRAIGHT_QUOTE);
+                Logger.Warning("Found \' in key:" + key, LocalizerID.WARNING_EXPORT_STRAIGHT_QUOTE_ID);
             }
 
             // streamWriter.WriteLine("Page " + page++);

@@ -41,7 +41,7 @@ public class Delayer : MonoBehaviour
     public void Awake()
     {
         if (_instance != null) {
-            Logger.Warning("Delayer should only be attached once.", DelayerID.WARNING_ALREADY_ATTACHED);
+            Logger.Warning("Delayer should only be attached once.", DelayerID.WARNING_ALREADY_ATTACHED_ID);
             enabled = false; // Disable only this duplicate, not its GameObject.
             return;
         }
@@ -88,10 +88,10 @@ public class Delayer : MonoBehaviour
     {
         if (giveWarning) {
             if (seconds <= 0) {
-                Logger.Warning("Delay() called with an zero or negative seconds parameter", DelayerID.WARNING_NONPOSITIVE_DELAY);
+                Logger.Warning("Delay() called with an zero or negative seconds parameter", DelayerID.WARNING_NONPOSITIVE_DELAY_ID);
             }
             if (callback is null) {
-                Logger.Warning("Delay() called with an empty callback parameter", DelayerID.WARNING_EMPTY_CALLBACK);
+                Logger.Warning("Delay() called with an empty callback parameter", DelayerID.WARNING_EMPTY_CALLBACK_ID);
             }
         }
 
@@ -147,7 +147,7 @@ public class Delayer : MonoBehaviour
 public static class DelayerID
 {
     // Error, warning and info IDs.
-    public const string WARNING_ALREADY_ATTACHED = "DLY00";
-    public const string WARNING_NONPOSITIVE_DELAY = "DLY01";
-    public const string WARNING_EMPTY_CALLBACK = "DLY02";
+    public const string WARNING_ALREADY_ATTACHED_ID = "DLY00";
+    public const string WARNING_NONPOSITIVE_DELAY_ID = "DLY01";
+    public const string WARNING_EMPTY_CALLBACK_ID = "DLY02";
 }

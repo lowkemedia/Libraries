@@ -63,7 +63,7 @@ public static class Stylizer
             string style = value.style.ToLower();
             bool found = _styles.TryGetValue(style, out LocalizerStyle localizerStyle);
             if (found && giveWarning) {
-                Logger.Warning("Duplicate style:\"" + style + "\" in file:\"" + fileName + "\" existing:\"" + localizerStyle.style + "\" replacement:\"" + value.style + "\"", LocalizerID.WARNING_DUPLICATE_STYLE);
+                Logger.Warning("Duplicate style:\"" + style + "\" in file:\"" + fileName + "\" existing:\"" + localizerStyle.style + "\" replacement:\"" + value.style + "\"", LocalizerID.WARNING_DUPLICATE_STYLE_ID);
             }
             _styles[style] = value;
         }
@@ -77,7 +77,7 @@ public static class Stylizer
 		}
 
         if (!Initialized) {
-            Logger.Severe("Can't find style:\"" + style + "\" as Stylizer not initialized.", LocalizerID.SEVERE_CANT_READ_STYLE, true);
+            Logger.Severe("Can't find style:\"" + style + "\" as Stylizer not initialized.", LocalizerID.SEVERE_CANT_READ_STYLE_ID, true);
             return default;
         }
 
@@ -86,7 +86,7 @@ public static class Stylizer
 
         bool found = _styles.TryGetValue(style, out LocalizerStyle localizerStyle);
         if (!found && giveWarning) {
-            Logger.Warning("Can't find style:\"" + style + "\" in stylizer dictionary.", LocalizerID.WARNING_COULD_NOT_FIND_STYLE, true);
+            Logger.Warning("Can't find style:\"" + style + "\" in stylizer dictionary.", LocalizerID.WARNING_COULD_NOT_FIND_STYLE_ID, true);
         }
 
         return localizerStyle;
@@ -96,7 +96,7 @@ public static class Stylizer
     {
         string alignment = textField.alignment.ToString();
         if (giveWarning && !alignment.Contains("Baseline")) {
-            Logger.Warning("Localized textfield \"" + textField.name + "\" should use baseline alignment.", LocalizerID.WARNING_NEEDS_BASELINE_ALIGNMENT, true);
+            Logger.Warning("Localized textfield \"" + textField.name + "\" should use baseline alignment.", LocalizerID.WARNING_NEEDS_BASELINE_ALIGNMENT_ID, true);
         }
 
         LocalizerStyle localizerStyle = LocalizerStyle(style, giveWarning);
@@ -108,7 +108,7 @@ public static class Stylizer
                 } else {
                     string reason = FontResolver == null ? " (Stylizer.FontResolver is not configured)" : "";
                     Logger.Severe("Could not find font " + localizerStyle.font + reason,
-                        LocalizerID.SEVERE_CANT_FIND_FONT, true);
+                        LocalizerID.SEVERE_CANT_FIND_FONT_ID, true);
                 }
             }
 
@@ -149,7 +149,7 @@ public static class Stylizer
     {
         GameObject gameObject = textField.gameObject;
         if (gameObject is null) {
-            Logger.Severe("Could not add localization key:\"" + key + "\" to null TextField", LocalizerID.SEVERE_NULL_TEXT_FIELD);
+            Logger.Severe("Could not add localization key:\"" + key + "\" to null TextField", LocalizerID.SEVERE_NULL_TEXT_FIELD_ID);
             return;
         }
         LocalizedText localizedText;

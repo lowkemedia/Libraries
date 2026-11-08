@@ -324,5 +324,4 @@ a fixed product/copyright footer; adapt that host-specific output when reusing
 it. Preserve source JSON separately.
 
 Font resolution is supplied through the delegate above. The export footer remains
-an integration point in this copy, not a requirement of the reusable Localizer. Keep this README with the folder when copying it to Libraries or
-another application.
+an integration point in this copy, not a requirement of the reusable Localizer.

@@ -19,9 +19,6 @@ and Click feedback. [Localization](../Localization/README.md) contains the share
 language and translation utilities. Logger and SoundHelper remain in
 [Logger](../Logger/) and [Sound](../Sound/).
 
-The folder grouping does not introduce new namespaces, assemblies or runtime
-behavior. When moving or copying these assets within a Unity project, preserve
-their `.meta` files so scene, prefab and ScriptableObject references retain their
-GUIDs. General utilities can have companion dependencies; copy the dependencies
-needed by the selected controls as well. The separately managed Libraries
-repository is not synchronized automatically.
+Copy the companion dependencies needed by the selected controls. When updating
+scripts in a Unity project, preserve their `.meta` files so scene, prefab and
+ScriptableObject references retain their GUIDs.

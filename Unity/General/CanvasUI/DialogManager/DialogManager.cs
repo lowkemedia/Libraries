@@ -40,7 +40,7 @@ public class DialogManager : MonoBehaviour
     public static DialogManager Instance {
         get {
             if (_instance is null) {
-                Logger.Warning("DialogManager must be attached to the Unity scene to work.", DialogManagerID.WARNING_NOT_ATTACHED);
+                Logger.Warning("DialogManager must be attached to the Unity scene to work.", DialogManagerID.WARNING_NOT_ATTACHED_ID);
             }
 
             return _instance;
@@ -71,7 +71,7 @@ public class DialogManager : MonoBehaviour
     private void Start()
     {
         if (_instance != null) {
-            Logger.Warning("DialogManager should only be attached once.", DialogManagerID.WARNING_ALREADY_ATTACHED);
+            Logger.Warning("DialogManager should only be attached once.", DialogManagerID.WARNING_ALREADY_ATTACHED_ID);
             return;
         }
 
@@ -91,7 +91,7 @@ public class DialogManager : MonoBehaviour
             }
         }
 
-        Logger.Severe("Could not find dialog called \"" + name + "\"", DialogManagerID.SEVERE_CANT_FIND_DIALOG);
+        Logger.Severe("Could not find dialog called \"" + name + "\"", DialogManagerID.SEVERE_CANT_FIND_DIALOG_ID);
         return default;
     }
 
@@ -100,12 +100,12 @@ public class DialogManager : MonoBehaviour
     {
         foreach (DialogBase openDialog in _stack) {
             if (openDialog == dialog) {
-                Logger.Severe("Dialog \"" + dialog.name + "\" is already open.", DialogManagerID.SEVERE_DIALOG_ALREADY_OPEN);
+                Logger.Severe("Dialog \"" + dialog.name + "\" is already open.", DialogManagerID.SEVERE_DIALOG_ALREADY_OPEN_ID);
                 return;
             }
         }
         if (!dialog.DialogIsSetup) {
-            Logger.Severe("Dialog \"" + dialog.name + "\" has not been setup yet. SetupDialog() needs to be called before ShowDialog()", DialogManagerID.SEVERE_DIALOG_NOT_SETUP);
+            Logger.Severe("Dialog \"" + dialog.name + "\" has not been setup yet. SetupDialog() needs to be called before ShowDialog()", DialogManagerID.SEVERE_DIALOG_NOT_SETUP_ID);
         }
 
         // make open dialog object with click blocker
@@ -144,9 +144,9 @@ public class DialogManager : MonoBehaviour
 public static class DialogManagerID
 {
     // Error, warning and info IDs.
-    public const string SEVERE_CANT_FIND_DIALOG = "DLG00";
-    public const string SEVERE_DIALOG_ALREADY_OPEN = "DLG01";
-    public const string SEVERE_DIALOG_NOT_SETUP = "DLG02";
-    public const string WARNING_NOT_ATTACHED = "DLG03";
-    public const string WARNING_ALREADY_ATTACHED = "DLG04";
+    public const string SEVERE_CANT_FIND_DIALOG_ID = "DLG00";
+    public const string SEVERE_DIALOG_ALREADY_OPEN_ID = "DLG01";
+    public const string SEVERE_DIALOG_NOT_SETUP_ID = "DLG02";
+    public const string WARNING_NOT_ATTACHED_ID = "DLG03";
+    public const string WARNING_ALREADY_ATTACHED_ID = "DLG04";
 }

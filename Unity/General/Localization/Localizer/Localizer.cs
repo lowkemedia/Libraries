@@ -145,7 +145,7 @@ public class Localizer : MonoBehaviour
     public static void LoadFile(string fileName, bool giveWarning = true)
     {
         if (!Initialized) {
-            Logger.Severe("Can't load localization file:\"" + fileName + "\" as Localizer not initialized.", LocalizerID.SEVERE_CANT_LOAD_FILE);
+            Logger.Severe("Can't load localization file:\"" + fileName + "\" as Localizer not initialized.", LocalizerID.SEVERE_CANT_LOAD_FILE_ID);
             return;
         }
 
@@ -161,7 +161,7 @@ public class Localizer : MonoBehaviour
             string key = value.key.ToLower();
             bool found = _keyValuePairs.TryGetValue(key, out LocalizerValue stringKeyValue);
             if (found && giveWarning) {
-                Logger.Warning("Duplicate key:\"" + key + "\" value:\"" + value + "\" file:\"" + fullFileName + "\" existing:\"" + stringKeyValue.value + "\" file:\"" + stringKeyValue.FileName + "\"", LocalizerID.WARNING_DUPLICATE_KEY);
+                Logger.Warning("Duplicate key:\"" + key + "\" value:\"" + value + "\" file:\"" + fullFileName + "\" existing:\"" + stringKeyValue.value + "\" file:\"" + stringKeyValue.FileName + "\"", LocalizerID.WARNING_DUPLICATE_KEY_ID);
             }
             
             _keyValuePairs[key] = value;
@@ -174,7 +174,7 @@ public class Localizer : MonoBehaviour
         key = JustKey(key);
 
         if (!Initialized) {
-            Logger.Severe("Can't localize key:\"" + key + "\" as Localizer not initialized.", LocalizerID.SEVERE_CANT_READ_KEY);
+            Logger.Severe("Can't localize key:\"" + key + "\" as Localizer not initialized.", LocalizerID.SEVERE_CANT_READ_KEY_ID);
             return null;
         }
 
@@ -183,7 +183,7 @@ public class Localizer : MonoBehaviour
 
         bool found = _keyValuePairs.TryGetValue(key, out LocalizerValue stringKeyValue);
         if (!found && giveWarning) {
-            Logger.Warning("Can't find key:\"" + key + "\" in localization dictionary " + LanguageCode + ".", LocalizerID.WARNING_COULD_NOT_FIND_KEY, true);
+            Logger.Warning("Can't find key:\"" + key + "\" in localization dictionary " + LanguageCode + ".", LocalizerID.WARNING_COULD_NOT_FIND_KEY_ID, true);
         }
 
         return stringKeyValue;
@@ -204,7 +204,7 @@ public class Localizer : MonoBehaviour
         // ensure key starts with a '.'
         if (!IsKey(key)) {
             if (giveWarning) {
-                Logger.Warning("Received invalid key \"" + key + "\"", LocalizerID.WARNING_INVALID_KEY_PASSED);
+                Logger.Warning("Received invalid key \"" + key + "\"", LocalizerID.WARNING_INVALID_KEY_PASSED_ID);
             }
 
             return (Testing) ? TEST_RETURN : key;
@@ -216,7 +216,7 @@ public class Localizer : MonoBehaviour
             if (variables != null) {
                 if (giveWarning) {
                     // but variables were passed into Value()
-                    Logger.Warning("Key \"" + key + "\" has embedded variables: " + UtilsArray.Print(strlist) + ", but was passed in variable parameters: " + UtilsArray.Print(variables), LocalizerID.WARNING_HAS_EMBEDDED_AND_PASSED_VARIABLES);
+                    Logger.Warning("Key \"" + key + "\" has embedded variables: " + UtilsArray.Print(strlist) + ", but was passed in variable parameters: " + UtilsArray.Print(variables), LocalizerID.WARNING_HAS_EMBEDDED_AND_PASSED_VARIABLES_ID);
                 }
             } else {
                 // transfer embedded vars to variables list
@@ -299,7 +299,7 @@ public class Localizer : MonoBehaviour
         }
 
         if (giveWarning) {
-            Logger.Warning("Coud not find value:\"" + value + "\" in localization dictionary.", LocalizerID.WARNING_COULD_NOT_FIND_VALUE);
+            Logger.Warning("Coud not find value:\"" + value + "\" in localization dictionary.", LocalizerID.WARNING_COULD_NOT_FIND_VALUE_ID);
         }
 
         return null;

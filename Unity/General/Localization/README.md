@@ -49,9 +49,15 @@ list therefore cannot select an unshipped fallback.
 The resolver has no logging, alerts, branding, scene, saved-setting or font
 behavior. It does not initialize Localizer. The application decides what to log
 or display from the result and whether to apply it only at startup or on later
-settings changes. Core-language matching does not distinguish writing scripts;
-introduce a script-aware policy before relying on automatic matching between
-locales that require different scripts.
+settings changes.
+
+Chinese follows the same core-language policy as every other language. When only
+`zh_CN` is supplied, generic `zh`, `zh-Hans`, `zh-Hant`, `zh-TW`, `zh-HK`, `zh-MO`
+and `zh-SG` select `zh_CN` as a `Regional` match, before considering a later
+preference such as `en-US`. An exact `zh-CN` remains `Exact`. Region or script
+subtags do not block core-language matching. This selects the available text;
+it does not convert Simplified and Traditional characters. The application owns
+its supported locales, their ordering and any Info/alert handling.
 
 ## Reuse
 

@@ -93,7 +93,7 @@ public class Anime
             if (name == EffectString.REPLACE || 
                 name == EffectString.SNAP_REPLACE) 
             {
-                Logger.Debug("Effect \"" + effect.Name + "\" being replaced on anime " + _target, LogID.DEBUG_EFFECT_BEING_REPLACED);
+                Logger.Debug("Effect \"" + effect.Name + "\" being replaced on anime " + _target, LogID.DEBUG_EFFECT_BEING_REPLACED_ID);
 
                 // remove existing effect so no conflict occurs
                 RemoveEffect(existingEffect, (name == EffectString.SNAP_REPLACE));
@@ -160,7 +160,7 @@ public class Anime
             
         if (giveWarning) {
             Logger.Warning("Could not find effect \"" + effectName + "\" on " + _target + ".\n" +
-                         "Effects that were found were the following: " + DumpEffects() + ".", LogID.WARNING_CANT_FIND_EFFECT);
+                         "Effects that were found were the following: " + DumpEffects() + ".", LogID.WARNING_CANT_FIND_EFFECT_ID);
         }
             
         return null;
@@ -218,7 +218,7 @@ public class Anime
 
         } else if (giveWarning) {
             Logger.Warning("Could not remove effect \"" + effect.Name + "\" on " + _target + ".\n" +
-                           "Effects that were found were the following: " + DumpEffects() + ".", LogID.WARNING_CANT_REMOVE_EFFECT);
+                           "Effects that were found were the following: " + DumpEffects() + ".", LogID.WARNING_CANT_REMOVE_EFFECT_ID);
         }
     }
         

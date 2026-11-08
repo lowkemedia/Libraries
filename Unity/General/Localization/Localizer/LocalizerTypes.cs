@@ -110,22 +110,22 @@ namespace LocalizerTypes
     {
         //
         // error, warning and info IDs
-        public const string SEVERE_CANT_LOAD_FILE = "LOC00";
-        public const string SEVERE_CANT_READ_KEY = "LOC01";
-        public const string SEVERE_CANT_READ_STYLE = "LOC02";
-        public const string SEVERE_CANT_FIND_FONT = "LOC03";
-        public const string SEVERE_NULL_TEXT_FIELD = "LOC04";
-        public const string WARNING_COULD_NOT_FIND_KEY = "LOC05";
-        public const string WARNING_COULD_NOT_FIND_STYLE = "LOC06";
-        public const string WARNING_DUPLICATE_KEY = "LOC07";
-        public const string WARNING_DUPLICATE_STYLE = "LOC08";
-        public const string WARNING_INVALID_KEY_PASSED = "LOC09";
-        public const string WARNING_COULD_NOT_FIND_VALUE = "LOC10";
-        public const string WARNING_NEEDS_BASELINE_ALIGNMENT = "LOC11";
-        public const string WARNING_HAS_EMBEDDED_AND_PASSED_VARIABLES = "LOC12";
-        public const string WARNING_EXPORT_PARAMETER_MISMATCH = "LOC13";
-        public const string WARNING_EXPORT_EMPTY_VALUE = "LOC14";
-        public const string WARNING_EXPORT_STRAIGHT_QUOTE = "LOC15";
+        public const string SEVERE_CANT_LOAD_FILE_ID = "LOC00";
+        public const string SEVERE_CANT_READ_KEY_ID = "LOC01";
+        public const string SEVERE_CANT_READ_STYLE_ID = "LOC02";
+        public const string SEVERE_CANT_FIND_FONT_ID = "LOC03";
+        public const string SEVERE_NULL_TEXT_FIELD_ID = "LOC04";
+        public const string WARNING_COULD_NOT_FIND_KEY_ID = "LOC05";
+        public const string WARNING_COULD_NOT_FIND_STYLE_ID = "LOC06";
+        public const string WARNING_DUPLICATE_KEY_ID = "LOC07";
+        public const string WARNING_DUPLICATE_STYLE_ID = "LOC08";
+        public const string WARNING_INVALID_KEY_PASSED_ID = "LOC09";
+        public const string WARNING_COULD_NOT_FIND_VALUE_ID = "LOC10";
+        public const string WARNING_NEEDS_BASELINE_ALIGNMENT_ID = "LOC11";
+        public const string WARNING_HAS_EMBEDDED_AND_PASSED_VARIABLES_ID = "LOC12";
+        public const string WARNING_EXPORT_PARAMETER_MISMATCH_ID = "LOC13";
+        public const string WARNING_EXPORT_EMPTY_VALUE_ID = "LOC14";
+        public const string WARNING_EXPORT_STRAIGHT_QUOTE_ID = "LOC15";
     }
 }
 

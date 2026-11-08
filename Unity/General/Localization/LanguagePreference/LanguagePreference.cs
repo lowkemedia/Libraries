@@ -108,7 +108,7 @@ public static class LanguagePreference
                 _reportedBindingFailure = true;
                 Alert.Warning("Language preferences unavailable: check the native plug-in import settings.\n\n" +
                     exception.GetType().Name + ": " + exception.Message,
-                    "Language detection", id: LanguagePreferenceID.WARNING_NATIVE_BINDING_UNAVAILABLE);
+                    "Language detection", id: LanguagePreferenceID.WARNING_NATIVE_BINDING_UNAVAILABLE_ID);
             }
             return Array.Empty<string>();
         }
@@ -216,5 +216,5 @@ public static class LanguagePreference
 public static class LanguagePreferenceID
 {
     // Error, warning and info IDs.
-    public const string WARNING_NATIVE_BINDING_UNAVAILABLE = "LANG00";
+    public const string WARNING_NATIVE_BINDING_UNAVAILABLE_ID = "LANG00";
 }

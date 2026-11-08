@@ -349,7 +349,7 @@ public sealed class Alert : MonoBehaviour
         _renderErrorReported = true;
         // Keep the original exception/stack as the inner exception; never queue another alert.
         UnityEngine.Debug.LogException(new System.Exception(
-            "#" + AlertID.SEVERE_RENDER_FAILED + ": System Alert rendering failed.", error));
+            "#" + AlertID.SEVERE_RENDER_FAILED_ID + ": System Alert rendering failed.", error));
     }
 
     private void DrawNotice(Notice notice, float width, float height, float textX,
@@ -469,5 +469,5 @@ public sealed class Alert : MonoBehaviour
 public static class AlertID
 {
     // Error, warning and info IDs.
-    public const string SEVERE_RENDER_FAILED = "ALT00";
+    public const string SEVERE_RENDER_FAILED_ID = "ALT00";
 }

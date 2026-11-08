@@ -48,7 +48,7 @@ namespace PopupMenuTypes
     public static class PopupMenuID
     {
         // Error, warning and info IDs.
-        public const string WARNING_INVALID_MENU_ITEM = "POP00";
-        public const string WARNING_CANT_SELECT_BUTTON = "POP01";
+        public const string WARNING_INVALID_MENU_ITEM_ID = "POP00";
+        public const string WARNING_CANT_SELECT_BUTTON_ID = "POP01";
     }
 }

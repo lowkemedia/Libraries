@@ -33,7 +33,7 @@ restart the app, or require a restart, when language settings change.
   native bindings show a System Alert through `Alert.Warning`, once per runtime
   session, including the exception type and message. The alert remains visible
   even when automatic Logger alerts or console logging are disabled. The helper
-  also logs the diagnostic (`LanguagePreferenceID.WARNING_NATIVE_BINDING_UNAVAILABLE`,
+  also logs the diagnostic (`LanguagePreferenceID.WARNING_NATIVE_BINDING_UNAVAILABLE_ID`,
   still `LANG00`) when warning logging is enabled, without a
   duplicate alert. Detection still returns an empty array for the caller to handle.
   Unsupported platforms and ordinary language fallback do not trigger this alert.
@@ -96,8 +96,6 @@ declaring the app's supported languages. Restart after changing settings if need
 On Apple TV, repeat with its preferred-language list. Test script-bearing tags
 such as `zh-Hant-TW` and `zh-Hans-CN` without collapsing them to `zh`.
 
-Editor tests verify normalization and read the actual host preferences on macOS;
-they cannot establish mobile-device preferences or per-app Settings behavior. Compile the
-native source for both Apple targets and verify its importer configuration as
-well as doing device checks. No changes to the game's Settings UI are needed to
-test this utility.
+In the macOS Editor, check normalization and host preferences. Verify mobile
+preferences and per-app Settings on the devices themselves. Compile the native
+source for both Apple targets and verify its importer configuration.

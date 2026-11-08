@@ -68,7 +68,7 @@ public class Popup : MonoBehaviour
 				index = Array.IndexOf(_menuItems, value);
 			}
 			if (index == -1) {
-				Logger.Warning("Could not set Selected to \"" + value + "\" as it is not a menu item.", PopupMenuID.WARNING_INVALID_MENU_ITEM);
+				Logger.Warning("Could not set Selected to \"" + value + "\" as it is not a menu item.", PopupMenuID.WARNING_INVALID_MENU_ITEM_ID);
 				return;
 			}
 			SelectedIndex = index;
@@ -109,7 +109,7 @@ public class Popup : MonoBehaviour
 			}
 		}
 		if (giveWarning) {
-			Logger.Warning("Could not select button \"" + value + "\" on popup.", PopupMenuID.WARNING_CANT_SELECT_BUTTON);
+			Logger.Warning("Could not select button \"" + value + "\" on popup.", PopupMenuID.WARNING_CANT_SELECT_BUTTON_ID);
 		}
 	}
 
