@@ -1,24 +1,40 @@
 # Lowke Media Unity utilities
 
+## Animatem
+
+[Animatem](Animatem/Animatem.cs) is a code-driven tween and animation utility for
+Unity. Compose movement, scaling, fades and delays, with easing and velocity-based
+effects, to animate GameObjects and UI elements.
+
+Attach Animatem to a scene object. Each target's [Anime](Animatem/Anime.cs) holds
+its effects; extend [AnimatemEffect](Animatem/Effects/AnimatemEffect.cs) to create
+your own. Browse the [effects](Animatem/Effects/) and
+[effect options](Animatem/AnimatemTypes.cs) to see how they fit together.
+
+## Other utilities
+
 **“Do one thing well and people will use it.”** General is a collection of focused
 C# utilities that work together: animation, logging, system alerts, sound, Canvas
 controls, localization and smaller helpers. Choose what you need and include its
 companion dependencies. This is source code to copy into a Unity project, not a
 framework to adopt or a Unity Package Manager package.
 
-## Start here
-
 | Utility | What it provides | Setup and dependencies |
 | --- | --- | --- |
 | [Logger](#logger) | Severity, diagnostic IDs, filtering, optional stack traces and once-only messages. | Copy Logger.cs; no scene component or Alert required. |
 | [SystemUI](SystemUI/README.md) | Runtime alerts before normal UI is ready; synthesized Beep and Click. | Alert creates its host. Include Logger and CallbackTypes; sounds need an AudioListener. |
-| [Animatem](Animatem/Animatem.cs) | Composable tween and animation effects. | Attach Animatem; include its effects/types, Logger, CallbackTypes and GlobalState. |
 | [Coroutine](Coroutine/) | Delayed callbacks, fades and movement. | Attach the selected component; include its helper dependencies. |
 | [CanvasUI](CanvasUI/README.md) | Buttons, dialogs, popups, swiping and paging. | Supply Canvas/EventSystem, UI objects, styles and any required TextMesh Pro assets. |
 | [Localization](Localization/README.md) | Device preferences, startup-language matching, strings and text styles. | Supply supported locales, translations and font resolution; Apple device preferences use the included native bridge. |
 | [SoundHelper](Sound/README.md) | Playback of configured AudioSources, with optional completion callbacks. | Attach SoundHelper for its convenience methods/callbacks; include Logger and CallbackTypes. |
 | [Utils](Utils/), [Json](Json/), [ImageComposite](ImageComposite/), [Video](Video/) | Data/geometry helpers, resource JSON, image composition and video controls. | Dependencies vary by file; video controls need configured player/UI references. |
 | [Event and Delegate](<Event and Delegate/>) | Callback declarations and event examples. | Read the examples alongside the utility that uses the callbacks. |
+
+## Using the utilities
+
+For Animatem, include its effects/types, Logger, CallbackTypes and GlobalState.
+On handheld devices, its `Start()` sets application frame-rate and Unity timing
+values; inspect that policy when integrating it into an application.
 
 Copy selected files under your project's `Assets` tree, retaining their source
 notices. Follow referenced class names as well as `using` directives: many types
@@ -50,14 +66,6 @@ See the [SystemUI guide](SystemUI/README.md) for the exact copy list and lifecyc
 General has no declared minimum Unity version or bundled standalone test suite. Compile and exercise the chosen subset in your Unity project, including
 UI and sound on the target device. TextMesh Pro, uGUI and video APIs are required
 only by the utilities that use them. Retain each file's copyright, permission and attribution notices when copying it.
-
-## Animatem
-
-[Animatem](Animatem/Animatem.cs) coordinates tween and animation effects.
-Attach it to a scene object; its `Anime` objects contain effects derived from
-the abstract `AnimatemEffect` class. `AnimatemTypes` defines the effect options.
-On handheld devices, `Start()` sets application frame-rate and Unity timing
-values; inspect that policy before integrating it into an application.
 
 ## Logger
 
