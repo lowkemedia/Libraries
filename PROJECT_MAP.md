@@ -1,43 +1,34 @@
 # Project map
 
-Orientation based on the source at commit `82d256c` (16 October 2026). This is a guide to existing connections, not a proposed architecture or an exhaustive dependency manifest.
+A guide to the utilities, their dependencies and integration points. Start with the
+[Unity utilities guide](Unity/General/README.md) for setup and examples.
 
 ## Unity/General
 
 | Utility | Responsibility and important dependencies/setup |
 | --- | --- |
-| [Alert](Unity/General/Alert/README%20System%20Alerts.md) / [Logger](Unity/General/Logger/Logger.cs) | Runtime system prompts and diagnostics. They reference each other at compile time, even with `Logger.ShowAlert` off. Include `Alert.cs`, `Logger.cs`, `Click.cs`, `Beep.cs` and `CallbackTypes.cs`; Unity dependencies include IMGUI, uGUI/EventSystems, legacy input and audio. |
-| [Sound](Unity/General/Sound/README.md) | Click and Beep are independently copyable synthesized sounds with only Unity/System dependencies. SoundHelper uses configured AudioSources, `CallbackTypes` and Logger (and therefore its dependency set). |
-| [Animator](Unity/General/Animator/) | `Animator` owns `Anime` objects and composable `AnimatorEffect`/tween effects. Uses `AnimatorTypes`, `CallbackTypes`, Logger, `GlobalState` and utility helpers; some effects use uGUI. Attach the component to a scene. `Start()` changes application frame-rate and Unity timing settings on handheld devices. This global `Animator` class is distinct from `UnityEngine.Animator`. |
+| [SystemUI](Unity/General/SystemUI/README.md) | Alert provides queued runtime prompts with a persistent IMGUI host and uGUI pointer blocker. Include its Alert folder, Beep.cs, Click.cs, Logger.cs and CallbackTypes.cs. LoggerAlertBridge connects optional automatic alerts. No scene component is needed for the alert host. |
+| [Logger](Unity/General/Logger/Logger.cs) | Static severity helpers, diagnostic IDs, filtering, stack traces, once-only messages and optional test labels. Logger has no dependency on Alert; its AlertRequested event supplies the optional presentation hook. No scene component is needed. |
+| [Sound](Unity/General/Sound/README.md) | SoundHelper uses configured AudioSources, CallbackTypes and Logger. Synthesized Click and Beep live under SystemUI and each needs only Unity/System APIs; both create a persistent host on first use and use the scene's AudioListener. |
+| [Animatem](Unity/General/Animatem/) | Animatem owns Anime objects and composable AnimatemEffect/tween effects. Uses AnimatemTypes, CallbackTypes, Logger and GlobalState; some effects use uGUI. Attach the component to a scene. Start changes application frame-rate and Unity timing settings on handheld devices. |
 | [Coroutine](Unity/General/Coroutine/) | `Delayer` queues work for a later update or scaled-time delay; `Fader` fades uGUI Text; `Mover` moves transforms. Each requires its own attached component. Uses Logger, with `CallbackTypes` for Delayer/Mover. Do not assume work survives scene changes. |
-| [Button](Unity/General/Button/) | Pointer-driven `ClickButton` and variants/styles. Uses uGUI/EventSystems, SoundHelper and Delayer; text variants/factory also use TextMeshPro and localization/styling helpers. Consumers supply UI objects and styles. |
-| [DialogManager](Unity/General/DialogManager/) | Scene-configured `DialogManager`, `DialogBase` and `Dialog` with buttons, TextMeshPro, localization/styles, ClickBlocker and SoundHelper. Separate from the self-installed system Alert. |
-| [Localizer](Unity/General/Localizer/) / [JsonReader](Unity/General/Json/JsonReader.cs) | Resource JSON loading through Unity `JsonUtility`; language keys, substitutions and text styles. Uses Logger, callback and utility helpers. Text styling uses TextMeshPro; `SetOfFonts` loads a consumer-provided `Resources/Localizer Fonts` asset. JSON, fonts and styles are not bundled. `LocalizerExport` writes files; inspect its output conventions before use. |
-| [PopupMenu](Unity/General/PopupMenu/) | Popup, drop-down and hamburger variants assembled from buttons, TextMeshPro, ClickBlocker and utility helpers; localized variants use Localizer. Needs consumer UI/assets. |
-| [PageSwiper](Unity/General/PageSwiper/) | Drag/page navigation, page dots and numbers. Uses Mover, Utils/UtilsRect and callbacks; uGUI and TextMeshPro for relevant display components. |
-| [PointerEventCopier](Unity/General/PointerEventCopier/), [SwipeDetector](Unity/General/SwipeDetector/), [ClickBlocker](Unity/General/ClickBlocker/) | Event forwarding, swipe detection and pointer interception using uGUI/EventSystems. Application input polling is a separate concern. |
+| [Button](Unity/General/CanvasUI/Button/) | Pointer-driven `ClickButton` and variants/styles. Uses uGUI/EventSystems, SoundHelper and Delayer; text variants/factory also use TextMeshPro and localization/styling helpers. Consumers supply UI objects and styles. |
+| [DialogManager](Unity/General/CanvasUI/DialogManager/) | Scene-configured `DialogManager`, `DialogBase` and `Dialog` with buttons, TextMeshPro, localization/styles, ClickBlocker and SoundHelper. Separate from the self-installed system Alert. |
+| [Language selection](Unity/General/Localization/README.md) | LanguagePreference reads ordered device language tags, including the native Apple bridge; StartupLanguage matches them against supported locales and a default supplied by the application. Selection, persistence and localization initialization remain application responsibilities. |
+| [Localizer](Unity/General/Localization/Localizer/README.md) / [JsonReader](Unity/General/Json/JsonReader.cs) | Resource JSON loading through Unity `JsonUtility`; language keys, substitutions and text styles. Uses Logger, callback and utility helpers. Text styling uses TextMeshPro and the host-supplied `Stylizer.FontResolver` delegate. `Examples/SetOfFonts.cs.txt` is an optional catalogue template, not an automatically compiled dependency. JSON, fonts and styles are not bundled. `LocalizerExport` writes files; inspect its output conventions before use. |
+| [PopupMenu](Unity/General/CanvasUI/PopupMenu/) | Popup, drop-down and hamburger variants assembled from buttons, TextMeshPro, ClickBlocker and utility helpers; localized variants use Localizer. Needs consumer UI/assets. |
+| [PageSwiper](Unity/General/CanvasUI/PageSwiper/) | Drag/page navigation, page dots and numbers. Uses Mover, Utils/UtilsRect and callbacks; uGUI and TextMeshPro for relevant display components. |
+| [PointerEventCopier](Unity/General/CanvasUI/PointerEventCopier/), [SwipeDetector](Unity/General/CanvasUI/SwipeDetector/), [ClickBlocker](Unity/General/CanvasUI/ClickBlocker/) | Event forwarding, swipe detection and pointer interception using uGUI/EventSystems. Application input polling is a separate concern. |
 | [Utils](Unity/General/Utils/), [GlobalState](Unity/General/GlobalState.cs), [ImageComposite](Unity/General/ImageComposite/) | Array/string/number helpers, Unity object/geometry/color helpers, drag/device state and image composition. Dependencies differ by file: `UtilsRect`, for example, imports TextMeshPro. |
 | [Video](Unity/General/Video/) | Video playback and progress controls using Unity video APIs, configured UI/RenderTexture references, ClickButton and callbacks. |
 
-Most C# classes live in the global namespace. Check name collisions and the full referenced helper set when copying a subset; folder boundaries are not assembly boundaries. Logger is used widely, so its Alert dependency affects many otherwise small subsets.
+Most C# classes live in the global namespace. Check name collisions and the full referenced helper set when copying a subset; folder boundaries are not assembly boundaries. Utilities that reference Logger require Logger.cs, but can omit SystemUI. Alert and Logger must share an assembly because explicit alerts use the internal LogNoAlert entry point.
 
 ## Adobe and C++
 
 The ActionScript collection under `Adobe/src/com/lowke` includes `Animator`/effects, `ActionQueue`, `AssetLoader`, `AssetManager`, `SoundManager`, UI helpers and `util`. Keep imported event, loader and value-object classes with the selected utility. Source comments provide examples and historical runtime annotations (for example, the Adobe Animator says ActionScript 3.0 / Flash 10); these do not establish a tested minimum for the entire tree. FLA/SWC examples and bundled FZip/easing code retain their own provenance. Some imports refer to Flex or older package paths; a complete ActionScript build has not been verified here.
 
 The `C++` tree contains independent helpers and an OpenGL/GLUT animator. The separate root-level [C++ Teaching](C%2B%2B%20Teaching/README.md) collection contains the course notes, exercises and projects. The Mersenne Twister files depend on `ig*` headers not supplied here, and their permission status is unresolved; see [licensing](README.md#licensing-and-attribution).
-
-## Latest source update
-
-Commit `82d256c`, “updating unity General folder”, follows Git LFS configuration updates in June/September 2026 and the previous source changes in December 2022. It:
-
-- Adds Alert and its initial application-oriented documentation, plus synthesized Click and Beep.
-- Adds opt-in automatic Logger alerts, per-call `allowAlert`, stack-trace output and severity-specific Unity logging.
-- Initializes Delayer's next-update queue at declaration and disables duplicate components.
-- Makes `Dialog.Enlarge` pass through its `extraHeight` argument instead of always using 60, and removes a duplicate playback start from SoundHelper's callback coroutine.
-- Adds null-safe `UtilsArray.Length`.
-
-These are findings from the committed diff, not runtime test results.
 
 ## Boundaries for future work
 
@@ -49,4 +40,4 @@ These are findings from the committed diff, not runtime test results.
 
 ## Uncertainties
 
-Minimum toolchain versions and a target-platform verification matrix are not established. No tracked automated tests or runnable Unity fixture were found; delegate examples are demonstrations. Scene/resource setup for older UI utilities needs consumer validation. Root licence coverage for files without headers and the restrictive C++ notices need maintainer clarification. No Unity compilation, Editor/device tests or application-to-library equality check is claimed by this documentation pass.
+Minimum toolchain versions and a target-platform verification matrix are not established. No tracked automated tests or runnable Unity fixture were found; delegate examples are demonstrations. Scene/resource setup for older UI utilities needs consumer validation. Root licence coverage for files without headers and the restrictive C++ notices need maintainer clarification. Compile and exercise selected utilities in the consuming project, including UI, audio and native plug-ins on target devices.

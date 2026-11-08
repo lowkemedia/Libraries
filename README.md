@@ -10,7 +10,7 @@ Small, useful libraries and examples from Lowke Media, primarily Unity/C# and Ad
 
 | Directory | Contents |
 | --- | --- |
-| [Unity/General](Unity/General/) | C# utilities for alerts, logging, synthesized and configured audio, animation/tweening, coroutines, buttons, dialogs, localization, paging, pointer events, video and general helpers. |
+| [Unity/General](Unity/General/README.md) | C# utilities for alerts, logging, synthesized and configured audio, animation/tweening, coroutines, buttons, dialogs, localization, paging, pointer events, video and general helpers. |
 | [Adobe/src/com/lowke](Adobe/src/com/lowke/) | ActionScript 3 utilities for animation, action queues, asset loading/caching, sound, buttons, alerts, fonts, tooltips and display/data helpers; includes some FLA/SWC examples. |
 | [C++/C++/src](C%2B%2B/C%2B%2B/src/) | Matrix and other helpers, plus an OpenGL/GLUT sprite animator. |
 | [C++ Teaching](C%2B%2B%20Teaching/README.md) | C++ Programming I and II teaching materials: a linked course guide, PDF lessons, exercises, worked solutions, quizzes and projects. |
@@ -20,11 +20,11 @@ Small, useful libraries and examples from Lowke Media, primarily Unity/C# and Ad
 
 Copy the utilities you need and their dependencies into your project, retaining copyright and attribution notices. This repository does not supply a Unity Package Manager package or a complete Unity project.
 
-- **Unity:** copy selected files under your project's `Assets` tree. Follow their references as well as `using` directives: many classes share the global namespace. Components such as `Delayer`, `Animator`, `DialogManager` and `SoundHelper` need scene setup; Alert installs its own runtime host, and Click/Beep create theirs on first use. Preserve existing consumer `.meta` files when updating scripts: this repository ignores them and cannot supply stable Unity asset GUIDs.
+- **Unity:** copy selected files under your project's `Assets` tree. Follow their references as well as `using` directives: many classes share the global namespace. Components such as `Delayer`, `Animatem`, `DialogManager` and `SoundHelper` need scene setup; Alert installs its own runtime host, and Click/Beep create theirs on first use. Preserve existing consumer `.meta` files when updating scripts: this repository ignores them and cannot supply stable Unity asset GUIDs.
 - **ActionScript:** use `Adobe/src` as a source root, preserve package paths, and include imported helpers and any required assets. The source includes Flash APIs and some Flex dependencies; inspect the chosen utility's imports and comments rather than assuming every file has the same runtime requirements.
 - **C++:** integrate individual sources/examples with their required headers and libraries. No single build configuration covers this collection.
 
-See the [project map](PROJECT_MAP.md) for important dependencies and integration boundaries, [System alerts](Unity/General/Alert/README%20System%20Alerts.md) for Alert/Logger setup and lifecycle, [Sound helpers](Unity/General/Sound/README.md) for Click, Beep and SoundHelper, and [Language preferences](Unity/General/LanguagePreference/README.md) for iOS/tvOS and macOS Editor preference detection and native plug-in setup. Most other API documentation is in source comments; [Event and Delegate](Unity/General/Event%20and%20Delegate/) contains usage examples.
+See the [project map](PROJECT_MAP.md) for important dependencies and integration boundaries, [System alerts](Unity/General/SystemUI/README.md) for Alert/Logger setup and lifecycle, [Sound helpers](Unity/General/Sound/README.md) for configured audio and synthesized Click/Beep feedback, and [Language preferences](Unity/General/Localization/LanguagePreference/README.md) for iOS/tvOS and macOS Editor preference detection and native plug-in setup. The [Unity utilities guide](Unity/General/README.md) provides a starting point and dependency overview. Most other API documentation is in source comments; [Event and Delegate](Unity/General/Event%20and%20Delegate/) contains usage examples.
 
 ## Compatibility and verification
 
@@ -40,4 +40,4 @@ Third-party material has its own notices, including [FZip](Adobe/src/com/lowke/l
 
 ## Development and manual copies
 
-Ages of Chess is a major consumer and development source. The usual workflow is to develop utilities in its `Assets/Code/General`, manually copy/replace General here, then review the Git differences. Neither copy is permanently authoritative. Compare changes and preserve library-only files, documentation and unrelated work before any future copy; synchronization is not automatic. See the [project map](PROJECT_MAP.md) for the October 2026 update and change boundaries.
+Ages of Chess is a major consumer and development source. The usual workflow is to develop utilities in its `Assets/Code/General`, manually copy/replace General here, then review the Git differences. Neither copy is permanently authoritative. Compare changes and preserve library-only files, documentation and unrelated work before any future copy; synchronization is not automatic. See the [project map](PROJECT_MAP.md) for utility dependencies and integration boundaries.
