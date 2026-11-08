@@ -2,7 +2,7 @@
 
 ## Animatem
 
-[Animatem](Animatem/Animatem.cs) is a code-driven tween and animation utility for
+[Animatem](Animatem/README.md) is a code-driven tween and animation utility for
 Unity. Compose movement, scaling, fades and delays, with easing and velocity-based
 effects, to animate GameObjects and UI elements.
 
@@ -10,6 +10,11 @@ Attach Animatem to a scene object. Each target's [Anime](Animatem/Anime.cs) hold
 its effects; extend [AnimatemEffect](Animatem/Effects/AnimatemEffect.cs) to create
 your own. Browse the [effects](Animatem/Effects/) and
 [effect options](Animatem/AnimatemTypes.cs) to see how they fit together.
+
+Read the **[Animatem guide](Animatem/README.md)** for working examples, or explore
+**[Parabola easing](Animatem/README%20Parabola.md)**: choose how far a tween has
+travelled at a particular time, with illustrated curves and settings used in
+Ages of Chess.
 
 ## Other utilities
 
