@@ -49,7 +49,7 @@ own start, end and independently fitted curve.
 
 ## Reading the curves
 
-![Six Parabola curves: standard ease-in and ease-out, snap-back, a stronger overshoot example, highlight overshoot and spotlight anticipation. Each orange dot is the requested time/value point.](parabola-curves.svg)
+![Six Parabola curves: standard ease-in and ease-out, snap-back, slight piece-movement overshoot, highlight overshoot and spotlight anticipation. Each orange dot is the requested time/value point.](parabola-curves.svg)
 
 The horizontal axis is elapsed time as a fraction of duration. The vertical
 axis is progress through the change: 0 is the start and 1 is the destination.
@@ -57,9 +57,8 @@ The orange dot is the point passed to `GetEasing(value, time)`. Grey dashed line
 show linear motion; the shaded band shows progress between 0 and 1.
 These plots describe the first forward leg, before any reversal.
 
-The overshoot illustration uses `(0.8, 0.5)` to make the change easier to see,
-with a magnified endpoint inset showing its peak at 100.833% progress. Actual
-piece movement uses the subtler `(0.765, 0.5)` setting documented below.
+The piece-movement illustration uses `(0.78, 0.5)`; the app uses the subtler
+`(0.765, 0.5)` setting documented below.
 
 At half time, the presets make a useful starting point:
 
@@ -69,7 +68,7 @@ At half time, the presets make a useful starting point:
 | `GetEasing(0.5f, 0.5f)` | 50% done halfway | Linear. |
 | `GetEasing(0.75f, 0.5f)` / `Parabola.EaseOut` | 75% done halfway | Starts quickly and reaches the end at rest. |
 | `GetEasing(0.765f, 0.5f)` | 76.5% done halfway | Slightly stronger than EaseOut; a small overshoot before settling. |
-| `GetEasing(0.8f, 0.5f)` | 80% done halfway | Stronger overshoot; used in the illustration. |
+| `GetEasing(0.78f, 0.5f)` | 78% done halfway | Slight overshoot; used in the piece-movement illustration. |
 
 `new Parabola().Ease` also defaults to `(0.75, 0.5)`.
 `Parabola.EaseBounce` uses `(0.35, 0.7)`: it initially moves **behind the start**
