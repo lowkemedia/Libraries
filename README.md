@@ -20,11 +20,20 @@ Small, useful libraries and examples from Lowke Media, primarily Unity/C# and Ad
 
 Copy the utilities you need and their dependencies into your project, retaining copyright and attribution notices. This repository does not supply a Unity Package Manager package or a complete Unity project.
 
-- **Unity:** copy selected files under your project's `Assets` tree. Follow their references as well as `using` directives: many classes share the global namespace. Components such as `Delayer`, `Animatem`, `DialogManager` and `SoundHelper` need scene setup; Alert installs its own runtime host, and Click/Beep create theirs on first use. Preserve existing consumer `.meta` files when updating scripts: this repository ignores them and cannot supply stable Unity asset GUIDs.
+- **Unity:** copy selected files under your project's `Assets` tree. Follow their references as well as `using` directives: many classes share the global namespace. Components such as `Delayer`, `Animatem`, `DialogManager` and `SoundHelper` need scene setup; Alert installs its own runtime host, and Click, Beep and Rollover create theirs on demand. The optional `SystemSound` component supplies generated clips to configured AudioSources. Preserve existing consumer `.meta` files when updating scripts: this repository ignores them and cannot supply stable Unity asset GUIDs.
 - **ActionScript:** use `Adobe/src` as a source root, preserve package paths, and include imported helpers and any required assets. The source includes Flash APIs and some Flex dependencies; inspect the chosen utility's imports and comments rather than assuming every file has the same runtime requirements.
 - **C++:** integrate individual sources/examples with their required headers and libraries. No single build configuration covers this collection.
 
-See the [project map](PROJECT_MAP.md) for important dependencies and integration boundaries, [System alerts](Unity/General/SystemUI/README.md) for Alert/Logger setup and lifecycle, [Sound helpers](Unity/General/Sound/README.md) for configured audio and synthesized Click/Beep feedback, and [Language preferences](Unity/General/Localization/LanguagePreference/README.md) for iOS/tvOS and macOS Editor preference detection and native plug-in setup. The [Unity utilities guide](Unity/General/README.md) provides a starting point and dependency overview. Most other API documentation is in source comments; [Event and Delegate](Unity/General/Event%20and%20Delegate/) contains usage examples.
+The [Unity utilities guide](Unity/General/README.md) and [project map](PROJECT_MAP.md) provide starting points and dependency overviews. Useful guides include:
+
+- [System alerts](Unity/General/SystemUI/README.md): Alert/Logger setup and lifecycle.
+- [System sounds](Unity/General/SystemUI/SystemSound/README.md): synthesized Click, Beep and Rollover, shared clips and the AudioSource adapter.
+- [SoundHelper](Unity/General/Sound/README.md): configured audio and playback callbacks.
+- [Animatem](Unity/General/Animatem/README.md): tweens, groups, easing and animation lifetime.
+- [Localization and styling](Unity/General/Localization/Localizer/README.md): translated text, substitutions and font styles.
+- [Language preferences](Unity/General/Localization/LanguagePreference/README.md): Apple language detection and native plug-in setup.
+
+Other API documentation is in source comments; [Event and Delegate](Unity/General/Event%20and%20Delegate/) contains usage examples.
 
 ## Compatibility and verification
 
