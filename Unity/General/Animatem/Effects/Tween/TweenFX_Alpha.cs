@@ -37,7 +37,7 @@ public class TweenFX_Alpha : TweenFX
                          float duration,
                          EasingFunct easingFunct = null,
                          EffectType type = EffectType.END) : 
-    base(start, end, duration, easingFunct, type, "TweenFX_ImageAlpha") {}
+    base(start, end, duration, easingFunct, type, "TweenFX_Alpha") {}
 
     public override float Value
     {

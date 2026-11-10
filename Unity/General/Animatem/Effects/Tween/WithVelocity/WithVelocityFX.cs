@@ -49,5 +49,7 @@ public class WithVelocityFX : TweenFX
     {
         base.Initialize();
         _duration = Math.Abs(_range / _velocity);
+        // Refresh the cached end time without changing a scheduled start.
+        _endTime = _startTime + _duration;
     }
 }

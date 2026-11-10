@@ -58,7 +58,10 @@ public class Anime
             // iterate through effects
             List<AnimatemEffect> shallowCopy = new List<AnimatemEffect>(_effects);
             foreach(AnimatemEffect effect in shallowCopy) {
-                effect.Update(updatetime);
+                // Earlier callbacks may have removed or replaced this effect.
+                if (_effects.Contains(effect)) {
+                    effect.Update(updatetime);
+                }
             }
         }
     }
@@ -207,14 +210,14 @@ public class Anime
         int index = _effects.IndexOf(effect);
         if (index != -1)
         {
+            // Detach before callbacks so nested Remove/Clear cannot snap this effect again.
+            _effects.RemoveAt(index);
+
             if (snapToEnd) {
                 effect.SnapEffectToEnd();
             }
 
             effect.Cleanup();
-
-            // delete from _effects list
-            _effects.Remove(effect);
 
         } else if (giveWarning) {
             Logger.Warning("Could not remove effect \"" + effect.Name + "\" on " + _target + ".\n" +
@@ -293,7 +296,7 @@ public class Anime
 
     public bool Persist
     {
-        get { return _target; }
+        get { return _persist; }
         set { _persist = value; }
     }
 }

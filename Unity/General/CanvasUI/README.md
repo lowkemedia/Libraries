@@ -14,8 +14,8 @@ setup. They are separate from Unity UI Toolkit.
 | [PopupMenu](PopupMenu/) | Popups, dropdowns and hamburger menus, including localized controls. |
 | [SwipeDetector](SwipeDetector/) | Swipe gesture detection. |
 
-[SystemUI](../SystemUI/README.md) contains standalone alerts and synthesized Beep
-and Click feedback. [Localization](../Localization/README.md) contains the shared
+[SystemUI](../SystemUI/README.md) contains standalone alerts and synthesized Beep,
+Click and Rollover feedback. [Localization](../Localization/README.md) contains the shared
 language and translation utilities. Logger and SoundHelper remain in
 [Logger](../Logger/) and [Sound](../Sound/).
 

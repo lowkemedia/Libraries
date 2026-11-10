@@ -45,18 +45,28 @@ public sealed class Beep : MonoBehaviour
         float now = Time.realtimeSinceStartup;
         if (now - _lastBeepAt < 0.12f) { return; }
         _lastBeepAt = now;
-        if (_instance == null) {
-            // Reuse the host when the Editor has disabled scene/domain reload.
-            _instance = FindObjectOfType<Beep>();
-            if (_instance == null) {
-                _instance = new GameObject("Beep").AddComponent<Beep>();
-            }
-            DontDestroyOnLoad(_instance.gameObject);
-        }
-        _instance.PlayGeneratedBeep();
+        Instance.PlayGeneratedBeep();
     }
 
-    private void PlayGeneratedBeep()
+    // Shared generated clip; main-thread Play Mode access only. Does not play audio.
+    // The persistent host owns it. Consumers must not modify or destroy it.
+    public static AudioClip Clip => Application.isPlaying ? Instance.GetClip() : null;
+
+    private static Beep Instance {
+        get {
+            if (_instance == null) {
+                // Reuse the host when the Editor has disabled scene/domain reload.
+                _instance = FindObjectOfType<Beep>();
+                if (_instance == null) {
+                    _instance = new GameObject("Beep").AddComponent<Beep>();
+                }
+                DontDestroyOnLoad(_instance.gameObject);
+            }
+            return _instance;
+        }
+    }
+
+    private AudioClip GetClip()
     {
         if (_beepClip == null) {
             const int sampleRate = 22050;
@@ -69,6 +79,12 @@ public sealed class Beep : MonoBehaviour
             _beepClip = AudioClip.Create("Synthesized beep", samples, 1, sampleRate, false);
             _beepClip.SetData(data, 0);
         }
+        return _beepClip;
+    }
+
+    private void PlayGeneratedBeep()
+    {
+        AudioClip clip = GetClip();
         if (_beepSource == null) {
             _beepSource = gameObject.AddComponent<AudioSource>();
             _beepSource.playOnAwake = false;
@@ -76,7 +92,7 @@ public sealed class Beep : MonoBehaviour
             _beepSource.ignoreListenerPause = true;
         }
         // Use the scene's listener (including Launch's); respect global volume/mute.
-        _beepSource.PlayOneShot(_beepClip);
+        _beepSource.PlayOneShot(clip);
     }
 
     private void OnDestroy()

@@ -130,7 +130,10 @@ public class Animatem : MonoBehaviour
         List<Anime> shallowCopy = new List<Anime>(_animeList);
 
         foreach (Anime anime in shallowCopy) {
-            anime.Update(_updateTime);
+            // Earlier callbacks may have removed this Anime and created another.
+            if (_animeList.Contains(anime)) {
+                anime.Update(_updateTime);
+            }
         }
     }
 

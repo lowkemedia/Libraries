@@ -92,6 +92,23 @@ public static class Stylizer
         return localizerStyle;
     }
 
+    // Inline font references use a lowercase style name, e.g. <font="#title_text">.
+    // Resolve on every refresh so compound keys never retain a previous locale's font.
+    public static string ResolveInlineFonts(string text)
+    {
+        if (string.IsNullOrEmpty(text) || !Initialized || !text.Contains("<font=\"#")) {
+            return text;
+        }
+
+        foreach (var entry in _styles) {
+            if (!string.IsNullOrEmpty(entry.Value.font)) {
+                text = text.Replace("<font=\"" + entry.Key + "\">",
+                    "<font=\"" + entry.Value.font + "\">");
+            }
+        }
+        return text;
+    }
+
     public static void ApplyStyle(TextMeshProUGUI textField, string style, bool giveWarning = true)
     {
         string alignment = textField.alignment.ToString();

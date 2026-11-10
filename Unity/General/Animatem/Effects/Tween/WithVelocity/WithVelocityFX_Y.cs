@@ -28,11 +28,11 @@
 using UnityEngine;
 using AnimatemTypes;
 
-public class WIthVelocityFX_Y : WithVelocityFX
+public class WithVelocityFX_Y : WithVelocityFX
 {
     private Transform _trasform;
 
-    public WIthVelocityFX_Y(float start,
+    public WithVelocityFX_Y(float start,
                             float end,
                             float velocity,     // in units per second
                             EasingFunct easingFunct = null,

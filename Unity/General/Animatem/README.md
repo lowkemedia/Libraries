@@ -69,7 +69,8 @@ linear motion. Positions use `Transform.localPosition`, not screen pixels or
 `Animatem.Instance.Anime(target)` returns the existing Anime or creates one.
 `GetAnime(target)` looks it up without creating it. An empty Anime is normally
 removed on the next update; obtain it again when starting new work. Setting
-`anime.Persist = true` keeps an empty Anime registered.
+`anime.Persist = true` keeps an empty Anime registered. `Persist` defaults to
+false; reading it returns the retention flag, independently of the target.
 
 ## Available effects
 
@@ -89,9 +90,10 @@ Duration is in scaled seconds, easing defaults to linear and type defaults to
 | [WithVelocityFX_XY](Effects/Tween/WithVelocity/WithVelocityFX_XY.cs) | Calculates duration as local XY distance divided by supplied velocity, then runs X/Y tweens. Use positive velocity and nonzero travel distance. Easing shapes speed within that duration. |
 | [TweenFX](Effects/Tween/TweenFX.cs) | Stores a numeric `Value`; does not itself write a GameObject property. Useful as the base for a new property tween. |
 
-The folder also contains scalar `WithVelocityFX`, `WithVelocityFX_X` and
-`WIthVelocityFX_Y`. Their current timing limitation is recorded below; use
-explicit-duration tweens for those axes until that is addressed.
+Scalar `WithVelocityFX`, `WithVelocityFX_X` and `WithVelocityFX_Y` take
+`(start, end, velocity, easingFunct, type)` and calculate duration from distance
+and velocity. The X/Y versions accept `float.NaN` to read the current position.
+Use positive, finite velocity and nonzero travel distance.
 
 ## Running effects together
 
@@ -114,6 +116,10 @@ A group containing a 0.3-second tween and a 0.5-second `DelayFX` takes roughly
 0.5 seconds, **not 0.8 seconds**. The delay establishes a minimum total duration.
 Ages of Chess uses this for movement and spotlight animations. Completion is
 processed on animation ticks, so these are not exact wall-clock callback times.
+
+An empty END group completes during `AddEffect`, including its callback. If
+scheduled with `TimedEffect` for a future start, it completes when that time is
+reached instead.
 
 To perform a second action *after* the first, add it in the first callback:
 
@@ -141,7 +147,12 @@ Set the effect's type to choose what happens when it reaches its end:
 | `CYCLE` | Ask the effect to restart. Scalar tweens restart from their original start. |
 | `REVERSE` | Ask the effect to reverse. Scalar tweens exchange start/end and run another leg. |
 
-For scalar tweens, `Cycles = 0` (the default) leaves CYCLE/REVERSE unbounded.
+A zero-duration scalar tween finishes once, even with CYCLE/REVERSE or a repeat
+count, reporting warning `ANI06` through Logger with `showOnlyOnce: true`.
+Zero-duration END tweens retain their normal instant-movement behaviour without
+this warning.
+
+For positive-duration scalar tweens, `Cycles = 0` leaves CYCLE/REVERSE unbounded.
 A positive count is the number of **completed legs**, including the first.
 Two legs give one out-and-back movement:
 
@@ -160,9 +171,13 @@ once-only notifications.
 
 Parabola keeps its absolute control point when reversing; see
 [reuse and reversal](README%20Parabola.md#one-easing-instance-per-tween).
-The group-level Cycle/Reverse methods only reset completion flags: they do not
-restart completed END children. For a finite pulse inside a group, put REVERSE
-and the leg count on the scalar tween, as Ages of Chess does.
+Group-level Cycle/Reverse resets completion flags; it does not restart children
+that have completed and been removed. Attempting that reports warning `ANI04`
+(Cycle) or `ANI05` (Reverse), with `showOnlyOnce: true`, without changing the
+existing repetition behavior. XY wrappers keep their working cycle/reverse
+behavior because their scalar children repeat themselves. For a finite pulse
+inside a group, put REVERSE and the leg count on the scalar tween, as Ages of
+Chess does.
 
 ## Naming, replacing and stopping
 
@@ -194,7 +209,9 @@ adding the group. Removing a group also cleans up its children.
 
 The removal methods' `snapToEnd: true` option applies final values **and invokes
 callbacks**. Do not use it as silent cancellation. Remove animations before
-destroying their targets, and account for callbacks that may start new effects.
+destroying their targets. Effects are detached before their snap callbacks run,
+so callbacks can remove or clear other animations without snapping the same
+effect again. Group children use the same removal path.
 
 ## Patterns used in Ages of Chess
 
@@ -233,24 +250,6 @@ the actual curve settings behind these behaviours.
   restarts its timing immediately; it is not an automatic continuation from its
   current displayed value. For Parabola, prefer a fresh tween and easing instance
   when changing the trajectory.
-
-### Current implementation limits
-
-These details describe the supplied code, rather than promises of unsupported
-behaviour:
-
-- `Anime.Persist`'s setter controls retention, but its getter currently returns
-  the target's Unity truth value instead of the retention flag. Do not use that
-  getter to query the flag.
-- Scalar `WithVelocityFX.Initialize()` computes duration **after** the base tween
-  caches its end time from NaN. That end time is not refreshed, so normal
-  completion is unreliable. `WithVelocityFX_XY` calculates duration first and
-  constructs regular tweens; it does not use that scalar initialization path.
-- `TweenFX_Alpha` and `TweenFX_ImageAlpha` share the default effect name
-  `TweenFX_ImageAlpha`; they replace/conflict with each other on the same Anime.
-- A `MultiEffectFX` with no children never gets a completion callback from a child
-  and does not finish. Supply at least one effect. Use END groups with finite
-  children for straightforward one-time completion.
 
 ## Adding an effect
 

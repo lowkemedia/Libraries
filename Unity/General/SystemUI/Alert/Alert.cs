@@ -74,6 +74,8 @@ public sealed class Alert : MonoBehaviour
     private float _buttonReadyAt;
     private float _highlightUntil;
     private int _buttonControl;
+    private bool _buttonHovered;
+    private bool _cancelButtonHovered;
     private bool _renderErrorReported;
     private Rect _panelScreenRect;
     private Notice _panelNotice;
@@ -198,6 +200,7 @@ public sealed class Alert : MonoBehaviour
         if (!ReferenceEquals(_displayed, notice)) {
             _displayed = notice;
             _scroll = Vector2.zero;
+            _buttonHovered = _cancelButtonHovered = false;
             _highlightUntil = 0f;
             _buttonReadyAt = Time.realtimeSinceStartup + 0.2f;
             _renderErrorReported = false;
@@ -404,9 +407,11 @@ public sealed class Alert : MonoBehaviour
         GUI.EndScrollView();
         bool cancelled = false;
         if (notice.CancelButtonText != null) {
-            cancelled = DrawButton(new Rect(width - 212, height - 52, 88, 34), notice.CancelButtonText);
+            cancelled = DrawButton(new Rect(width - 212, height - 52, 88, 34),
+                notice.CancelButtonText, ref _cancelButtonHovered);
         }
-        bool accepted = DrawButton(new Rect(width - 106, height - 52, 88, 34), notice.ButtonText);
+        bool accepted = DrawButton(new Rect(width - 106, height - 52, 88, 34),
+            notice.ButtonText, ref _buttonHovered);
         if (accepted || cancelled) {
             ReleaseButtonCapture();
             Click.Play();
@@ -417,11 +422,20 @@ public sealed class Alert : MonoBehaviour
         }
     }
 
-    private bool DrawButton(Rect button, string text)
+    private bool DrawButton(Rect button, string text, ref bool hovered)
     {
         Fill(new Rect(button.x - 3, button.y - 3, button.width + 6, button.height + 6), Color.black);
         GUI.backgroundColor = new Color32(238, 238, 238, 255);
         GUI.enabled = Time.realtimeSinceStartup >= _buttonReadyAt;
+        // Repaint uses the window's local coordinates and avoids repeated IMGUI events.
+        if (Event.current.type == EventType.Repaint) {
+            // Same device rule as ClickButton, without depending on GlobalState.
+            bool inside = GUI.enabled && Application.isFocused &&
+                SystemInfo.deviceType != DeviceType.Handheld &&
+                button.Contains(Event.current.mousePosition);
+            if (inside && !hovered) { Rollover.Play(); }
+            hovered = inside;
+        }
         int previousControl = GUIUtility.hotControl;
         bool accepted = GUI.Button(button, text, _buttonStyle);
         if (GUIUtility.hotControl != 0 && GUIUtility.hotControl != previousControl) {

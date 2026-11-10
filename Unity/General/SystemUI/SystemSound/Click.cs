@@ -39,18 +39,28 @@ public sealed class Click : MonoBehaviour
     public static void Play()
     {
         if (!Application.isPlaying) { return; }
-        if (_instance == null) {
-            // Reuse the host when the Editor has disabled scene/domain reload.
-            _instance = FindObjectOfType<Click>();
-            if (_instance == null) {
-                _instance = new GameObject("Click").AddComponent<Click>();
-            }
-            DontDestroyOnLoad(_instance.gameObject);
-        }
-        _instance.PlayGeneratedClick();
+        Instance.PlayGeneratedClick();
     }
 
-    private void PlayGeneratedClick()
+    // Shared generated clip; main-thread Play Mode access only. Does not play audio.
+    // The persistent host owns it. Consumers must not modify or destroy it.
+    public static AudioClip Clip => Application.isPlaying ? Instance.GetClip() : null;
+
+    private static Click Instance {
+        get {
+            if (_instance == null) {
+                // Reuse the host when the Editor has disabled scene/domain reload.
+                _instance = FindObjectOfType<Click>();
+                if (_instance == null) {
+                    _instance = new GameObject("Click").AddComponent<Click>();
+                }
+                DontDestroyOnLoad(_instance.gameObject);
+            }
+            return _instance;
+        }
+    }
+
+    private AudioClip GetClip()
     {
         if (_clickClip == null) {
             const int sampleRate = 22050;
@@ -69,6 +79,12 @@ public sealed class Click : MonoBehaviour
             _clickClip = AudioClip.Create("Synthesized click", samples, 1, sampleRate, false);
             _clickClip.SetData(data, 0);
         }
+        return _clickClip;
+    }
+
+    private void PlayGeneratedClick()
+    {
+        AudioClip clip = GetClip();
         if (_clickSource == null) {
             _clickSource = gameObject.AddComponent<AudioSource>();
             _clickSource.playOnAwake = false;
@@ -76,7 +92,7 @@ public sealed class Click : MonoBehaviour
             _clickSource.ignoreListenerPause = true;
         }
         // Use the scene's listener (including Launch's); respect global volume/mute.
-        _clickSource.PlayOneShot(_clickClip);
+        _clickSource.PlayOneShot(clip);
     }
 
     private void OnDestroy()

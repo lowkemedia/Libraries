@@ -35,7 +35,7 @@ public class TweenFX : AnimatemEffect
     private float _end;                 // end value of tween
     protected float _range;             // range of the tween
     protected float _duration;          // duration of the tween
-    private float _endTime;             // time tween ends
+    protected float _endTime;           // time tween ends
     private EasingFunct _easingFunct;   // function used for easing
     private float _value;               // value of variable being tweened
 
@@ -101,6 +101,12 @@ public class TweenFX : AnimatemEffect
         {
             if (_value == _end)
             {
+                // Instant tweens finish once; restarting here can recurse without yielding.
+                if (_duration == 0f && (_type == EffectType.CYCLE || _type == EffectType.REVERSE)) {
+                    _type = EffectType.END;
+                    Logger.Warning("Cannot repeat a zero-duration tween. Completing once instead.",
+                        LogID.WARNING_ZERO_DURATION_REPEAT_ID, showOnlyOnce: true);
+                }
                 // Intentionally wait a cycle efore returning true, allowing 
                 // tween to show as being at end, also helps multiple effects 
                 // timed together to update cleanly.

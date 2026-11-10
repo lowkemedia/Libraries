@@ -142,7 +142,9 @@ A Parabola delegate carries a mutable Parabola object. Its first evaluation
 converts any fractional controls into absolute value/time coordinates and caches
 the fitted coefficients. It recalculates the coefficients when evaluated at
 elapsed time zero, but **does not convert the percentages again** once those
-absolute coordinates have been set.
+absolute coordinates have been set. This is intentional: the percentages define
+the initial control point, which is retained for the lifetime of that easing
+instance.
 
 Consequences for use:
 

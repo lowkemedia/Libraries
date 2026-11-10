@@ -100,7 +100,7 @@ public class LocalizedText : MonoBehaviour
                 _textField.text = Localizer.LanguageCode.ToString();
                 break;
             default:
-                _textField.text = Localizer.Value(Key, Variables, giveWarning);
+                _textField.text = Stylizer.ResolveInlineFonts(Localizer.Value(Key, Variables, giveWarning));
                 break;
         }
     }

@@ -164,7 +164,8 @@ public static class LogID
     public const string WARNING_CANT_REMOVE_EFFECT_ID = "ANI03";
     public const string WARNING_CYCLE_NOT_SUPPORTED_ID = "ANI04";
     public const string WARNING_REVERSE_NOT_SUPPORTED_ID = "ANI05";
-    public const string DEBUG_EFFECT_BEING_REPLACED_ID = "ANI06";
+    public const string WARNING_ZERO_DURATION_REPEAT_ID = "ANI06";
+    public const string DEBUG_EFFECT_BEING_REPLACED_ID = "ANI07";
 }
 ```
 

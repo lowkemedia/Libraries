@@ -81,7 +81,7 @@ exception and its stack as the inner exception. They still go directly to Unity'
 exception output once per displayed request, bypassing Logger to prevent recursive
 alerts, and never acknowledge the pending request. Ordinary caller messages keep
 their supplied IDs (or null); there is no generic replacement ID for all warnings.
-Beep and Click currently emit no diagnostics and need no ID blocks.
+Beep, Click, Rollover and SystemSound emit no diagnostics and need no ID blocks.
 
 ## Localization
 
@@ -98,13 +98,18 @@ ship in both portrait and landscape.
 - Alerts are FIFO, one visible at a time. Identical text does not merge requests or lose callbacks. Acknowledgement removes the active request before invoking its callback; stale clicks, re-entry and exceptions cannot invoke it again. The next request is presented on a subsequent update, with a short unscaled input guard against accidental double clicks.
 - Rendering uses built-in IMGUI (separate from the gameplay Canvas), with screen-safe-area positioning and scrollable long text. The panel width is two-thirds of the shorter safe-area dimension in portrait or landscape. Text, icons, spacing and buttons scale together from the 400-unit layout; sizing is recalculated on each draw for rotation and window resizing, independently of DPI and CanvasScaler settings. A transparent, topmost runtime canvas blocks normal uGUI pointer raycasts behind the alert. It needs no EventSystem for its own controls and does not alter time scale or pause unrelated polling/game logic.
 - The acknowledgement button uses a black background with white text while pressed, starting on mouse-down. Standard `GUI.Button` handling acknowledges on release inside the button; releasing outside cancels the press. Alert explicitly clears its button capture after mouse-up, including releases filtered by the modal window, so later hover cannot retain a pressed highlight.
+- Entering an enabled OK or Cancel button with the mouse plays `Rollover.Play()` once. Staying over it does not repeat the sound; leaving and returning plays it again. Each new alert resets the hover state. Like ClickButton, Alert suppresses rollover sounds on handheld devices.
 - Clicking/tapping outside the panel beeps and flashes a thicker white border with a thin black outer outline for 180 ms without dismissing the alert. The black outline extends two layout units beyond each edge, scaled with the alert, preserving the full white border and making the panel appear to grow. Layout and input bounds stay unchanged. The flash uses unscaled time, restarts on each outside press, and resets for the next alert; text and button colours stay unchanged. Alert calls the reusable `Beep.Play()` helper described below; it owns no audio objects. Press detection uses the legacy Input API (enable Input Manager or Both in the consuming project) against the last rendered panel bounds, independently of IMGUI modal event filtering. Touch takes precedence over simulated mouse events. Holding/dragging/releasing does not repeat it; a 120 ms unscaled guard prevents overlap. A new alert or screen-size change waits for fresh rendered bounds. Beep playback does not acknowledge or dismiss the alert.
 - Destroying a host is never acknowledgement. The persistent host normally survives navigation; external destruction/presentation failure must not be used to skip a required response. Rendering failures are reported directly to Unity, once per displayed request, avoiding Logger recursion. A lost host requires restoration before its pending request can be displayed; it does not automatically resume startup.
 - Direct `Alert.Show` in Edit Mode queues data but does not install a preview host. Use Play Mode to inspect presentation. This is runtime UI, not `UnityEditor.EditorUtility.DisplayDialog` or a native OS dialog.
 
 ## Reusable synthesized sounds
 
-[Beep.cs](Beep.cs) exposes `Beep.Play()` for any runtime caller,
+The helpers and adapter live in [SystemSound](SystemSound/README.md).
+Keep the AudioSource component when using the adapter; its Audio Clip can be
+cleared to None because the adapter supplies the generated clip in Play Mode.
+
+[Beep.cs](SystemSound/Beep.cs) exposes `Beep.Play()` for any runtime caller,
 including during application startup. Call it on Unity's main thread in Play Mode. Its static
 entry point lazily creates a persistent component that owns and cleans up its
 AudioSource and generated AudioClip; no prefab, sound asset or SoundHelper setup
@@ -120,23 +125,50 @@ when domain reload is disabled. Unexpected exceptions propagate to the caller;
 Beep does not catch them or permanently disable playback. This is synthesized
 Unity audio, not the operating system's alert sound.
 
-[Click.cs](Click.cs) similarly exposes `Click.Play()`. It generates
+[Click.cs](SystemSound/Click.cs) similarly exposes `Click.Play()`. It generates
 a short, roughly 15 ms decaying noise snap with no pitched tone and caches its own persistent host, AudioSource
 and AudioClip on first use. It has the same main-thread, Play Mode and listener
 requirements as Beep, respects volume/mute and ignores AudioListener pause.
 Each call plays a click, without Beep's repeat guard. Alert calls it only when a
 button release is accepted, before acknowledgement and any scene navigation;
-a cancelled press or hover makes no click. Both helpers clean up their generated
-audio objects when their hosts are destroyed, and neither depends on sound assets
-or SoundHelper.
+a cancelled press or hover makes no click.
+
+[Rollover.cs](SystemSound/Rollover.cs) exposes `Rollover.Play()`: a 35 ms silent
+lead-in followed by a roughly 7.5 ms noise click. Its first millisecond fades in
+smoothly to soften the attack, retaining the short noise sound and decay.
+Call it when a pointer enters a control, not every frame while hovering. It has
+the same lifetime and listener behaviour as Click, with no repeat guard. Through
+SoundHelper's shared AudioSource, repeated Play calls restart the silent lead-in
+during rapid pointer sweeps. Direct Rollover.Play uses PlayOneShot and does not
+cancel earlier calls. Alert uses it for button entry on non-handheld devices;
+the helper itself does not impose a device restriction.
+
+Each helper cleans up its generated audio objects when its host is destroyed.
+They do not depend on sound assets, SoundHelper, Logger or each other.
+
+### Using the clips with other audio code
+
+`Beep.Clip`, `Click.Clip` and `Rollover.Clip` expose ordinary Unity AudioClips.
+Access them on Unity's main thread in Play Mode; outside Play Mode they return
+null. First access creates the persistent host and clip, without playing audio
+or creating a playback AudioSource. Later accesses return the same clip. The
+host owns it: consumers must not modify or destroy the shared clip.
+
+[SystemSound.cs](SystemSound/SystemSound.cs) is an optional Inspector adapter: attach it to
+an AudioSource object and choose Click, Rollover or Beep. On enable in Play Mode
+it assigns the generated clip to that source. It does not start playback or
+change the source's other settings. Include all three sound helpers when copying
+the adapter. See [SoundHelper setup](../Sound/README.md#assigning-system-sounds)
+for using these sources with existing controls and completion callbacks.
 
 ## Reuse and application responsibilities
 
 Copy this SystemUI folder together with [Logger.cs](../Logger/Logger.cs) and
 [CallbackTypes.cs](<../Event and Delegate/CallbackTypes.cs>). Alert uses IMGUI and
-uGUI; Beep and Click use Unity audio. Keep Alert and Logger in the same assembly
-for the internal logging entry point.
-Beep and Click can also be copied individually without Alert or Logger.
+uGUI; Beep, Click and Rollover use Unity audio. Keep Alert and Logger in the same assembly
+for the internal logging entry point. Alert requires all three sound helpers;
+SoundHelper and SystemSound are not required for its feedback.
+Beep, Click and Rollover can also be copied individually without Alert or Logger.
 
 The host owns startup, navigation and save recovery. For a blocking startup
 notice, wait for the acknowledgement callback before continuing. The alert does

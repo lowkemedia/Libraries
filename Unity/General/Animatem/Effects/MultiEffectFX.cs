@@ -58,7 +58,7 @@ public class MultiEffectFX : AnimatemEffect
     private void ClearFlags()
     {
         _doneFlags = new bool[_effects.Count];
-        _done = false;
+        _done = _effects.Count == 0; // No children to wait for.
     }
 
     // effect finished
@@ -84,7 +84,8 @@ public class MultiEffectFX : AnimatemEffect
     protected override void SnapToEnd()
     {
         foreach (AnimatemEffect effect in _effects) {
-            effect.SnapEffectToEnd();
+            // Use the same detach-before-callback path for group children.
+            effect.Remove(true, false);
         }
         _done = true;
     }
@@ -98,11 +99,29 @@ public class MultiEffectFX : AnimatemEffect
 
     public override void Cycle()
     {
+        WarnIfCompletedChildRemoved(true);
         ClearFlags();
     }
 
     public override void Reverse()
     {
+        WarnIfCompletedChildRemoved(false);
         ClearFlags();
     }
+
+    private void WarnIfCompletedChildRemoved(bool cycle)
+    {
+        if (_doneFlags == null) { return; }
+        for (int i = 0; i < _effects.Count; ++i) {
+            AnimatemEffect effect = _effects[i];
+            if (_doneFlags[i] && _anime.GetEffect(effect.Name, false) != effect) {
+                Logger.Warning("Cannot " + (cycle ? "cycle" : "reverse") +
+                    " the whole group: a completed child has already been removed.",
+                    cycle ? LogID.WARNING_CYCLE_NOT_SUPPORTED_ID : LogID.WARNING_REVERSE_NOT_SUPPORTED_ID,
+                    showOnlyOnce: true);
+                return;
+            }
+        }
+    }
+
 }

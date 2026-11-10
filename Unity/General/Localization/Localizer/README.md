@@ -212,6 +212,23 @@ and material settings remain configured in TextMesh Pro.
 `.languageType` and `.languageCode` as display shortcuts. These are component
 shortcuts, not ordinary dictionary keys handled specially by `Localizer.Value`.
 
+### Inline font styles
+
+For a heading inside body text, use a style reference in the compound expression:
+
+```csharp
+textField.AddKey("<font=\"#title\">+.greeting+</font>+.introduction", style: "#body");
+```
+
+`LocalizedText` resolves the translated expression, then `Stylizer.ResolveInlineFonts`
+replaces `<font="#title">` with the current style's `font` name on every refresh.
+Use the lowercase style name and double-quoted tag syntax shown above. This
+selects only the font; size and other layout tags remain explicit. Load the style
+file before binding the text. Literal font names and sprite tags are unaffected.
+Keep translated words in the keys and locale-specific font choices in Styles.
+`Localizer.Value` itself returns text without resolving these presentation tags;
+non-component consumers can call `Stylizer.ResolveInlineFonts` when needed.
+
 ## Creating your own font catalogue
 
 [Examples/SetOfFonts.cs.txt](Examples/SetOfFonts.cs.txt) is a complete, minimal
