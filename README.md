@@ -26,6 +26,7 @@ Copy the utilities you need and their dependencies into your project, retaining 
 
 The [Unity utilities guide](Unity/General/README.md) and [project map](PROJECT_MAP.md) provide starting points and dependency overviews. Useful guides include:
 
+- [Logger](Unity/General/Logger/README.md): practical debugging with severity filtering, searchable diagnostic IDs, once-only messages, stack traces and Print tracing. Optional alert presentation makes diagnostics visible on devices without a debugger; test-context labels identify the scenario producing a message.
 - [System alerts](Unity/General/SystemUI/README.md): Alert/Logger setup and lifecycle.
 - [System sounds](Unity/General/SystemUI/SystemSound/README.md): synthesized Click, Beep and Rollover, shared clips and the AudioSource adapter.
 - [SoundHelper](Unity/General/Sound/README.md): configured audio and playback callbacks.
