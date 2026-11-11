@@ -30,7 +30,7 @@ The [Unity utilities guide](Unity/General/README.md) and [project map](PROJECT_M
 - [System sounds](Unity/General/SystemUI/SystemSound/README.md): synthesized Click, Beep and Rollover, shared clips and the AudioSource adapter.
 - [SoundHelper](Unity/General/Sound/README.md): configured audio and playback callbacks.
 - [Animatem](Unity/General/Animatem/README.md): tweens, groups, easing and animation lifetime.
-- [Localization and styling](Unity/General/Localization/Localizer/README.md): translated text, substitutions and font styles.
+- [Localizer](Unity/General/Localization/Localizer/README.md): JSON translations with [recursive keys](Unity/General/Localization/Localizer/README.md#recursive-keys-compose-translations), so a sentence can reuse translated names and phrases, including keys with their own arguments. Bind expressions to TextMesh Pro labels with `AddKey` to refresh their text when the language changes; styles provide language-specific fonts, sizes and spacing.
 - [Language preferences](Unity/General/Localization/LanguagePreference/README.md): Apple language detection and native plug-in setup.
 
 Other API documentation is in source comments; [Event and Delegate](Unity/General/Event%20and%20Delegate/) contains usage examples.
