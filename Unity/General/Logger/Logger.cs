@@ -27,10 +27,9 @@
 
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 
-public class Logger : MonoBehaviour
+public static class Logger
 {
     public enum LogLevel
     {
@@ -46,8 +45,8 @@ public class Logger : MonoBehaviour
     // Diagnostic IDs owned by Logger.
     public const string DETAIL_LEVEL_CHANGED_ID = "LOG00";
 
-    // Shared with log assertions; includes the closing bracket and trailing space.
-    public const string TEST_EXPECTED_FORMAT = "[TEST EXPECTED: {0}] ";
+    // Shared with log assertions; indent the label with a non-breaking space.
+    public const string TEST_EXPECTED_FORMAT = "\u00A0[TEST EXPECTED: {0}] ";
 
     // One shared label for a sequential diagnostic scenario, not a test assertion.
     // Callers must clear it after all related work (including worker logs) completes.
@@ -70,7 +69,7 @@ public class Logger : MonoBehaviour
 
     private static LogLevel _logLevel = LogLevel.PRINT; // default logging level is LOG_LEVEL_PRINT
 
-    // map of "once only" reports that have been logged so far
+    // Once-only cache keyed by exact caller-supplied message text, not diagnostic ID.
     private static Dictionary<string, bool> _onceOnlyErrors = new Dictionary<string, bool>();
 
     // For explicit Alert logging only: prevents duplicate automatic alerts.
@@ -88,17 +87,18 @@ public class Logger : MonoBehaviour
                            bool showStackTrace = false,
                            bool allowAlert = true)
     {
-        // some errors are displayed only once, otherwise they get too spammy
+        // Check the original message before formatting: IDs, severity, test labels and
+        // appended stack traces do not affect once-only matching.
         if (showOnlyOnce)
         {
             _onceOnlyErrors.TryGetValue(message, out bool flag);
 
             if (flag) {
-                // this error has already been displayed
+                // This message has already been remembered, even if it was filtered out.
                 return;
             }
 
-            // flag this error as having been displayed
+            // Remember before level filtering; a hidden message still counts as seen.
             _onceOnlyErrors[message] = true;
         }
 
@@ -187,7 +187,8 @@ public class Logger : MonoBehaviour
     // static helper methods
 
 
-    // Replaces the label; null/empty clears it. The Print announcement is unlabelled
+    // One shared label, not a stack: replacing/clearing it never restores an outer label.
+    // Null/empty clears it. The Print announcement is unlabelled
     // and obeys the normal threshold. This does not suppress errors or automatic alerts.
     public static void TestExpected(string testExpected)
     {

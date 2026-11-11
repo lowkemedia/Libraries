@@ -51,7 +51,7 @@ framework to adopt or a Unity Package Manager package.
 
 | Utility | What it provides | Setup and dependencies |
 | --- | --- | --- |
-| [Logger](#logger) | Severity, diagnostic IDs, filtering, optional stack traces and once-only messages. | Copy Logger.cs; no scene component or Alert required. |
+| [Logger](Logger/README.md) | Severity, diagnostic IDs, filtering, optional stack traces and once-only messages. | Copy Logger.cs; no scene component or Alert required. |
 | [SystemUI](SystemUI/README.md) | Runtime alerts before normal UI is ready; synthesized Beep and Click. | Alert creates its host. Include Logger and CallbackTypes; sounds need an AudioListener. |
 | [Coroutine](Coroutine/) | Delayed callbacks, fades and movement. | Attach the selected component; include its helper dependencies. |
 | [CanvasUI](CanvasUI/README.md) | Buttons, dialogs, popups, swiping and paging. | Supply Canvas/EventSystem, UI objects, styles and any required TextMesh Pro assets. |
@@ -99,6 +99,9 @@ only by the utilities that use them. Retain each file's copyright, permission an
 
 ## Logger
 
+Read the **[Logger guide](Logger/README.md)** for its practical debugging purpose,
+levels, once-only behaviour, searchable IDs, device alerts and old-school Print tracing.
+
 Utilities that call `Logger` require [Logger.cs](Logger/Logger.cs). This includes
 Animatem, coroutine helpers, JsonReader, Localizer/Stylizer, parts of CanvasUI,
 SoundHelper, VideoController, Utils/UtilsString and SystemUI's Alert. Use the
@@ -134,7 +137,8 @@ for the connection and its startup behaviour.
 
 `Logger.TestExpected(name)` labels a sequential test or diagnostic scenario and
 announces `TESTING-> name` through Print. Subsequent messages retain their severity,
-ID and body, followed by `[TEST EXPECTED: name]` before any explicit stack trace.
+ID and body, followed on the next line by `[TEST EXPECTED: name]`, indented with
+one non-breaking space, before any explicit stack trace.
 The announcement obeys the Print threshold; automatic alerts include the label.
 
 Call `Logger.ClearTestExpected()` on completion, including failure paths. For a
