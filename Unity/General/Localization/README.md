@@ -6,6 +6,10 @@ Start with its [setup](Localizer/README.md#setup-and-resource-files) and
 [recursive-key examples](Localizer/README.md#recursive-keys-compose-translations),
 then add the device-language helpers below if your application needs them.
 
+[Inline font styles](Localizer/README.md#inline-font-styles) work within recursively
+composed text too. Keep style references in the expression; the normal language
+refresh resolves them through the current Styles file after composing the text.
+
 These utilities have separate responsibilities:
 
 - [LanguagePreference](LanguagePreference/README.md) reads ordered device language tags.

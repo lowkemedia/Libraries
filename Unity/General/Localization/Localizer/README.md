@@ -289,6 +289,31 @@ For a heading inside body text, use a style reference in the compound expression
 textField.AddKey("<font=\"#title\">+.greeting+</font>+.introduction", style: "#body");
 ```
 
+Inline font styles also work inside recursively composed keys and arguments.
+For example, using `.notification` and `.greeting` from the recursive-key examples:
+
+```csharp
+messageLabel.AddKey(".notification", new[] {
+    "09:30",
+    "<font=\"#title\">+.greeting|.visitor+</font>"
+}, style: "#body");
+```
+
+The outer key resolves its argument, that argument resolves `.greeting` and
+`.visitor`, and the resulting inline style reference is resolved using the
+current language's Styles file. The body retains `#body`; the nested greeting
+uses the font from `#title`. Style references survive any depth of key composition
+because font resolution happens after the recursive text lookup is complete.
+This is not style inheritance: a style's `font` field must name a font asset,
+not another style.
+
+Keep the style reference in the expression stored by `AddKey`. Resolving its
+font name while constructing the expression would freeze the initial language's
+font: later switches could translate a heading but leave it in the wrong typeface.
+On each language change, the existing localized component resolves both the
+recursive text and the inline font references again. No screen-specific listener
+or font names embedded in translated wording are needed.
+
 `LocalizedText` resolves the translated expression, then `Stylizer.ResolveInlineFonts`
 replaces `<font="#title">` with the current style's `font` name on every refresh.
 Use the lowercase style name and double-quoted tag syntax shown above. This
