@@ -1,12 +1,23 @@
 # Localizer
 
-Localizer is Russell Lowke’s reusable Unity localization utility, distributed
-through [Lowke Media Libraries](https://github.com/lowkemedia/Libraries).
-Applications supply their own strings, assets and configuration. Keep reusable
-usage instructions here, alongside the implementation; application content,
-branding policies and release records belong in the consuming project.
-Preserve the copyright and MIT licence notices in the source files when copying
-the utility.
+Localizer is a Unity localization utility for composing translated text and
+keeping TextMesh Pro labels in sync with the selected language. Store sentences,
+reusable names and phrases in JSON; bind keys to labels; choose fonts and styles
+per language.
+
+**Recursive keys are a central feature.** Pass another key as an argument and
+Localizer translates it before inserting it into the surrounding sentence. You
+can also pass a key with its own arguments. This keeps reusable text reusable,
+without assembling translated sentences by hand or adding a second resolver.
+
+[Setup](#setup-and-resource-files) · [Recursive keys](#recursive-keys-compose-translations) ·
+[Language switching](#loading-and-changing-languages) ·
+[Text and styles](#textmesh-pro-components-and-styles) ·
+[Font catalogue](#creating-your-own-font-catalogue) · [Dependencies](#reusing-this-folder)
+
+Distributed through [Lowke Media Libraries](https://github.com/lowkemedia/Libraries).
+Supply your own translations and fonts, and retain the source copyright and MIT
+licence notices when copying the utility.
 
 ## Setup and resource files
 
@@ -41,8 +52,8 @@ Each string file contains a `keys` array. For example, the English file:
     "keys": [
         { "key": ".greeting", "value": "Hello, {0}!" },
         { "key": ".visitor", "value": "visitor" },
-        { "key": ".piece.rook", "value": "Rook" },
-        { "key": ".piece.label", "value": "{0} <sprite=\"White {1}\" index=0>" }
+        { "key": ".item.star", "value": "Star" },
+        { "key": ".item.label", "value": "{0} <sprite=\"Badge {1}\" index=0>" }
     ]
 }
 ```
@@ -54,8 +65,8 @@ The corresponding French file:
     "keys": [
         { "key": ".greeting", "original": "Hello, {0}!", "value": "Bonjour, {0} !" },
         { "key": ".visitor", "original": "visitor", "value": "visiteur" },
-        { "key": ".piece.rook", "original": "Rook", "value": "Tour" },
-        { "key": ".piece.label", "original": "{0} <sprite=\"White {1}\" index=0>", "value": "{0} <sprite=\"White {1}\" index=0>" }
+        { "key": ".item.star", "original": "Star", "value": "Étoile" },
+        { "key": ".item.label", "original": "{0} <sprite=\"Badge {1}\" index=0>", "value": "{0} <sprite=\"Badge {1}\" index=0>" }
     ]
 }
 ```
@@ -67,7 +78,10 @@ See [LocalizerValue.cs](KeyValues/LocalizerValue.cs) for the fields the runtime
 actually reads. Additional JSON metadata is ignored by Unity’s deserializer;
 the exporter does not preserve arbitrary extra fields.
 
-## Keys, literals and recursive arguments
+## Recursive keys: compose translations
+
+A reusable name should not need to be translated again in every label that uses
+it. With the JSON above, `.visitor` can appear by itself or inside `.greeting`:
 
 Keys start with `.` and are looked up after conversion to lowercase. Use
 consistent lowercase key names. A non-key argument is literal text:
@@ -85,10 +99,49 @@ argument dictionary, flag or automatic translation of English literal words.
 Use one argument source per call: pipe-delimited arguments or the `variables`
 array. If both are supplied, the array wins and the call can issue a warning.
 
+### A key with its own arguments
+
+Add this entry to each language's `keys` array (translate the surrounding wording
+as needed):
+
+```json
+{ "key": ".notification", "value": "[{0}] {1}" }
+```
+
+Then pass a complete expression as an argument:
+
+```csharp
+Localizer.Value(".notification", new[] { "09:30", ".greeting|.visitor" });
+// English: [09:30] Hello, visitor!
+// French:  [09:30] Bonjour, visiteur !
+```
+
+The outer lookup resolves `.greeting|.visitor`; that lookup resolves `.visitor`;
+then each result is inserted into its parent's template. No pre-translation call
+is needed. The same expression works on a live UI label:
+
+```csharp
+messageLabel.AddKey(".notification", new[] { "09:30", ".greeting|.visitor" });
+```
+
+Unlike assigning a previously resolved string to `messageLabel.text`, this keeps
+the keys and arguments available so the entire label can be translated again on
+a language change. To change the timestamp or other application data, call
+`AddKey` again with the new arguments; it reuses the existing component.
+
+Use the array overload at the outer level when an argument contains its own
+`|` parameters. `.notification|09:30|.greeting|.visitor` is **not** equivalent:
+its pipes describe three sibling arguments, not a nested expression. The same
+principle applies when passing a compound `+` expression as one argument.
+
+### Let translators own the sentence
+
 Placeholders can repeat or change order within a translation. Substitution uses
 literal string replacement, not `string.Format`: format specifiers, plural rules
 and grammatical inflection are not provided. Use separate keys for forms or
-phrases that need different wording. Supply all required arguments; missing
+phrases that need different wording. Reuse a word only where its grammatical
+form fits; a standalone menu label is not necessarily the right form inside
+every sentence. Supply all required arguments; missing
 arguments leave their placeholders in the result.
 
 A `value` is a template, not another expression to evaluate automatically.
@@ -101,9 +154,9 @@ Substitution applies everywhere in a value, including rich-text tags. If a
 display word is localized but also names an asset, use separate arguments:
 
 ```csharp
-Localizer.Value(".piece.label|.piece.rook|Rook");
-// English: Rook <sprite="White Rook" index=0>
-// French:  Tour <sprite="White Rook" index=0>
+Localizer.Value(".item.label|.item.star|Star");
+// English: Star <sprite="Badge Star" index=0>
+// French:  Étoile <sprite="Badge Star" index=0>
 ```
 
 Here `{0}` is the translated word and `{1}` is the literal asset identifier.
@@ -118,9 +171,9 @@ those are responsibilities of the text renderer and the application’s assets.
 expressions, but no automatic space next to a literal segment:
 
 ```csharp
-Localizer.Value(".visitor+.piece.rook");  // visitor Rook
-Localizer.Value(".visitor+<br>+.piece.rook"); // visitor<br>Rook
-Localizer.Value(".greeting|.visitor+<br>+.piece.rook");
+Localizer.Value(".visitor+.item.star");  // visitor Star
+Localizer.Value(".visitor+<br>+.item.star"); // visitor<br>Star
+Localizer.Value(".greeting|.visitor+<br>+.item.star");
 ```
 
 Put explicit punctuation, spaces or markup in literal segments where required.
@@ -133,6 +186,22 @@ Keep complicated prose in JSON values and use simple arguments. Literal `+` or
 `|` characters inside a loaded value are not reparsed as expression delimiters.
 
 ## Loading and changing languages
+
+A typical setup registers common UI text once, then loads larger content files
+only when needed:
+
+```csharp
+Localizer.AddFile("Menus");
+Localizer.AddFile("Dialogs");
+Localizer.LoadFile("ChapterOne"); // current content, not a permanent registration
+
+// Registered files and bound labels refresh automatically:
+Localizer.LanguageCode = LocalizerTypes.LanguageCode.fr_FR;
+```
+
+Supply each file in every supported language. If the chapter remains visible,
+reload its file in a language-change listener **before** its labels refresh.
+For a simpler application, register the chapter with `AddFile` too.
 
 For device-language matching before initialization, see the sibling
 [StartupLanguage guide](../README.md#choosing-a-startup-language). Pass the host's

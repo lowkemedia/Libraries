@@ -1,5 +1,11 @@
 # Localization
 
+**[Localizer](Localizer/README.md)** composes translated text from recursive keys
+and binds it to TextMesh Pro labels that refresh when the language changes.
+Start with its [setup](Localizer/README.md#setup-and-resource-files) and
+[recursive-key examples](Localizer/README.md#recursive-keys-compose-translations),
+then add the device-language helpers below if your application needs them.
+
 These utilities have separate responsibilities:
 
 - [LanguagePreference](LanguagePreference/README.md) reads ordered device language tags.

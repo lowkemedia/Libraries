@@ -13,6 +13,13 @@ localization, styles or sound exist. It is separate from
 severity icon, wrapped text and explicit buttons: **OK** (or a supplied label),
 with **Cancel** on the left for questions.
 
+Alert prefers installed **Verdana** for messages only. Titles, buttons and icon
+symbols retain Unity's default IMGUI font, without requesting a specific font
+family. If Verdana is unavailable, messages use the same default; WebGL also uses
+the default because browser builds cannot access OS fonts. The Verdana font is
+created once on first display and released with the alert host.
+No font asset is bundled. Check text wrapping and button labels on target devices.
+
 ## Calling the alert
 
 ```csharp

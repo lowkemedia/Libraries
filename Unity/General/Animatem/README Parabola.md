@@ -83,19 +83,19 @@ acceleration and at most one turning point; it cannot produce an arbitrary
 multi-stage ease-in/ease-out profile. The [classic easing functions](Effects/Tween/Easing/Classic/)
 remain available for other shapes.
 
-## Settings used in Ages of Chess
+## Example settings
 
-These values come from the application's animation call sites. They are useful
-tuning examples, not requirements imposed by Animatem.
+Use these as starting points when tuning movement and UI feedback, adjusting
+them to suit your own content.
 
 | Use | `GetEasing(value, time)` | Timing and effect |
 | --- | --- | --- |
-| Piece movement — `PieceView.MovePiece` | `(0.765, 0.5)` | Independent X/Y delegates; duration grows with board distance. A parallel 0.5-second delay sets a minimum group duration. |
-| Image snap-back — `PieceView.SnapImageTo` | `(0.65, 0.35)` | 65% done at 35% time; duration is supplied by the caller. |
-| Piece outline — `PieceView` outline setup | `(0.75, 0.22)` | Image alpha, 0.5 seconds per reversing leg. |
-| Spotlight — `PieceView.SpotlightPiece` | `(0.22, 0.75)` | Scale to 1.5 times the starting scale over 0.333 seconds, with a finite number of reversing legs. |
-| Capture — `PieceView.CapturePiece` | `(0.765, 0.5)` | Image alpha from 1 to 0 over 0.8 seconds; remove the piece in the callback. |
-| Sittuyin curtain — `SetupSittuyin.SetupFinished` | `(0.8, 0.5)` | Fade graphics from 1 to 0 over 2 seconds, then continue. |
+| Piece movement | `(0.765, 0.5)` | Independent X/Y delegates; duration grows with board distance. A parallel 0.5-second delay sets a minimum group duration. |
+| Image snap-back | `(0.65, 0.35)` | 65% done at 35% time; duration is supplied by the caller. |
+| Piece outline | `(0.75, 0.22)` | Image alpha, 0.5 seconds per reversing leg. |
+| Spotlight | `(0.22, 0.75)` | Scale to 1.5 times the starting scale over 0.333 seconds, with a finite number of reversing legs. |
+| Capture | `(0.765, 0.5)` | Image alpha from 1 to 0 over 0.8 seconds; remove the piece in the callback. |
+| Curtain | `(0.8, 0.5)` | Fade graphics from 1 to 0 over 2 seconds, then continue. |
 
 The control points are inside the 0–1 square, but that does **not** guarantee the
 whole curve stays inside it. Calculated from Parabola's equation for the initial

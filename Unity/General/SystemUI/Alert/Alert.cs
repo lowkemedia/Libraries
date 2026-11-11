@@ -67,6 +67,7 @@ public sealed class Alert : MonoBehaviour
     private Vector2 _scroll;
     private Canvas _inputBlocker;
     private Texture2D _circle;
+    private Font _verdanaFont;
     private GUIStyle _bodyStyle;
     private GUIStyle _titleStyle;
     private GUIStyle _iconStyle;
@@ -241,14 +242,24 @@ public sealed class Alert : MonoBehaviour
     private void EnsureStyles()
     {
         if (_bodyStyle != null) { return; }
+        // Prefer installed Verdana for messages; null keeps IMGUI's default fallback.
+#if !UNITY_WEBGL || UNITY_EDITOR
+        foreach (string fontName in Font.GetOSInstalledFontNames()) {
+            if (string.Equals(fontName, "Verdana", System.StringComparison.OrdinalIgnoreCase)) {
+                _verdanaFont = Font.CreateDynamicFontFromOSFont(fontName, 14);
+                break;
+            }
+        }
+#endif
         _bodyStyle = new GUIStyle {
-            fontSize = 14, wordWrap = true, richText = false,
+            font = _verdanaFont, fontSize = 14, wordWrap = true, richText = false,
             padding = new RectOffset(), alignment = TextAnchor.UpperLeft
         };
         _bodyStyle.normal.textColor = Color.black;
-        _titleStyle = new GUIStyle(_bodyStyle) { fontSize = 16, fontStyle = FontStyle.Bold };
+        // Keep the original IMGUI font for titles, icon symbols and buttons.
+        _titleStyle = new GUIStyle(_bodyStyle) { font = null, fontSize = 16, fontStyle = FontStyle.Bold };
         _iconStyle = new GUIStyle(_bodyStyle) {
-            fontSize = 34, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter
+            font = null, fontSize = 34, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter
         };
         _buttonStyle = new GUIStyle { fontSize = 14, richText = false, alignment = TextAnchor.MiddleCenter };
         // Explicit colours avoid inheriting the Editor's dark theme or a game's GUISkin styling.
@@ -476,6 +487,7 @@ public sealed class Alert : MonoBehaviour
     {
         if (_instance == this) { _instance = null; }
         if (_circle != null) { Destroy(_circle); }
+        if (_verdanaFont != null) { Destroy(_verdanaFont); }
         // Destruction is not acknowledgement. Never run a recovery continuation here.
     }
 }

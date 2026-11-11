@@ -7,8 +7,7 @@ the next action. Effects can run together, repeat, reverse and report completion
 A distinctive part of Animatem is **[Parabola easing](README%20Parabola.md)**,
 Russell Lowke's curve-fitting easing function. Instead of choosing only a preset,
 say **“be 76.5% of the way there at half time.”** Adjusting that point gives fine
-control over acceleration, anticipation and overshoot. Ages of Chess uses it
-throughout its piece animations.
+control over acceleration, anticipation and overshoot.
 
 [Quick example](#a-first-animation) · [Effects](#available-effects) ·
 [Combining effects](#running-effects-together) · [Repeating](#repeating-and-reversing) ·
@@ -114,7 +113,7 @@ anime.AddEffect(new MultiEffectFX(new List<AnimatemEffect> {
 
 A group containing a 0.3-second tween and a 0.5-second `DelayFX` takes roughly
 0.5 seconds, **not 0.8 seconds**. The delay establishes a minimum total duration.
-Ages of Chess uses this for movement and spotlight animations. Completion is
+Use this for movement and spotlight animations. Completion is
 processed on animation ticks, so these are not exact wall-clock callback times.
 
 An empty END group completes during `AddEffect`, including its callback. If
@@ -176,8 +175,7 @@ that have completed and been removed. Attempting that reports warning `ANI04`
 (Cycle) or `ANI05` (Reverse), with `showOnlyOnce: true`, without changing the
 existing repetition behavior. XY wrappers keep their working cycle/reverse
 behavior because their scalar children repeat themselves. For a finite pulse
-inside a group, put REVERSE and the leg count on the scalar tween, as Ages of
-Chess does.
+inside a group, put REVERSE and the leg count on the scalar tween.
 
 ## Naming, replacing and stopping
 
@@ -213,24 +211,23 @@ destroying their targets. Effects are detached before their snap callbacks run,
 so callbacks can remove or clear other animations without snapping the same
 effect again. Group children use the same removal path.
 
-## Patterns used in Ages of Chess
+## Practical animation patterns
 
-These examples were checked against the application's call sites. The app is
-not required to use the library.
+Combine the effects above to build common interactions:
 
-| Application method | Pattern |
+| Interaction | Pattern |
 | --- | --- |
-| `PieceView.MovePiece` | XY movement with two fresh Parabola delegates; group with a 0.5-second delay for a minimum move duration. |
-| `PieceView.SnapImageTo` | Replace the current XY tween to move the piece image back into position. |
-| `PieceView.SpotlightPiece` | Reversing scale tween, a finite leg count and a parallel delay; restore visual state in the group callback. |
-| `PieceView.CapturePiece` | Fade an Image, then remove the piece in the callback. |
-| `PieceView.ScaleImageForDrag` / `PieceDrop` | Group scale and Y movement for lift/drop feedback. |
-| `LegalMoveView` | Reversing linear Image-alpha tween for a repeating highlight. |
-| `SetupSittuyin.SetupFinished` | Fade a curtain's graphics before destroying it and continuing the game. |
-| `TimelineGraphic` | X-position tween using `Sine.EaseOut`. |
+| Move an object | XY movement with two fresh Parabola delegates; group with a 0.5-second delay for a minimum move duration. |
+| Snap an image back | Replace the current XY tween to move the piece image back into position. |
+| Spotlight an object | Reversing scale tween, a finite leg count and a parallel delay; restore visual state in the group callback. |
+| Remove with a fade | Fade an Image, then remove the piece in the callback. |
+| Drag and drop | Group scale and Y movement for lift/drop feedback. |
+| Pulse a highlight | Reversing linear Image-alpha tween for a repeating highlight. |
+| Dismiss a curtain | Fade a curtain's graphics before destroying it and continuing the game. |
+| Slide a graphic | X-position tween using `Sine.EaseOut`. |
 
-The [Parabola guide](README%20Parabola.md#settings-used-in-ages-of-chess) records
-the actual curve settings behind these behaviours.
+The [Parabola guide](README%20Parabola.md#example-settings) records
+curve settings for movement, fades and spotlight effects.
 
 ## Integration details
 

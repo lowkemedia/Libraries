@@ -13,8 +13,33 @@ your own. Browse the [effects](Animatem/Effects/) and
 
 Read the **[Animatem guide](Animatem/README.md)** for working examples, or explore
 **[Parabola easing](Animatem/README%20Parabola.md)**: choose how far a tween has
-travelled at a particular time, with illustrated curves and settings used in
-Ages of Chess.
+travelled at a particular time, with illustrated curves and practical settings.
+
+## Localizer
+
+[Localizer](Localization/Localizer/README.md) brings JSON translations, reusable
+text and language-specific TextMesh Pro styles together. Its standout feature is
+**recursive keys**: an argument can itself be a translation key, so a sentence
+can reuse localized names and phrases without manually translating each part.
+
+```csharp
+// .open = "Open {0}"; .settings = "Settings" in your translation file.
+Localizer.Value(".open|.settings"); // Open Settings
+
+// Bind the expression to a TextMeshProUGUI label:
+label.AddKey(".open|.settings");
+Localizer.LanguageCode = LocalizerTypes.LanguageCode.fr_FR;
+// With French translations loaded, the bound label becomes "Ouvrir les paramètres".
+```
+
+The sentence belongs to the translator: each language can position its arguments
+where they belong. Bound labels refresh when the language changes; styles can
+select suitable fonts, sizes and spacing for each language.
+
+Read the **[Localizer guide](Localization/Localizer/README.md)** for setup and
+working examples, especially **[recursive keys](Localization/Localizer/README.md#recursive-keys-compose-translations)**.
+The optional [startup-language helpers](Localization/README.md) match device
+preferences to the languages your application actually supplies.
 
 ## Other utilities
 
