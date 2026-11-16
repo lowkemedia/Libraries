@@ -31,10 +31,12 @@ The [Unity utilities guide](Unity/General/README.md) and [project map](PROJECT_M
 - [System sounds](Unity/General/SystemUI/SystemSound/README.md): synthesized Click, Beep and Rollover, shared clips and the AudioSource adapter.
 - [SoundHelper](Unity/General/Sound/README.md): configured audio and playback callbacks.
 - [Animatem](Unity/General/Animatem/README.md): tweens, groups, easing and animation lifetime.
-- [Localizer](Unity/General/Localization/Localizer/README.md): JSON translations with [recursive keys](Unity/General/Localization/Localizer/README.md#recursive-keys-compose-translations), so a sentence can reuse translated names and phrases, including keys with their own arguments. Bind expressions to TextMesh Pro labels with `AddKey` to refresh their text when the language changes; styles provide language-specific fonts, sizes and spacing.
+- [Localizer](Unity/General/Localization/Localizer/README.md): JSON translations with [recursive keys](Unity/General/Localization/Localizer/README.md#recursive-keys-compose-translations), so a sentence can reuse translated names and phrases, including keys with their own arguments. `AddKey` binds text and styles to TextMesh Pro labels that refresh when the language changes, with optional [orphan prevention](Unity/General/Localization/Localizer/README.md#preventing-single-word-orphan-lines) for single-word lines.
 - [Language preferences](Unity/General/Localization/LanguagePreference/README.md): Apple language detection and native plug-in setup.
+- [CanvasUI](Unity/General/CanvasUI/README.md): buttons, content-sized dialogs, popup menus, paging and generated text backings.
+- [General helpers](Unity/General/Utils/README.md): object, array, color, string and numeric utilities, including invariant number and time formatting.
 
-Other API documentation is in source comments; [Event and Delegate](Unity/General/Event%20and%20Delegate/) contains usage examples.
+Further guides cover [coroutines](Unity/General/Coroutine/README.md), [JSON resources](Unity/General/Json/README.md), [image composition](Unity/General/ImageComposite/README.md), [video controls](Unity/General/Video/README.md) and [events and delegates](Unity/General/Event%20and%20Delegate/README.md). Source comments provide additional API details.
 
 ## Compatibility and verification
 
@@ -50,4 +52,4 @@ Third-party material has its own notices, including [FZip](Adobe/src/com/lowke/l
 
 ## Development and manual copies
 
-Ages of Chess is a major consumer and development source. The usual workflow is to develop utilities in its `Assets/Code/General`, manually copy/replace General here, then review the Git differences. Neither copy is permanently authoritative. Compare changes and preserve library-only files, documentation and unrelated work before any future copy; synchronization is not automatic. See the [project map](PROJECT_MAP.md) for utility dependencies and integration boundaries.
+Utilities can be developed in a consuming project and copied here manually for review. Compare both copies before replacing files, preserving library-only documentation and unrelated work; neither copy is permanently authoritative. Synchronization is not automatic. See the [project map](PROJECT_MAP.md) for utility dependencies and integration boundaries.
