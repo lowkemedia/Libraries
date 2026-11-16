@@ -113,6 +113,8 @@ public class DialogManager : MonoBehaviour
         GameObject canvasGameObject = canvas.gameObject;
         GameObject dialogParent = canvasGameObject.MakeUiObject();
         dialogParent.CopyRect(gameObject);
+        // Keep dialogs and blockers in this layer, below any higher sibling controls.
+        dialogParent.transform.SetParent(transform, worldPositionStays: true);
         dialogParent.name = "Open Dialog";
         ClickBlocker.MakeClickBlocker(dialogParent, OnBlockerClicked);
 
@@ -135,8 +137,7 @@ public class DialogManager : MonoBehaviour
         _stack.Pop();
     }
 
-    public void OnBlockerClicked(PointerEventData pointerEventData)
-    {
+    public void OnBlockerClicked(PointerEventData pointerEventData) {
         SoundHelper.PlayBeep();
     }
 }

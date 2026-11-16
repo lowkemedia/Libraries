@@ -40,7 +40,7 @@ public class WithVelocityFX : TweenFX
                           EasingFunct easingFunct = null,
                           EffectType type = EffectType.END,
                           string effectName = "WithVelocityFX") : 
-    base(start, end, float.NaN, easingFunct, type, effectName)
+        base(start, end, float.NaN, easingFunct, type, effectName)
     {
         _velocity = velocity;
     }

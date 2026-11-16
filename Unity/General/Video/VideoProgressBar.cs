@@ -1,5 +1,5 @@
 ﻿//
-//  VideoController - Video package
+//  VideoProgressBar - Video package
 //  Russell Lowke, June 15th 2020
 //
 //  Copyright (c) 2020 Lowke Media
@@ -37,8 +37,7 @@ public class VideoProgressBar : MonoBehaviour, IDragHandler, IPointerDownHandler
 
     private Image _progress;
     
-    private void Awake()
-    {
+    private void Awake() {
         _progress = GetComponent<Image>();
     }
 
@@ -49,13 +48,11 @@ public class VideoProgressBar : MonoBehaviour, IDragHandler, IPointerDownHandler
 		}
     }
 
-    public void OnDrag(PointerEventData eventData)
-    {
+    public void OnDrag(PointerEventData eventData) {
         TrySkip(eventData);
     }
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
+    public void OnPointerDown(PointerEventData eventData) {
         TrySkip(eventData);
     }
 
@@ -63,14 +60,13 @@ public class VideoProgressBar : MonoBehaviour, IDragHandler, IPointerDownHandler
     {
 		if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
 			_progress.rectTransform, eventData.position, null, out Vector2 localPoint)) {
-			float pct = Mathf.InverseLerp(_progress.rectTransform.rect.xMin, _progress.rectTransform.rect.xMax, localPoint.x);
-			SkipToPercent(pct);
+			float progress = Mathf.InverseLerp(_progress.rectTransform.rect.xMin, _progress.rectTransform.rect.xMax, localPoint.x);
+			SeekToProgress(progress);
 		}
 	}
 
-    private void SkipToPercent(float pct)
-    {
-        var frame = videoPlayer.frameCount * pct;
+    private void SeekToProgress(float progress) {
+        var frame = videoPlayer.frameCount * progress;
         videoPlayer.frame = (long)frame;
     }
 }

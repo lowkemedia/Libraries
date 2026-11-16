@@ -32,7 +32,7 @@ using UnityEngine.UI;
 using CallbackTypes;
 
 [System.Serializable]
-public class ClickButtonEvent : UnityEvent<ClickButton> { }
+public class ClickButtonEvent : UnityEvent<ClickButton> {}
 
 [RequireComponent(typeof(Image))]
 public class ClickButton : MonoBehaviour,
@@ -99,8 +99,7 @@ public class ClickButton : MonoBehaviour,
     public bool Interactable { get; set; } = true;
 
     // called by Unity on toggle
-    private void OnEnable()
-    {
+    private void OnEnable() {
         Interactable = true;
         UpdateButton();
     }
@@ -128,7 +127,7 @@ public class ClickButton : MonoBehaviour,
 
     protected virtual void Start()
     {
-        if (SoundHelper.IsAvalable) {
+        if (SoundHelper.IsAvailable) {
             // get default sound
             if (clickSound == default && useDefaultSound) {
                 clickSound = SoundHelper.Click;

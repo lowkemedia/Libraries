@@ -53,6 +53,19 @@ public class LocalizedText : MonoBehaviour
     private bool _listenerAdded;
     private bool _giveWarning = true;
 
+    public bool PreventOrphans { get; set; }
+    // NaN keeps orphan prevention unlimited; otherwise use a fraction of usable field width.
+    public float MaxOrphanPairWidthRatio { get; set; } = 0.35f;
+    private string _localizedText;
+    private bool _orphanCheckPending;
+    private float _orphanCheckWidth;
+
+    // Keep orphan prevention enabled separately; this only removes its pair-width limit.
+    public void RemoveOrphanPairWidthLimit() {
+        MaxOrphanPairWidthRatio = float.NaN;
+        _orphanCheckPending = true;
+    }
+
     public void SetKey(string key,
                        string[] variables = default,
                        string style = default,
@@ -78,8 +91,8 @@ public class LocalizedText : MonoBehaviour
     public void UpdateKey(bool giveWarning = true)
     {
         if (_textField == default) {
-            // _textField has been deleted, but garbage collection
-            //  has not called OnDestroy() yet.
+            // The text field is missing or destroyed; remove the language-change listener
+            //  through the same cleanup used by OnDestroy().
             OnDestroy();
             return;
         }
@@ -103,6 +116,20 @@ public class LocalizedText : MonoBehaviour
                 _textField.text = Stylizer.ResolveInlineFonts(Localizer.Value(Key, Variables, giveWarning));
                 break;
         }
+        _localizedText = _textField.text;
+        _orphanCheckPending = true;
+    }
+
+    private void LateUpdate()
+    {
+        if (!PreventOrphans || _localizedText == null) { return; }
+
+        float width = TextField.rectTransform.rect.width;
+        if (!_orphanCheckPending && Mathf.Approximately(width, _orphanCheckWidth)) { return; }
+        _orphanCheckPending = false;
+        _orphanCheckWidth = width;
+        // Reflow from the resolved source, outside TMP's graphic rebuild loop.
+        TextOrphanPrevention.Apply(TextField, _localizedText, MaxOrphanPairWidthRatio);
     }
 
     private void OnDestroy() {

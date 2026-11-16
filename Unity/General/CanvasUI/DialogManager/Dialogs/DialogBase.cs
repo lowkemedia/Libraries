@@ -33,30 +33,25 @@ public abstract class DialogBase : MonoBehaviour
 
     public bool DialogIsSetup { get; private set; }
 
-    virtual public void Initialize(DialogManager dialogManager)
-    {
+    virtual public void Initialize(DialogManager dialogManager) {
         _dialogManager = dialogManager;
         this.gameObject.SetActive(false);
     }
 
-    virtual public void SetupDialog()
-    {
+    virtual public void SetupDialog() {
         // declare that dialog has been setup
         DialogIsSetup = true;
     }
 
-    public void ShowDialog()
-    {
+    public void ShowDialog() {
         _dialogManager.ShowDialog(this);
     }
 
-    public void HideDialog()
-    {
+    public void HideDialog() {
         _dialogManager.HideDialog(this);
     }
 
-    public void DialogShown()
-    {
+    public void DialogShown() {
         // shown dialogs need to be setup before being shown again.
         DialogIsSetup = false;
     }

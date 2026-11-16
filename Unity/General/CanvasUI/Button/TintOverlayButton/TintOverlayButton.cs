@@ -30,7 +30,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class TintOverlayButton : ClickButton, IPointerClickHandler
-
 {
     public Sprite tintImage;
 
@@ -78,8 +77,7 @@ public class TintOverlayButton : ClickButton, IPointerClickHandler
         }
     }
 
-    public void OnBeginDrag(PointerEventData pointerEventData)
-    {
+    public void OnBeginDrag(PointerEventData pointerEventData) {
         _dragging = true;
     }
 

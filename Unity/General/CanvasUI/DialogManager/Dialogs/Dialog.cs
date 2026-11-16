@@ -39,8 +39,13 @@ public class Dialog : DialogBase
     public TextButton okButton;
 
     private Callback _firstBtnCallback;
-    private Callback _sencondBtnCallback;
+    private Callback _secondBtnCallback;
     private float _defaultHeight;
+    private float _minimumHeight;
+    private float _pendingHeight;
+    private bool _resizePending;
+
+    public float messageButtonGap = 32;
 
     // TODO: Bold style default button.
     // TODO: Red style caution button 
@@ -52,29 +57,33 @@ public class Dialog : DialogBase
     {
         base.Initialize(dialogManager);
 
-        okButton.onClickEvent.AddListener(OnClickFirst);
-        firstButton.onClickEvent.AddListener(OnClickFirst);
-        secondButton.onClickEvent.AddListener(OnClickSecond);
+        okButton.OnClickEvent.AddListener(OnClickFirst);
+        firstButton.OnClickEvent.AddListener(OnClickFirst);
+        secondButton.OnClickEvent.AddListener(OnClickSecond);
         _defaultHeight = this.GetHeight();
+        _minimumHeight = _defaultHeight;
+        message.OnPreRenderText += MeasureRequiredDialogHeight;
     }
 
     public void SetupDialog(string titleKey, string messageKey,
                              string firstButtonKey, Callback firstBtnCallback, AudioSource firstBtnSound,
-                             string secondButtonKey, Callback sencondBtnCallback = default, AudioSource secondButton = default)
-
+                             string secondButtonKey, Callback secondBtnCallback = default, AudioSource secondButton = default)
     {
-        // restore default size
+        // Restore the minimum size for each new message.
+        _resizePending = false;
+        _minimumHeight = _defaultHeight;
         gameObject.SetSize(this.GetWidth(), _defaultHeight);
 
-        title.AddKey(titleKey, null, DialogManager.TitleStyle);
-        message.AddKey(messageKey, null, DialogManager.MessageStyle);
+        title.AddKey(titleKey, DialogManager.TitleStyle);
+        message.AddKey(messageKey, DialogManager.MessageStyle, preventOrphans: true)
+            .RemoveOrphanPairWidthLimit();
 
         _firstBtnCallback = firstBtnCallback;
         if (firstBtnSound == default) {
             firstBtnSound = SoundHelper.Click;
         }
 
-        _sencondBtnCallback = sencondBtnCallback;
+        _secondBtnCallback = secondBtnCallback;
         if (secondButton == default) {
             secondButton = SoundHelper.Click;
         }
@@ -83,15 +92,15 @@ public class Dialog : DialogBase
             firstButton.GetGameObject().SetActive(false);
             this.secondButton.GetGameObject().SetActive(false);
             okButton.GetGameObject().SetActive(true);
-            okButton.textField.AddKey(firstButtonKey, null, DialogManager.ButtonStyle);
+            okButton.textField.AddKey(firstButtonKey, DialogManager.ButtonStyle);
             okButton.ClickButton.clickSound = firstBtnSound;
         } else {
             okButton.GetGameObject().SetActive(false);
             firstButton.GetGameObject().SetActive(true);
-            firstButton.textField.AddKey(firstButtonKey, null, DialogManager.ButtonStyle);
+            firstButton.textField.AddKey(firstButtonKey, DialogManager.ButtonStyle);
             firstButton.ClickButton.clickSound = firstBtnSound;
             this.secondButton.GetGameObject().SetActive(true);
-            this.secondButton.textField.AddKey(secondButtonKey, null, DialogManager.ButtonStyle);
+            this.secondButton.textField.AddKey(secondButtonKey, DialogManager.ButtonStyle);
             this.secondButton.ClickButton.clickSound = secondButton;
         }
 
@@ -99,19 +108,58 @@ public class Dialog : DialogBase
     }
 
     public void EnlargeDialog(float extraHeight) {
-        gameObject.SetSize(this.GetWidth(), _defaultHeight + extraHeight);
+        _minimumHeight = _defaultHeight + extraHeight;
+        gameObject.SetSize(this.GetWidth(), Mathf.Max(this.GetHeight(), _minimumHeight));
     }
 
-    public void OnClickFirst(ClickButton button)
+    private void OnDestroy() {
+        message.OnPreRenderText -= MeasureRequiredDialogHeight;
+    }
+
+    private void MeasureRequiredDialogHeight(TMP_TextInfo textInfo)
     {
+        if (textInfo.characterCount == 0) { return; }
+
+        RectTransform dialogRect = (RectTransform)transform;
+        // Measure the rendered text, including wrapping and sprites, after TMP lays it out.
+        float messageBottom = dialogRect.InverseTransformPoint(
+            message.rectTransform.TransformPoint(new Vector3(0, message.textBounds.min.y, 0))).y;
+        float buttonTop = okButton.gameObject.activeSelf ? GetButtonTop(okButton) :
+            Mathf.Max(GetButtonTop(firstButton), GetButtonTop(secondButton));
+        float requiredHeight = dialogRect.rect.height + buttonTop + messageButtonGap - messageBottom;
+        _pendingHeight = Mathf.Ceil(requiredHeight);
+        _resizePending = true;
+    }
+
+    private void LateUpdate()
+    {
+        if (!_resizePending) { return; }
+        _resizePending = false;
+
+        // TMP's callback runs inside a graphic rebuild. Resize outside that loop.
+        RectTransform dialogRect = (RectTransform)transform;
+        float height = Mathf.Max(_minimumHeight, _pendingHeight);
+        if (!Mathf.Approximately(dialogRect.rect.height, height)) {
+            // The message stays top-anchored; the buttons stay bottom-anchored.
+            dialogRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+        }
+    }
+
+    private float GetButtonTop(TextButton button)
+    {
+        RectTransform buttonRect = (RectTransform)button.transform;
+        return transform.InverseTransformPoint(
+            buttonRect.TransformPoint(new Vector3(0, buttonRect.rect.yMax, 0))).y;
+    }
+
+    public void OnClickFirst(ClickButton button) {
         HideDialog();
         _firstBtnCallback?.Invoke();
     }
 
-    public void OnClickSecond(ClickButton button)
-    {
+    public void OnClickSecond(ClickButton button) {
         HideDialog();
-        _sencondBtnCallback?.Invoke();
+        _secondBtnCallback?.Invoke();
     }
 
     //
@@ -152,7 +200,6 @@ public class Dialog : DialogBase
 
     private static void Enlarge(float extraHeight)
     {
-        // TODO: Shoud be finding depth of text block and adjusting appropriately
         DialogManager dialogManager = DialogManager.Instance;
         Dialog dialog = dialogManager.GetDialog("Dialog") as Dialog;
         dialog.EnlargeDialog(extraHeight);
@@ -160,13 +207,13 @@ public class Dialog : DialogBase
 
     private static void ShowDialog(string titleKey, string messageKey,
                            string firstButtonKey = ".ok", Callback firstBtnCallback = default, AudioSource firstBtnSound = default,
-                           string secondButtonKey = default, Callback sencondBtnCallback = default, AudioSource secondButton = default)
+                           string secondButtonKey = default, Callback secondBtnCallback = default, AudioSource secondButton = default)
     {
         DialogManager dialogManager = DialogManager.Instance;
         Dialog dialog = dialogManager.GetDialog("Dialog") as Dialog;
         dialog.SetupDialog(titleKey, messageKey,
             firstButtonKey, firstBtnCallback, firstBtnSound,
-            secondButtonKey, sencondBtnCallback, secondButton);
+            secondButtonKey, secondBtnCallback, secondButton);
         dialog.ShowDialog();
     }
 }

@@ -34,7 +34,8 @@ Localizer.Initialize(selection.Language, clearFiles: true);
 
 Preferences are considered in device order. For each preference, an exact
 supported locale wins before looking for a supported version of the same core
-language. With the example list, `en-US` selects US English, `en-AU` and `en`
+language. A tag beginning with a supported regional tag followed by another
+subtag (for example `en-US-u-ca-gregory`) also counts as exact. With the example list, `en-US` selects US English, `en-AU` and `en`
 select UK English, and `fr-CH` and `fr` select French. Reversing the two English
 entries makes generic English select US English while an exact `en-GB` still
 selects UK English. Unsupported preferences are skipped so a later supported

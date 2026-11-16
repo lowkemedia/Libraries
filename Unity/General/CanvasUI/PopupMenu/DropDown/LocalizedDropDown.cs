@@ -46,7 +46,7 @@ public class LocalizedDropDown : DropDown
 	}
 
 	protected override string SelectedText {
-		set { popupTextButton.textField.AddKey(value, _variables, _style, _giveWarning); }
+		set { popupTextButton.textField.AddKey(value, _style, _variables, giveWarning: _giveWarning); }
 	}
 
 	public void LabelKey(string key,
@@ -54,13 +54,13 @@ public class LocalizedDropDown : DropDown
 						 string style = default,
 						 bool giveWarning = true)
 	{
-		popupLabel.AddKey(key, variables, style, giveWarning);
+		popupLabel.AddKey(key, style, variables, giveWarning: giveWarning);
 	}
 
 	protected override TextButton MakeTextButton(TextButton templateButton, string menuItemKey)
 	{
 		TextButton textButton = _gameObjectMenu.MakeTextButton(templateButton, menuItemKey);
-		textButton.textField.AddKey(menuItemKey, _variables, _style, _giveWarning);
+		textButton.textField.AddKey(menuItemKey, _style, _variables, giveWarning: _giveWarning);
 		return textButton;
 	}
 }

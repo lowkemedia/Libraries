@@ -31,7 +31,7 @@ public static class NoEasing
     public static float EaseNone(float time,
                                  float begin,
                                  float range,
-                                 float duration) 
+                                 float duration)
     {
         return range*time/duration + begin;
     }

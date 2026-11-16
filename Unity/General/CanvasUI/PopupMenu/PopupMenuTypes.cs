@@ -31,12 +31,12 @@ using UnityEngine.Events;
 namespace PopupMenuTypes
 {
 	[Serializable]
-	public class PopupMenuEvent : UnityEvent<PopupMenuEventArgs> { }
+	public class PopupMenuEvent : UnityEvent<PopupMenuEventArgs> {}
 	public class PopupMenuEventArgs
 	{
-		public Popup Popup;
-		public string MenuItem;
-		public int Index;
+		public Popup Popup { get; set; }
+		public string MenuItem { get; set; }
+		public int Index { get; set; }
 
 		public PopupMenuEventArgs(Popup popup, string menuItem, int index)
 		{

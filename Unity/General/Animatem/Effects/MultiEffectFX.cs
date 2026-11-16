@@ -37,7 +37,7 @@ public class MultiEffectFX : AnimatemEffect
     public MultiEffectFX(List<AnimatemEffect> effects,
                          string name = "MultiEffectFX",
                          EffectType type = EffectType.END) :
-    base(name, type)
+        base(name, type)
     {
         _effects = effects;
     }
@@ -48,15 +48,13 @@ public class MultiEffectFX : AnimatemEffect
 
         // add each effect to the _anime
         int counter = 0;
-        foreach (AnimatemEffect effect in _effects)
-        {
+        foreach (AnimatemEffect effect in _effects) {
             int index = counter++;
             _anime.TimedEffect(effect, _startTime, delegate { EffectDone(index); }, _name + "/" + effect.Name);
         }
     }
 
-    private void ClearFlags()
-    {
+    private void ClearFlags() {
         _doneFlags = new bool[_effects.Count];
         _done = _effects.Count == 0; // No children to wait for.
     }
@@ -76,8 +74,7 @@ public class MultiEffectFX : AnimatemEffect
         _done = true;
     }
 
-    protected override bool Update()
-    {
+    protected override bool Update() {
         return _done;
     }
 
@@ -97,14 +94,12 @@ public class MultiEffectFX : AnimatemEffect
         }
     }
 
-    public override void Cycle()
-    {
+    public override void Cycle() {
         WarnIfCompletedChildRemoved(true);
         ClearFlags();
     }
 
-    public override void Reverse()
-    {
+    public override void Reverse() {
         WarnIfCompletedChildRemoved(false);
         ClearFlags();
     }

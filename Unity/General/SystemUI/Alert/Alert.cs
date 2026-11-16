@@ -28,7 +28,8 @@ using UnityEngine.UI;
 
 public sealed class Alert : MonoBehaviour
 {
-    public enum Icon { None, Info, Question, Warning, Error }
+    public enum Icon
+    { None, Info, Question, Warning, Error }
 
     public const string NO_ICON = "";
     public const string INFO_ICON = "i";
@@ -38,13 +39,13 @@ public sealed class Alert : MonoBehaviour
 
     private sealed class Notice
     {
-        public readonly string Message;
-        public readonly string Title;
-        public readonly string ButtonText;
-        public readonly Icon Icon;
-        public readonly Callback OnAcknowledged;
-        public readonly string CancelButtonText;
-        public readonly Callback OnCancel;
+        public string Message { get; }
+        public string Title { get; }
+        public string ButtonText { get; }
+        public Icon Icon { get; }
+        public Callback OnAcknowledged { get; }
+        public string CancelButtonText { get; }
+        public Callback OnCancel { get; }
 
         public Notice(string message, string title, Icon icon, Callback onAcknowledged, string buttonText,
                       string cancelButtonText = null, Callback onCancel = null)
@@ -171,8 +172,7 @@ public sealed class Alert : MonoBehaviour
         }
     }
 
-    private static void Acknowledge(Notice notice)
-    {
+    private static void Acknowledge(Notice notice) {
         Complete(notice, false);
     }
 
@@ -182,14 +182,14 @@ public sealed class Alert : MonoBehaviour
         Complete(notice, true);
     }
 
-    private static void Complete(Notice notice, bool cancelled)
+    private static void Complete(Notice notice, bool canceled)
     {
         lock (_queueLock) {
             if (notice == null || !ReferenceEquals(_current, notice)) { return; }
             // Clear before invoking user code: double clicks, re-entry and exceptions cannot repeat it.
             _current = null;
         }
-        Callback callback = cancelled ? notice.OnCancel : notice.OnAcknowledged;
+        Callback callback = canceled ? notice.OnCancel : notice.OnAcknowledged;
         callback?.Invoke();
     }
 
@@ -262,7 +262,7 @@ public sealed class Alert : MonoBehaviour
             font = null, fontSize = 34, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter
         };
         _buttonStyle = new GUIStyle { fontSize = 14, richText = false, alignment = TextAnchor.MiddleCenter };
-        // Explicit colours avoid inheriting the Editor's dark theme or a game's GUISkin styling.
+        // Explicit colors avoid inheriting the Editor's dark theme or a game's GUISkin styling.
         foreach (var state in new[] { _buttonStyle.normal, _buttonStyle.hover, _buttonStyle.active,
                                       _buttonStyle.focused }) {
             state.background = Texture2D.whiteTexture;
@@ -341,13 +341,10 @@ public sealed class Alert : MonoBehaviour
             // ModalWindow can filter releases outside its bounds. Let the button handle
             // an inside release first, then clear only the capture owned by our button.
             if (releaseButton) { ReleaseButtonCapture(); }
-        }
-        catch (ExitGUIException) { throw; }
-        catch (System.Exception error) {
+        } catch (ExitGUIException) { throw; } catch (System.Exception error) {
             // Never route a presentation failure back through Logger or acknowledge it implicitly.
             ReportRenderFailure(error);
-        }
-        finally {
+        } finally {
             GUI.matrix = previousMatrix;
             GUI.color = previousColor;
             GUI.backgroundColor = previousBackground;
@@ -416,20 +413,19 @@ public sealed class Alert : MonoBehaviour
         _scroll = GUI.BeginScrollView(viewport, _scroll, content);
         GUI.Label(new Rect(0, 0, content.width, messageHeight), notice.Message, _bodyStyle);
         GUI.EndScrollView();
-        bool cancelled = false;
+        bool canceled = false;
         if (notice.CancelButtonText != null) {
-            cancelled = DrawButton(new Rect(width - 212, height - 52, 88, 34),
+            canceled = DrawButton(new Rect(width - 212, height - 52, 88, 34),
                 notice.CancelButtonText, ref _cancelButtonHovered);
         }
         bool accepted = DrawButton(new Rect(width - 106, height - 52, 88, 34),
             notice.ButtonText, ref _buttonHovered);
-        if (accepted || cancelled) {
+        if (accepted || canceled) {
             ReleaseButtonCapture();
             Click.Play();
             // Blocker is disabled before callback-driven scene navigation, never after it.
             if (_inputBlocker != null) { _inputBlocker.gameObject.SetActive(false); }
-            if (cancelled) { Cancel(notice); }
-            else { Acknowledge(notice); }
+            if (canceled) { Cancel(notice); } else { Acknowledge(notice); }
         }
     }
 

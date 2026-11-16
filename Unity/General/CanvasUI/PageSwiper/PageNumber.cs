@@ -42,21 +42,18 @@ public class PageNumber : MonoBehaviour
 		}
 	}
 
-	// Update is called once per frame
-	public void Start()
-	{
+	// Listen for page changes and display the current page number.
+	public void Start() {
 		PageSwiper.onPageChange.AddListener(OnPageChange);
 		UpdatePageNumber();
 	}
 
-	private void OnPageChange(int pageIndex)
-	{
+	private void OnPageChange(int pageIndex) {
 		UpdatePageNumber();
 	}
 
-	private void UpdatePageNumber()
-	{
+	private void UpdatePageNumber() {
 		// TODO: Pass in stylesheet properties etc
-		pageNumText.AddKey((PageSwiper.PageIndex + 1) + " +.of+ " + PageSwiper.TotalPages, null, style);
+		pageNumText.AddKey((PageSwiper.PageIndex + 1) + " +.of+ " + PageSwiper.TotalPages, style);
 	}
 }

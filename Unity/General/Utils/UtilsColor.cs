@@ -31,8 +31,10 @@ using UnityEngine;
 public static class UtilsColor
 {
     //
+    // Native equivalent: ColorUtility.TryParseHtmlString(colorString, out Color color).
+    // This wrapper returns black for null/empty input.
     // Convert a color string to Color
-    //  e.g. Utils.ConvertColor("#00000066");
+    //  e.g. UtilsColor.ConvertColor("#00000066");
     //  use black cover, last two values are alpha
     public static Color ConvertColor(string colorString)
     {
@@ -43,32 +45,25 @@ public static class UtilsColor
         return returnColor;
     }
 
-	/*
-	// Convert a 0x000000 colorHex uint into RGB percentiles
-	// 
-	// @param colorHex Color being converted to RGB
-	// @return Returns an object with red green blue percentage values
-	///
-	public static Object colorHexToRGB(uint colorHex)
-	{
-		float r = ((colorHex & 0xFF0000) >> 16)/255;
-		float g = ((colorHex & 0xFF00) >> 8)/255;
-		float b = (colorHex & 0xFF)/255;
+    // Native alternative for hex strings: ColorUtility.TryParseHtmlString("#CC8844", out Color color).
+    // Color32 also converts byte channels to Color. This method unpacks numeric 0xRRGGBB.
+    // Returns normalized channels with alpha 1; bits above the lowest 24 are ignored.
+    public static Color ColorHexToRGB(uint colorHex)
+    {
+        float r = ((colorHex & 0xFF0000) >> 16) / 255f;
+        float g = ((colorHex & 0xFF00) >> 8) / 255f;
+        float b = (colorHex & 0xFF) / 255f;
+        return new Color(r, g, b, 1);
+    }
 
-		return { r:r, g:g, b:b };
-	}
-	*/
-		
-		
-	/*
-	// Convert RGB percentiles to a 0x000000 colorHex
-	// 
-	public uint RGBtoColorHex(float r, float g, float b)
-	{
-		double red = Math.Round(r*255);
-		double green = Math.Round(g*255);
-		double blue = Math.Round(b*255);
-		return (red << 16) | (green << 8) | blue;
-	}
-	*/
+    // Native alternative for hex strings: ColorUtility.ToHtmlStringRGB(new Color(r, g, b)).
+    // Packs normalized channels into numeric 0xRRGGBB (no alpha).
+    // Clamps finite channels to [0, 1], then rounds to the nearest byte, with ties to even.
+    public static uint RGBToColorHex(float r, float g, float b)
+    {
+        uint red = (uint)Math.Round(Mathf.Clamp01(r) * 255);
+        uint green = (uint)Math.Round(Mathf.Clamp01(g) * 255);
+        uint blue = (uint)Math.Round(Mathf.Clamp01(b) * 255);
+        return (red << 16) | (green << 8) | blue;
+    }
 }

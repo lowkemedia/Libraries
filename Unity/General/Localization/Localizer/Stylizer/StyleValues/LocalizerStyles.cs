@@ -30,10 +30,10 @@ using UnityEngine;
 [System.Serializable]
 public class LocalizerStyles
 {
+    // JsonUtility uses these public field names as JSON keys.
     public LocalizerStyle[] styles;
 
-    public static LocalizerStyles CreateFromJSON(string jsonString)
-    {
+    public static LocalizerStyles CreateFromJSON(string jsonString) {
         return JsonUtility.FromJson<LocalizerStyles>(jsonString);
     }
 }

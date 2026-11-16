@@ -37,6 +37,9 @@ public class TextButtonStyle : ScriptableObject
     public string selectedColor;
     public string disabledColor;
 
+    [Tooltip("Label movement while pressed, in UI units. Positive X moves right; negative Y moves down.")]
+    public Vector2 pressedOffset;
+
     // TODO: deal with outline color and similar
 
 }

@@ -32,8 +32,7 @@ public class DelegateExample : MonoBehaviour
 {
     private Callback _callback;
 
-    private void Awake()
-    {
+    private void Awake() {
         AddCallback();
     }
 
@@ -72,18 +71,16 @@ public class DelegateExample : MonoBehaviour
     }
     */
 
-    private void OnMyCallback()
-    {
+    private void OnMyCallback() {
         Logger.Print(">> Got MyCallback()");
     }
 
-    private void OnMyCallbackInt(int value)
-    {
+    private void OnMyCallbackInt(int value) {
         Logger.Print(">> Got MyCallbackInt(" + value + ")");
     }
 
-    /* Destroy is called when instance is destroyed
-    public void Destroy()               // must be public
+    /* OnDestroy is called when the instance is destroyed
+    private void OnDestroy()
     {
     }
     */

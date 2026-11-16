@@ -36,7 +36,7 @@ using UnityEngine.EventSystems;
 
 public class Popup : MonoBehaviour
 {
-	// TODO: device version needs to behave differenetly from desktop
+	// TODO: device version needs to behave differently from desktop
 	public delegate void PopupMenuCallback(string menuItem, int index);
 
 	public Sprite popupBgSprite;
@@ -114,7 +114,7 @@ public class Popup : MonoBehaviour
 	}
 
 	protected virtual void UpdatePopupPosition()
-    {
+	{
 		// move popup according to location of selected item
 		float yPos = -_selectedIndex * (popupTextButton.GetHeight() + padding);
 		_gameObjectMenu.SetY(yPos);
@@ -124,9 +124,8 @@ public class Popup : MonoBehaviour
 		set { popupTextButton.textField.text = value; }
 	}
 
-	public virtual void Start()
-	{
-		popupTextButton.onClickEvent.AddListener(OnClickButton);
+	public virtual void Start() {
+		popupTextButton.OnClickEvent.AddListener(OnClickButton);
 	}
 
 	public void Initialize(string[] menuItems,
@@ -164,11 +163,11 @@ public class Popup : MonoBehaviour
 		GameObject gameObjectBackground = _gameObjectMenu.MakeUiObject("Background");
 		Image backgroundImage = gameObjectBackground.AddComponent<Image>();
 		backgroundImage.sprite = popupBgSprite;
-		float btnWidth = popupTextButton.GetWidth() + padding * 2;
-		float btnHeight = popupTextButton.GetHeight() + padding * 2;
-		float bgHeight = (btnHeight - padding) * _menuItems.Length + padding;
-		backgroundImage.SetSize(btnWidth, bgHeight);
-		backgroundImage.SetY(backgroundImage.GetHeight() / 2 - btnHeight / 2);
+		float buttonWidth = popupTextButton.GetWidth() + padding * 2;
+		float buttonHeight = popupTextButton.GetHeight() + padding * 2;
+		float backgroundHeight = (buttonHeight - padding) * _menuItems.Length + padding;
+		backgroundImage.SetSize(buttonWidth, backgroundHeight);
+		backgroundImage.SetY(backgroundImage.GetHeight() / 2 - buttonHeight / 2);
 
 		// set selected, this will move the background
 		Selected = selected;
@@ -203,8 +202,7 @@ public class Popup : MonoBehaviour
 		return popupGameObject;
 	}
 
-	protected virtual TextButton MakeTextButton(TextButton templateButton, string menuItem)
-	{
+	protected virtual TextButton MakeTextButton(TextButton templateButton, string menuItem) {
 		TextButton textButton = _gameObjectMenu.MakeTextButton(templateButton, menuItem);
 		return textButton;
 	}
@@ -222,8 +220,7 @@ public class Popup : MonoBehaviour
 		popupTextButton.gameObject.SetActive(false);
 	}
 
-	protected virtual void HidePopup()
-	{
+	protected virtual void HidePopup() {
 		_popupGameObject.SetActive(false);
 		popupTextButton.gameObject.SetActive(true);
 	}
@@ -244,18 +241,15 @@ public class Popup : MonoBehaviour
 		HidePopup();
 	}
 
-	public void MenuButtonRolled(string menuItem, int index)
-	{
+	public void MenuButtonRolled(string menuItem, int index) {
 		OnMenuRollEvent?.Invoke(menuItem, index);
 	}
 
-    public void OnBlockerClicked(PointerEventData pointerEventData)
-    {
+    public void OnBlockerClicked(PointerEventData pointerEventData) {
         HidePopup();
     }
 
-	public void OnBlockerRolled(PointerEventData pointerEventData)
-	{
+	public void OnBlockerRolled(PointerEventData pointerEventData) {
 		OnPopupRolloutEvent?.Invoke();
 	}
 }

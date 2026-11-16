@@ -1,5 +1,5 @@
 // Copy into your application as SetOfFonts.cs (remove the .txt suffix).
-// This catalogue depends only on Unity and TextMesh Pro.
+// This catalog depends only on Unity and TextMesh Pro.
 using TMPro;
 using UnityEngine;
 

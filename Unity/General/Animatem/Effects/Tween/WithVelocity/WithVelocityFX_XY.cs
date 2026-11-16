@@ -45,7 +45,7 @@ public class WithVelocityFX_XY : MultiEffectFX
                              EasingFunct easingFunctY = null,
                              EffectType type = EffectType.END,
                              string effectName = "WithVelocityFX_XY") :
-    base(null, effectName, type)
+        base(null, effectName, type)
     {
         _endX = endX;
         _endY = endY;
@@ -56,8 +56,8 @@ public class WithVelocityFX_XY : MultiEffectFX
 
     protected override void Initialize()
     {
-        Transform trasform = _target.GetComponent<Transform>();
-        float duration = Distance(trasform.localPosition.x, trasform.localPosition.y, _endX, _endY) / _velocity;
+        Transform transform = _target.GetComponent<Transform>();
+        float duration = Distance(transform.localPosition.x, transform.localPosition.y, _endX, _endY) / _velocity;
         AnimatemEffect tweenX = new TweenFX_X(float.NaN, _endX, duration, _easingFunctX, _type);
         AnimatemEffect tweenY = new TweenFX_Y(float.NaN, _endY, duration, _easingFunctY, _type);
         _effects = new List<AnimatemEffect> { tweenX, tweenY };

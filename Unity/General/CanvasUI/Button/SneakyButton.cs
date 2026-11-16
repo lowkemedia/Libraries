@@ -33,8 +33,7 @@ public class SneakyButton : ClickButton
     private float _pressTime;                           // time of last press
     public float holdDuration = 1.0f;                   // duration button must be held
 
-    public override void OnPointerDown(PointerEventData pointerEventData = null)
-    {
+    public override void OnPointerDown(PointerEventData pointerEventData = null) {
         _pressTime = Time.time;
     }
 

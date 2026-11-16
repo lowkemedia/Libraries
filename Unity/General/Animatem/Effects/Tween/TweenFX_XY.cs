@@ -43,7 +43,7 @@ public class TweenFX_XY : MultiEffectFX
                       EasingFunct easingFunctY = null,
                       EffectType type = EffectType.END,
                       string effectName = "TweenFX_XY") :
-    base(null, effectName, type)
+        base(null, effectName, type)
     {
         _endX = endX;
         _endY = endY;

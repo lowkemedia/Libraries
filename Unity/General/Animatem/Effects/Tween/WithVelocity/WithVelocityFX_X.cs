@@ -30,27 +30,25 @@ using AnimatemTypes;
 
 public class WithVelocityFX_X : WithVelocityFX
 {
-    private Transform _trasform;
+    private Transform _transform;
 
     public WithVelocityFX_X(float start,
                             float end,
                             float velocity,     // in units per second
                             EasingFunct easingFunct = null,
                             EffectType type = EffectType.END) : 
-    base(start, end, velocity, easingFunct, type, "AtVelocityFX_X") {}
+        base(start, end, velocity, easingFunct, type, "AtVelocityFX_X") {}
 
-    protected override void Initialize()
-    {
-        _trasform = _target.GetComponent<Transform>();
+    protected override void Initialize() {
+        _transform = _target.GetComponent<Transform>();
         base.Initialize();
     }
 
-    public override float Value
-    {
-        get { return _trasform.localPosition.x; }
+    public override float Value {
+        get { return _transform.localPosition.x; }
         set {
             base.Value = value;
-            _trasform.localPosition = new Vector3(value, _trasform.localPosition.y, _trasform.localPosition.z);
+            _transform.localPosition = new Vector3(value, _transform.localPosition.y, _transform.localPosition.z);
         }
     }
 }

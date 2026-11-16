@@ -67,15 +67,14 @@ public static class Logger
         remove { _alertRequested -= value; }
     }
 
-    private static LogLevel _logLevel = LogLevel.PRINT; // default logging level is LOG_LEVEL_PRINT
+    private static LogLevel _logLevel = LogLevel.PRINT; // default logging level is LogLevel.PRINT
 
     // Once-only cache keyed by exact caller-supplied message text, not diagnostic ID.
     private static Dictionary<string, bool> _onceOnlyErrors = new Dictionary<string, bool>();
 
     // For explicit Alert logging only: prevents duplicate automatic alerts.
-    // Use the severity helpers for ordinary diagnostics; they honour ShowAlert.
-    internal static void LogNoAlert(LogLevel logLevel, string message, string id = null)
-    {
+    // Use the severity helpers for ordinary diagnostics; they honor ShowAlert.
+    internal static void LogNoAlert(LogLevel logLevel, string message, string id = null) {
         Log(logLevel, message, id, allowAlert: false);
     }
 
@@ -89,8 +88,7 @@ public static class Logger
     {
         // Check the original message before formatting: IDs, severity, test labels and
         // appended stack traces do not affect once-only matching.
-        if (showOnlyOnce)
-        {
+        if (showOnlyOnce) {
             _onceOnlyErrors.TryGetValue(message, out bool flag);
 
             if (flag) {
@@ -102,8 +100,7 @@ public static class Logger
             _onceOnlyErrors[message] = true;
         }
 
-        if (logLevel <= _logLevel)
-        {
+        if (logLevel <= _logLevel) {
             string logMessage = LogPrefix(logLevel, id) + message + "\n";
             string testExpected = _testExpected;
             if (!string.IsNullOrEmpty(testExpected)) {
@@ -162,8 +159,7 @@ public static class Logger
 
     private static string LogLevelString(LogLevel logLevel)
     {
-        switch (logLevel)
-        {
+        switch (logLevel) {
             case LogLevel.NONE:
                 return "NONE";
             case LogLevel.SEVERE:
@@ -188,7 +184,7 @@ public static class Logger
 
 
     // One shared label, not a stack: replacing/clearing it never restores an outer label.
-    // Null/empty clears it. The Print announcement is unlabelled
+    // Null/empty clears it. The Print announcement is unlabeled
     // and obeys the normal threshold. This does not suppress errors or automatic alerts.
     public static void TestExpected(string testExpected)
     {
@@ -200,29 +196,31 @@ public static class Logger
         _testExpected = testExpected;
     }
 
-    public static void ClearTestExpected()
-    {
+    public static void ClearTestExpected() {
         _testExpected = null;
     }
 
     public static void Severe(string message,
                               string id = null,
                               bool showOnlyOnce = false,
-                              bool stackTrace = false) {
+                              bool stackTrace = false)
+    {
         Log(LogLevel.SEVERE, message, id, showOnlyOnce, stackTrace);
     }
 
     public static void Warning(string message,
                                string id = null,
                                bool showOnlyOnce = false,
-                               bool stackTrace = false) {
+                               bool stackTrace = false)
+    {
         Log(LogLevel.WARNING, message, id, showOnlyOnce, stackTrace);
     }
 
     public static void Info(string message,
                             string id = null,
                             bool showOnlyOnce = false,
-                            bool stackTrace = false) {
+                            bool stackTrace = false)
+    {
         Log(LogLevel.INFO, message, id, showOnlyOnce, stackTrace);
     }
 
@@ -231,7 +229,8 @@ public static class Logger
     public static void Detail(string message,
                               string id = null,
                               bool showOnlyOnce = false,
-                              bool stackTrace = false) {
+                              bool stackTrace = false)
+    {
         Log(LogLevel.DETAIL, message, id, showOnlyOnce, stackTrace);
     }
 
@@ -245,12 +244,12 @@ public static class Logger
     public static void Debug(string message,
                              string id = null,
                              bool showOnlyOnce = false,
-                             bool stackTrace = false) {
+                             bool stackTrace = false)
+    {
         Log(LogLevel.DEBUG, message, id, showOnlyOnce, stackTrace);
     }
 
-    public static LogLevel Level
-    {
+    public static LogLevel Level {
         get { return _logLevel; }
 
         set {

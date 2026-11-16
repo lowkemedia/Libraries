@@ -91,7 +91,7 @@ public sealed class Click : MonoBehaviour
             _clickSource.spatialBlend = 0f;
             _clickSource.ignoreListenerPause = true;
         }
-        // Use the scene's listener (including Launch's); respect global volume/mute.
+        // Use the scene's listener; respect global volume/mute.
         _clickSource.PlayOneShot(clip);
     }
 

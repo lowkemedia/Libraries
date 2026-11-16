@@ -30,7 +30,7 @@ using UnityEngine;
 public class GyroLookAroundButton : LookAroundButton
 {
 	private Gyroscope _gyro;
-	private Quaternion _rot;
+	private Quaternion _gyroCorrection;
 
 	public bool SupportsGyro { get; private set; }
 
@@ -46,7 +46,7 @@ public class GyroLookAroundButton : LookAroundButton
 			_gyro.enabled = true;
 
 			// _gyroContainer.transform.rotation = Quaternion.Euler(90f, 90f, 0f);
-			_rot = new Quaternion(0, 0, 1, 0);
+			_gyroCorrection = new Quaternion(0, 0, 1, 0);
 		}
 	}
 
@@ -71,7 +71,7 @@ public class GyroLookAroundButton : LookAroundButton
 	private void CorrectForGyro()
 	{
 		if (_gyro != null) {
-			Quaternion gyro = _gyro.attitude * _rot;
+			Quaternion gyro = _gyro.attitude * _gyroCorrection;
 			Vector3 angles = gyro.eulerAngles;
 
 			// TODO: Compare gyro.eulerAngles with _lookAroundContainer.transform.eulerAngles
@@ -86,7 +86,7 @@ public class GyroLookAroundButton : LookAroundButton
 	{
 		if (_gyro != null) {
 			Transform cameraTransform = lookAroundCamera.gameObject.transform;
-			cameraTransform.localRotation = _gyro.attitude * _rot;
+			cameraTransform.localRotation = _gyro.attitude * _gyroCorrection;
 
 			/*
 			// update gyro rotation

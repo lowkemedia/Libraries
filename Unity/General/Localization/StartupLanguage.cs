@@ -5,7 +5,8 @@ using LocalizerTypes;
 /// <summary>Matches OS preferences against the locales supplied by the application.</summary>
 public static class StartupLanguage
 {
-    public enum MatchKind { Exact, Regional, Fallback }
+    public enum MatchKind
+    { Exact, Regional, Fallback }
 
     public readonly struct Result
     {

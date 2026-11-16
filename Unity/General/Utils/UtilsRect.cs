@@ -104,23 +104,19 @@ public static class UtilsRect
     //
     // set and get size (height and width) of UnityEngine Object
     //
-    public static void SetSize(this Object obj, Vector2 size)
-    {
+    public static void SetSize(this Object obj, Vector2 size) {
         obj.GetRectTransform().sizeDelta = size;
     }
 
-    public static void SetSize(this Object obj, float width, float height)
-    {
+    public static void SetSize(this Object obj, float width, float height) {
         obj.SetSize(new Vector2(width, height));
     }
 
-    public static float GetHeight(this Object obj)
-    {
+    public static float GetHeight(this Object obj) {
         return obj.GetRectTransform().sizeDelta.y;
     }
 
-    public static float GetWidth(this Object obj)
-    {
+    public static float GetWidth(this Object obj) {
         return obj.GetRectTransform().sizeDelta.x;
     }
 
@@ -146,8 +142,7 @@ public static class UtilsRect
         return false;
     }
 
-    public static bool AinsideB(Object objA, Object objB)
-    {
+    public static bool AinsideB(Object objA, Object objB) {
         return AinsideB(objA.GetRectTransform(), objB.GetRectTransform());
     }
 

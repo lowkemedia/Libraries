@@ -33,11 +33,11 @@ namespace AnimatemTypes
                                float duration);
 
     //
-    // used for rename string parameter of AddFX() in Anime.as
+    // used for the rename string parameter of Anime.AddEffect()
     //  Note: to name effect being added, use a unique string, otherwise use one of these constants
     public static class EffectString
     {
-        // old effect is replaced with new effect [deault]
+        // old effect is replaced with new effect [default]
         public const string REPLACE = "_replace_";
 
         // old effect snaps to end, triggering any callback, and is then replaced with new effect

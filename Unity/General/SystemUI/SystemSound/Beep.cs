@@ -91,7 +91,7 @@ public sealed class Beep : MonoBehaviour
             _beepSource.spatialBlend = 0f;
             _beepSource.ignoreListenerPause = true;
         }
-        // Use the scene's listener (including Launch's); respect global volume/mute.
+        // Use the scene's listener; respect global volume/mute.
         _beepSource.PlayOneShot(clip);
     }
 

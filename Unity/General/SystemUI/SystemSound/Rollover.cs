@@ -29,7 +29,8 @@ public sealed class Rollover : MonoBehaviour
     private AudioClip _clip;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void ResetSession() { _instance = null; }
+    private static void ResetSession()
+    { _instance = null; }
 
     // Main-thread Play Mode access only; obtaining the clip does not play it.
     // The persistent host owns this shared clip. Do not modify or destroy it.

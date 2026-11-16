@@ -13,11 +13,11 @@ without assembling translated sentences by hand or adding a second resolver.
 [Setup](#setup-and-resource-files) · [Recursive keys](#recursive-keys-compose-translations) ·
 [Language switching](#loading-and-changing-languages) ·
 [Text and styles](#textmesh-pro-components-and-styles) ·
-[Font catalogue](#creating-your-own-font-catalogue) · [Dependencies](#reusing-this-folder)
+[Font catalog](#creating-your-own-font-catalog) · [Dependencies](#reusing-this-folder)
 
 Distributed through [Lowke Media Libraries](https://github.com/lowkemedia/Libraries).
 Supply your own translations and fonts, and retain the source copyright and MIT
-licence notices when copying the utility.
+license notices when copying the utility.
 
 ## Setup and resource files
 
@@ -73,7 +73,9 @@ The corresponding French file:
 
 `key` and `value` supply the lookup. Optional `original`, `context`, `citation`
 and `note` fields hold authoring metadata; they do not change substitution.
-`FileName` and `Variables` are runtime bookkeeping, not translation inputs.
+The data classes expose these JSON names as simple public camelCase fields.
+`FileName` and `Variables` remain properties for runtime bookkeeping; they are
+not serialized into JSON.
 See [LocalizerValue.cs](KeyValues/LocalizerValue.cs) for the fields the runtime
 actually reads. Additional JSON metadata is ignored by Unity’s deserializer;
 the exporter does not preserve arbitrary extra fields.
@@ -121,7 +123,7 @@ then each result is inserted into its parent's template. No pre-translation call
 is needed. The same expression works on a live UI label:
 
 ```csharp
-messageLabel.AddKey(".notification", new[] { "09:30", ".greeting|.visitor" });
+messageLabel.AddKey(".notification", variables: new[] { "09:30", ".greeting|.visitor" });
 ```
 
 Unlike assigning a previously resolved string to `messageLabel.text`, this keeps
@@ -238,17 +240,20 @@ For a `TextMeshProUGUI` field, use the extension in
 textField.AddKey(".greeting|.visitor");
 // Or, after loading a style file:
 Localizer.SetStyle("_Styles");
-textField.AddKey(".greeting|.visitor", style: "#body");
+textField.AddKey(".greeting|.visitor", "#body");
 ```
 
-`AddKey` attaches or reuses [LocalizedText](Stylizer/LocalizedText.cs). It retains
+`AddKey` attaches or reuses and returns [LocalizedText](Stylizer/LocalizedText.cs).
+Existing callers can ignore the return value. Parameters are `key`, `style`,
+`variables`, `preventOrphans` (default `false`), then `giveWarning` (default `true`).
+Use named boolean arguments to make their meaning clear. The component retains
 the key, arguments and style, refreshes after language changes, and unsubscribes
-on destruction. `AddStyle(text, style)` applies a style to literal text through
-the same component. Stylizer expects baseline alignment on the text field.
-Language-change refreshes retain the `giveWarning` setting passed to `AddKey`;
-`AddStyle` supplies `false` so literal numbers and other non-key text do not
-produce invalid-key warnings when the language changes. This does not override
-Logger's automatic-alert setting for diagnostics that are emitted.
+on destruction. Stylizer expects baseline alignment on the text field.
+For styled literal text, use `AddKey(text, style, giveWarning: false)`.
+Language-change refreshes retain this warning setting, so literal numbers and
+other non-key text do not produce invalid-key warnings when the language changes.
+This does not override Logger's automatic-alert setting for diagnostics that are
+emitted.
 
 Style files use the same locale path convention and contain a `styles` array.
 Entries have `style`, `font`, `fontSize`, `lineSpacing`, `characterSpacing`,
@@ -266,14 +271,14 @@ Stylizer.FontResolver = name =>
 Localizer.SetStyle("_Styles");
 ```
 
-A catalogue method with the same signature can be assigned directly. Return null
+A catalog method with the same signature can be assigned directly. Return null
 for unknown names or missing assets; Stylizer reports the failure once through
 Logger and retains the text field's existing font. A missing resolver is also
 reported when a style requests a font. Both diagnostics respect Logger's global
 automatic-alert setting. Styles without a font need no resolver. Do not log the
 same lookup failure in the resolver as well.
 
-Localizer owns no font catalogue, resource path or font-name mappings. The host
+Localizer owns no font catalog, resource path or font-name mappings. The host
 owns asset loading and lifetime. Font coverage, fallback chains, sprite assets
 and material settings remain configured in TextMesh Pro.
 
@@ -286,17 +291,17 @@ shortcuts, not ordinary dictionary keys handled specially by `Localizer.Value`.
 For a heading inside body text, use a style reference in the compound expression:
 
 ```csharp
-textField.AddKey("<font=\"#title\">+.greeting+</font>+.introduction", style: "#body");
+textField.AddKey("<font=\"#title\">+.greeting+</font>+.introduction", "#body");
 ```
 
 Inline font styles also work inside recursively composed keys and arguments.
 For example, using `.notification` and `.greeting` from the recursive-key examples:
 
 ```csharp
-messageLabel.AddKey(".notification", new[] {
+messageLabel.AddKey(".notification", "#body", new[] {
     "09:30",
     "<font=\"#title\">+.greeting|.visitor+</font>"
-}, style: "#body");
+});
 ```
 
 The outer key resolves its argument, that argument resolves `.greeting` and
@@ -323,20 +328,20 @@ Keep translated words in the keys and locale-specific font choices in Styles.
 `Localizer.Value` itself returns text without resolving these presentation tags;
 non-component consumers can call `Stylizer.ResolveInlineFonts` when needed.
 
-## Creating your own font catalogue
+## Creating your own font catalog
 
 [Examples/SetOfFonts.cs.txt](Examples/SetOfFonts.cs.txt) is a complete, minimal
-ScriptableObject catalogue with `Title` and `Body` slots. It depends only on
+ScriptableObject catalog with `Title` and `Body` slots. It depends only on
 Unity and TextMesh Pro. The `.txt` suffix keeps the template from compiling or
 colliding with a consuming application's own `SetOfFonts` class.
 
 1. In your application code folder, copy the template as **SetOfFonts.cs**, removing
    `.txt`. Do not add a second class if your application already has that name;
-   use the example to adapt your existing catalogue instead.
+   use the example to adapt your existing catalog instead.
 2. Import your chosen font files and create their **TMP Font Assets**. In TMP 3,
    select a source font and use **Assets → Create → TextMeshPro → Font Asset**, or
    use **Window → TextMeshPro → Font Asset Creator** to generate an atlas with
-   a chosen character set. The catalogue slots take `TMP_FontAsset` assets,
+   a chosen character set. The catalog slots take `TMP_FontAsset` assets,
    not the original `.ttf` or `.otf` files.
 3. Create an `Assets/Resources` folder if needed. Inside it, use
    **Create → Localization → Set of Fonts**, name the asset **My Fonts**, and
@@ -370,12 +375,12 @@ Localizer.SetStyle("_Styles");
 
 // textField is an existing TextMeshProUGUI component in your scene.
 textField.alignment = TMPro.TextAlignmentOptions.Baseline;
-textField.AddStyle("Hello", "#body");
+textField.AddKey("Hello", "#body", giveWarning: false);
 ```
 
 This initial check uses literal text so it needs no translation file. For
 translated text, load your string file and use `AddKey` as described above.
-Run this setup once, before UI components call `AddKey`/`AddStyle`; do not rely
+Run this setup once, before UI components call `AddKey`; do not rely
 on the order of unrelated components' `Awake` methods. In an existing application,
 add the resolver assignment to its established localization initialization.
 
@@ -383,25 +388,25 @@ add the resolver assignment to its established localization initialization.
 To add another font, add a slot and a matching `GetFont` case, assign its asset,
 and use that name in the relevant locale's style JSON. For example, a `BodyJapanese`
 slot can select a different font for a Japanese `#body` style. Supply the style
-file for each locale you enable. A serialized reference to the catalogue can
+file for each locale you enable. A serialized reference to the catalog can
 replace `Resources.Load`; the resource path is only this example's loading choice.
 
-### Rebuilding the catalogue or a font
+### Rebuilding the catalog or a font
 
-The catalogue stores references; it contains no glyphs or atlas generation logic.
+The catalog stores references; it contains no glyphs or atlas generation logic.
 To recreate it in another project, copy the example script, import or generate
-that project's TMP fonts, create the catalogue asset, and assign the slots again.
+that project's TMP fonts, create the catalog asset, and assign the slots again.
 No fonts or mappings from the original application are required. When moving an
-existing catalogue and fonts together, preserve their `.meta` files so Unity's
-references survive. Keep a populated catalogue in place when only updating fonts.
+existing catalog and fonts together, preserve their `.meta` files so Unity's
+references survive. Keep a populated catalog in place when only updating fonts.
 
 Regenerating a TMP font is separate: use its source font and the Font Asset Creator
 (or its supported atlas-update workflow), preserve needed characters and material
-settings, then check the catalogue reference still points to the intended asset.
+settings, then check the catalog reference still points to the intended asset.
 Static atlases need the required characters baked in. Dynamic assets need a valid
 source font and suitable atlas settings. Configure additional script coverage in
 TMP's fallback font assets and test representative text; assigning a font to the
-catalogue does not add missing characters. Check both glyphs and inline sprites
+catalog does not add missing characters. Check both glyphs and inline sprites
 visually after atlas or fallback changes. Sprite asset names are independent of
 these font aliases and must remain unchanged.
 
@@ -430,9 +435,85 @@ Keep the three language enums aligned when adding a language.
 [LocalizerExport](LocalizerExport.cs) writes into a `JsonKeys` directory relative
 to the working directory; create that directory before exporting. Its JSON
 exports resolve placeholders to values, so they are not a lossless backup of
-parameterized templates or metadata. The page-text exporter currently contains
-a fixed product/copyright footer; adapt that host-specific output when reusing
-it. Preserve source JSON separately.
+parameterized templates or metadata. Preserve source JSON separately.
 
-Font resolution is supplied through the delegate above. The export footer remains
-an integration point in this copy, not a requirement of the reusable Localizer.
+Set `LocalizerExport.PageFooterLines` during application setup to append a footer
+to proofreading text exports:
+
+```csharp
+LocalizerExport.PageFooterLines = new[] {
+    "Example Application",
+    "Example Publisher"
+};
+```
+
+The default is `null`. A null or empty array omits the footer and its separator.
+When configured, the exporter adds one blank separator line, then writes each
+supplied line literally, including any empty lines. No product name or copyright
+year is supplied automatically. This setting affects only `CreatePagesTextFile`,
+not JSON exports, and remains in effect until reassigned.
+
+Font resolution is supplied through the delegate above.
+
+## Preventing single-word orphan lines
+
+Opt in when assigning a key with the optional named flag (default `false`):
+
+```csharp
+message.AddKey(messageKey, messageStyle, preventOrphans: true);
+```
+
+`AddKey` also returns the `LocalizedText` component, so this is equivalent:
+
+```csharp
+message.AddKey(messageKey, messageStyle).PreventOrphans = true;
+```
+
+The combined-width limit defaults to 35%. To customize it, set the property on
+the returned component:
+
+```csharp
+body.AddKey(bodyKey, bodyStyle, preventOrphans: true)
+    .MaxOrphanPairWidthRatio = 0.4f;
+```
+
+To allow orphan prevention without a width limit, for example in a dialog:
+
+```csharp
+message.AddKey(messageKey, messageStyle, preventOrphans: true)
+    .RemoveOrphanPairWidthLimit();
+```
+
+The default joins the preceding word and orphan only when their combined rendered width
+is less than 35% of the field width inside its horizontal margins. TMP first lays
+out the joined pair; its character advances measure both words, punctuation and
+the intervening space. At or above the limit, the original wrapping is restored.
+Other orphan lines are still considered. This replaces individual word limits;
+it does not balance the whole paragraph.
+
+`RemoveOrphanPairWidthLimit()` removes the width restriction and schedules a reflow.
+It does not enable orphan prevention itself; use `preventOrphans: true` as above.
+Internally it sets `MaxOrphanPairWidthRatio` to `float.NaN`.
+
+`LocalizedText.MaxOrphanPairWidthRatio` defaults to `0.35f`; `float.NaN` disables
+the width limit. It is not an `AddKey` parameter. The optional third argument of
+`TextOrphanPrevention.Apply` also defaults to `0.35f`.
+
+Each `AddKey` call applies `preventOrphans` (default `false`) but preserves the
+component's width limit when reusing a field. Language refreshes retain both settings.
+If changing the component's settings after it has already rendered, call `UpdateKey()`
+to reflow from the original text.
+
+The field reflows in `LateUpdate` after localization, and again when its width
+changes. It starts from the original resolved text each time. Other localized
+fields are unchanged unless they opt in.
+
+`TextOrphanPrevention.Apply(textField, resolvedText)` is also usable directly.
+Call it outside a graphic rebuild, with an active TMP field and its original
+resolved text. It inspects rendered lines, replaces the space before an orphan
+with a nonbreaking space, and remeasures. Repeated passes handle separate text
+blocks and newly exposed orphans. Rich-text tags and explicit breaks are retained;
+localization files are never rewritten. Single-word blocks and pairs that cannot
+fit together are left alone. This is a whitespace-separated-word treatment, not
+Japanese or Chinese line-breaking rules. Inline icons count as content, avoiding
+changes to a word-and-icon line purely because it has only one textual word.

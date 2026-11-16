@@ -48,19 +48,18 @@ public class Anime
         _effects = new List<AnimatemEffect>();
     }
 
-    public void Update(float updatetime)
+    public void Update(float updateTime)
     {
         // if there are no effects on anime then remove the anime
         if (_effects.Count == 0 && !_persist) {
             Remove();
-        } else
-        {
+        } else {
             // iterate through effects
             List<AnimatemEffect> shallowCopy = new List<AnimatemEffect>(_effects);
             foreach(AnimatemEffect effect in shallowCopy) {
                 // Earlier callbacks may have removed or replaced this effect.
                 if (_effects.Contains(effect)) {
-                    effect.Update(updatetime);
+                    effect.Update(updateTime);
                 }
             }
         }
@@ -79,30 +78,26 @@ public class Anime
     {
         //
         // name effect
-        //  Note: renaming efects allows you to stack effects of the same type
+        //  Note: renaming effects allows you to stack effects of the same type
         if (name != null && 
             name != EffectString.REPLACE && 
             name != EffectString.SNAP_REPLACE &&
-            name != EffectString.AUTO_RENAME) 
-        {
+            name != EffectString.AUTO_RENAME) {
             effect.Name = name;
         }
 
         //
         // deal with any existing effect with the same name
         AnimatemEffect existingEffect = GetEffect(effect.Name, false);
-        if (existingEffect != null) 
-        {
+        if (existingEffect != null) {
             if (name == EffectString.REPLACE || 
-                name == EffectString.SNAP_REPLACE) 
-            {
+                name == EffectString.SNAP_REPLACE) {
                 Logger.Debug("Effect \"" + effect.Name + "\" being replaced on anime " + _target, LogID.DEBUG_EFFECT_BEING_REPLACED_ID);
 
                 // remove existing effect so no conflict occurs
                 RemoveEffect(existingEffect, (name == EffectString.SNAP_REPLACE));
                 
-            } else if (name == EffectString.AUTO_RENAME) 
-            {
+            } else if (name == EffectString.AUTO_RENAME) {
                 // rename effect so no conflict occurs
                 int counter = 1;
                 string newName;
@@ -112,24 +107,22 @@ public class Anime
                 } while (GetEffect(newName, false) != null);
                 
                 effect.Name = newName;
-            } 
-            else 
-            { 
+            } else {
                 // can't replace existing effect
                 throw new Exception("Effect \"" + effect.Name + "\" already exists on anime " + _target +  ".\n" +
-                    "Rename your effect, or remove the existing effect using removeEffect(), before adding your new effect.");
+                    "Rename your effect, or remove the existing effect using RemoveEffect(), before adding your new effect.");
             }
         }
 
         _effects.Add(effect);
         effect.Callback = callback;
-        effect.Initailize(_animator, this);
+        effect.Initialize(_animator, this);
 
         return effect;
     }
 
     // add effect to an anime that triggers on a timestamp, 
-    //  which may be past or persent.
+    //  which may be past or present.
     public AnimatemEffect TimedEffect(AnimatemEffect effect, 
                                       float timestamp,
                                       Callback callback = null,
@@ -153,7 +146,7 @@ public class Anime
     //
     // get effect from effects list by name
     public AnimatemEffect GetEffect(string effectName,
-                                    bool giveWarning = true) 
+                                    bool giveWarning = true)
     {
         foreach(AnimatemEffect effect in _effects) {
             if (effect.Name == effectName) {
@@ -175,11 +168,10 @@ public class Anime
     //  if no str passed then clear effects
     public void RemoveEffects(string str = null,
                               bool snapToEnd = false)
-    {   
+    {
         if (str is null) {
             ClearEffects(snapToEnd);
-        } else 
-        {
+        } else {
             List<AnimatemEffect> shallowCopy = new List<AnimatemEffect>(_effects);
             foreach (AnimatemEffect effect in shallowCopy) {
                 if (effect.Name.IndexOf(str, StringComparison.Ordinal) != -1) {
@@ -208,8 +200,7 @@ public class Anime
     {
         // ensure effect in effects list
         int index = _effects.IndexOf(effect);
-        if (index != -1)
-        {
+        if (index != -1) {
             // Detach before callbacks so nested Remove/Clear cannot snap this effect again.
             _effects.RemoveAt(index);
 
@@ -228,7 +219,7 @@ public class Anime
         
     //
     // clear all effects on this anime
-    public void ClearEffects(bool snapToEnd = false) 
+    public void ClearEffects(bool snapToEnd = false)
     {
         // remove all effects
         while (_effects.Count > 0) {
@@ -239,41 +230,35 @@ public class Anime
         
     //
     // remove this anime
-    public void Remove() 
-    {   
+    public void Remove() {
         // tell Animatem to delete reference
         _animator.Remove(_target);
     }  
 
     //
     // not only remove the anime, but destroy its target GameObject
-    public void Destroy() 
-    {
+    public void Destroy() {
         Remove();
         UnityEngine.Object.Destroy(_target);
     }
 
     //
     // print anime with list of effects
-    public override string ToString()
-    {
+    public override string ToString() {
         return _target +  " effects:" + DumpEffects() + "\n";
     }
 
-    public string DumpEffects() 
-    {   
+    public string DumpEffects()
+    {
         int nEffects = _effects.Count;
-        if (nEffects == 0) 
-        {
+        if (nEffects == 0) {
             return "[ none ]";
         }
         
         // iterate through effects
         string str = "";
-        for (int i = 0; i < nEffects; ++i) 
-        {
-            if (i == 0)
-            { 
+        for (int i = 0; i < nEffects; ++i) {
+            if (i == 0) {
                 str += "[ "; 
             }
             str += _effects[i];
@@ -288,14 +273,12 @@ public class Anime
     // Getters and Setters
     //
 
-    public GameObject Target
-    {
+    public GameObject Target {
         get { return _target; }
         set { _target = value; }
     }
 
-    public bool Persist
-    {
+    public bool Persist {
         get { return _persist; }
         set { _persist = value; }
     }

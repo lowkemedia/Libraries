@@ -44,13 +44,12 @@ public abstract class AnimatemEffect
     protected int _cycles = DONT_CYCLE;     // # of cycles before ending effect
     protected Callback _callback;           // callback function to call when tween ends
 
-    protected AnimatemEffect(string name, EffectType type)
-    {
+    protected AnimatemEffect(string name, EffectType type) {
         _name = name;
         _type = type;
     }
 
-    public void Initailize(Animatem animator,
+    public void Initialize(Animatem animator,
                            Anime anime)
     {
         _animator = animator;
@@ -88,11 +87,9 @@ public abstract class AnimatemEffect
         // perform effect!
         bool resolved = Update();
 
-        if (resolved)
-        {
+        if (resolved) {
             // check for cycling effects
-            if (_cycles != DONT_CYCLE)
-            {
+            if (_cycles != DONT_CYCLE) {
                 --_cycles;
                 if (_cycles <= 0) {
                     _type = EffectType.END;
@@ -107,8 +104,7 @@ public abstract class AnimatemEffect
             }
 
             // when effect finishes
-            switch (_type)
-            {
+            switch (_type) {
                 case EffectType.PERSIST: 
                     break;
                 case EffectType.END:            // remove this effect (thereby ending it)
@@ -143,16 +139,14 @@ public abstract class AnimatemEffect
         _anime.RemoveEffect(this, snapToEnd, giveWarning);
     }
 
-    public void SnapEffectToEnd()
-    {
+    public void SnapEffectToEnd() {
         SnapToEnd();
         TriggerCallback();
     }
 
     //
-    // called by Anime.as immediately after calling snapToEnd();
-    public void TriggerCallback() 
-    {
+    // Invokes the completion callback after the effect finishes or is snapped to its end.
+    public void TriggerCallback() {
         _callback?.Invoke();
     }
 
@@ -174,8 +168,7 @@ public abstract class AnimatemEffect
         // some effects will need a Cleanup()
     }
 
-    public virtual void Cycle()
-    {
+    public virtual void Cycle() {
         Logger.Warning("Effect " + _name + " does not support Cycle() method.", LogID.WARNING_CYCLE_NOT_SUPPORTED_ID);
     }
         
@@ -191,8 +184,7 @@ public abstract class AnimatemEffect
     }
     */
 
-    public override string ToString() 
-    {
+    public override string ToString() {
         return _name;
     }
 
@@ -201,32 +193,27 @@ public abstract class AnimatemEffect
     // Getters and Setters
     //
 
-    public string Name
-    {
+    public string Name {
         get { return _name; }
         set { _name = value; }
     }
 
-    public EffectType Type
-    {
+    public EffectType Type {
         get { return _type; }
         set { _type = value; }
     }
 
-    public int Cycles
-    {
+    public int Cycles {
         get { return _cycles; }
         set { _cycles = value; }
     }
 
-    public float StartTime
-    {
+    public float StartTime {
         get { return _startTime; }
         set { _startTime = value; }
     }
 
-    public Callback Callback
-    {
+    public Callback Callback {
         get { return _callback; }
         set { _callback = value; }
     }

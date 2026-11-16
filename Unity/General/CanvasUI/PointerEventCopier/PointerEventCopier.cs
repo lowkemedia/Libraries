@@ -33,7 +33,7 @@ public class PointerEventCopier : MonoBehaviour,
     IPointerClickHandler, IPointerDownHandler, IPointerEnterHandler,
     IPointerExitHandler, IPointerUpHandler
 {
-    public Component target;           // target to recieve pointer events
+    public Component target;           // target to receive pointer events
 
     public void OnBeginDrag(PointerEventData pointerEventData)
     {

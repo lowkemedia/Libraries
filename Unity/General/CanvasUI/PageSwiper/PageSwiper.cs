@@ -57,7 +57,7 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
     private Vector3 _endLocation;
     private Vector3 _panelLocation;
     private bool _dragging;
-    private int _dragIndex = -1;    // page index the swiper is currentlt dragged to
+    private int _dragIndex = -1;    // page index the swiper is currently dragged to
     private bool _pastBounds;       // special case flag to prevent user from clicking past bounds while page animating
 
     public void Initialize(int totalPages, float pageWidth)
@@ -95,21 +95,16 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
 
 
         if ((PageIndex == 0 && difference < difference * PERCENT_THRESHOLD) ||
-            (PageIndex == TotalPages - 1 && difference > difference * PERCENT_THRESHOLD))
-        {
+            (PageIndex == TotalPages - 1 && difference > difference * PERCENT_THRESHOLD)) {
             // clamp swiping before page 1 and after the last page
             difference *= PERCENT_THRESHOLD;
-        }
-        else if (PageIndex > 0 &&                  // (difference -'ve)
-                 _panelLocation.x - difference > _startLocation.x)
-        {
+        } else if (PageIndex > 0 &&                  // (difference -'ve)
+                 _panelLocation.x - difference > _startLocation.x) {
             // clamp start location
             transform.localPosition = _startLocation;
             return;
-        }
-        else if (PageIndex < TotalPages - 1 &&    // (difference +'ve)
-                 _panelLocation.x - difference < _endLocation.x)
-        {
+        } else if (PageIndex < TotalPages - 1 &&    // (difference +'ve)
+                 _panelLocation.x - difference < _endLocation.x) {
             // clamp end location
             transform.localPosition = _endLocation;
             return;

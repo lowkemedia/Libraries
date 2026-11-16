@@ -68,18 +68,15 @@ public static class UtilsString
         return false;
     }
 
-    public static string CorrectForQuotes(string value)
-    {
-        return Replace(value, '"', "\\\"");     //TODO: just use value.Replace() ?
+    public static string CorrectForQuotes(string value) {
+        return Replace(value, '"', "\\\"");
     }
 
-    public static string CorrectForTabs(string value)
-    {
+    public static string CorrectForTabs(string value) {
         return value.Replace("\t", "    ");
     }
 
-    public static string CorrectBreaks(string value)
-    {
+    public static string CorrectBreaks(string value) {
         return value.Replace("<br>", "\n");
     }
 
@@ -158,17 +155,17 @@ public static class UtilsString
             if (value.Last() == ')') {
 
                 // break apart brackets
-                string trim = value.TrimEnd(')');
-                string[] splitValue = trim.Split('(');
+                string trimmedValue = value.TrimEnd(')');
+                string[] functionParts = trimmedValue.Split('(');
 
                 // avoid normal brackets in text
-                if (splitValue.Length >= 1 && splitValue.Length <= 2
-                    && splitValue[0].Last() != ' ') {
+                if (functionParts.Length >= 1 && functionParts.Length <= 2
+                    && functionParts[0].Last() != ' ') {
 
-                    // collect function name and paramters
-                    string functionName = splitValue[0];
-                    if (splitValue.Length == 2) {
-                        string[] parameters = splitValue[1].Split(',');
+                    // collect function name and parameters
+                    string functionName = functionParts[0];
+                    if (functionParts.Length == 2) {
+                        string[] parameters = functionParts[1].Split(',');
 
                         // apply function
                         return applyFunction?.Invoke(functionName, parameters);

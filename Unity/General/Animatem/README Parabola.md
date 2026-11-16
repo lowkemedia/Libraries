@@ -11,10 +11,10 @@ Parabola.GetEasing(0.765f, 0.5f)
 Read this as **“complete 76.5% of the change at 50% of the duration.”** The value
 fraction comes first, the time fraction second. Both are fractions, not numbers
 from 0 to 100. The whole curve passes through the chosen point; it is not a
-Bézier handle that merely pulls the curve towards it.
+Bézier handle that merely pulls the curve toward it.
 
 This lets you tune how a movement feels with two meaningful numbers. You can
-start quickly and settle, hesitate before accelerating, move backwards before
+start quickly and settle, hesitate before accelerating, move backward before
 committing, or go slightly beyond the destination and return.
 
 [Animatem guide](README.md) · [Source](Effects/Tween/Easing/Parabola.cs)
@@ -49,16 +49,16 @@ own start, end and independently fitted curve.
 
 ## Reading the curves
 
-![Six Parabola curves: standard ease-in and ease-out, snap-back, slight piece-movement overshoot, highlight overshoot and spotlight anticipation. Each orange dot is the requested time/value point.](parabola-curves.svg)
+![Six Parabola curves: standard ease-in and ease-out, snap-back, slight movement overshoot, highlight overshoot and spotlight anticipation. Each orange dot is the requested time/value point.](parabola-curves.svg)
 
 The horizontal axis is elapsed time as a fraction of duration. The vertical
 axis is progress through the change: 0 is the start and 1 is the destination.
-The orange dot is the point passed to `GetEasing(value, time)`. Grey dashed lines
+The orange dot is the point passed to `GetEasing(value, time)`. Gray dashed lines
 show linear motion; the shaded band shows progress between 0 and 1.
 These plots describe the first forward leg, before any reversal.
 
-The piece-movement illustration uses `(0.85, 0.5)`; the app uses the subtler
-`(0.765, 0.5)` setting documented below.
+The movement illustration uses `(0.85, 0.5)` to make the overshoot visible.
+For a subtler result, try `(0.765, 0.5)`, documented below.
 
 At half time, the presets make a useful starting point:
 
@@ -68,11 +68,11 @@ At half time, the presets make a useful starting point:
 | `GetEasing(0.5f, 0.5f)` | 50% done halfway | Linear. |
 | `GetEasing(0.75f, 0.5f)` / `Parabola.EaseOut` | 75% done halfway | Starts quickly and reaches the end at rest. |
 | `GetEasing(0.765f, 0.5f)` | 76.5% done halfway | Slightly stronger than EaseOut; a small overshoot before settling. |
-| `GetEasing(0.85f, 0.5f)` | 85% done halfway | Slight overshoot; used in the piece-movement illustration. |
+| `GetEasing(0.85f, 0.5f)` | 85% done halfway | Slight overshoot; used in the movement illustration. |
 
 `new Parabola().Ease` also defaults to `(0.75, 0.5)`.
 `Parabola.EaseBounce` uses `(0.35, 0.7)`: it initially moves **behind the start**
-(to about -6.67% progress) before travelling to the destination. It is one smooth
+(to about -6.67% progress) before traveling to the destination. It is one smooth
 quadratic with a turn, not a sequence of impacts like the separate classic
 [Bounce](Effects/Tween/Easing/Classic/Bounce.cs) easing.
 
@@ -90,11 +90,11 @@ them to suit your own content.
 
 | Use | `GetEasing(value, time)` | Timing and effect |
 | --- | --- | --- |
-| Piece movement | `(0.765, 0.5)` | Independent X/Y delegates; duration grows with board distance. A parallel 0.5-second delay sets a minimum group duration. |
+| Object movement | `(0.765, 0.5)` | Independent X/Y delegates; choose duration to suit the distance. A parallel 0.5-second delay sets a minimum group duration. |
 | Image snap-back | `(0.65, 0.35)` | 65% done at 35% time; duration is supplied by the caller. |
-| Piece outline | `(0.75, 0.22)` | Image alpha, 0.5 seconds per reversing leg. |
+| Outline pulse | `(0.75, 0.22)` | Image alpha, 0.5 seconds per reversing leg. |
 | Spotlight | `(0.22, 0.75)` | Scale to 1.5 times the starting scale over 0.333 seconds, with a finite number of reversing legs. |
-| Capture | `(0.765, 0.5)` | Image alpha from 1 to 0 over 0.8 seconds; remove the piece in the callback. |
+| Fade out | `(0.765, 0.5)` | Image alpha from 1 to 0 over 0.8 seconds; remove the object in the callback. |
 | Curtain | `(0.8, 0.5)` | Fade graphics from 1 to 0 over 2 seconds, then continue. |
 
 The control points are inside the 0–1 square, but that does **not** guarantee the
@@ -129,8 +129,7 @@ Animatem.Instance.Anime(gameObject).AddEffect(move);
 
 This moves through X = 80 at 0.2 seconds. **`ctrlTime` is in seconds**, using the
 same units as the tween duration; it is not a percentage or absolute `Time.time`
-timestamp. The implementation uses it directly despite the factory method's
-source comment calling it a percentage.
+timestamp.
 
 The constructor allows mixed controls: `ctrlValue` overrides `ctrlValuePerc`,
 and `ctrlTime` overrides `ctrlTimePerc`, independently. Usually the two factory
@@ -156,7 +155,7 @@ Consequences for use:
   an initial 0→100 EaseOut reaches 75 at halfway; its reverse 100→0 also passes
   through 75 halfway. The return leg is not another 75%-complete EaseOut.
 - For a time fraction other than 0.5, retaining that control time is not generally
-  the same as playing the original curve backwards in time.
+  the same as playing the original curve backward in time.
 - When you need a new range, duration or fresh percentage-based curve, create a
   new tween with a new Parabola delegate. Changing a TweenFX property does not
   recreate its easing object.

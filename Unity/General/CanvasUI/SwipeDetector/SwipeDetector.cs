@@ -30,7 +30,7 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 [System.Serializable]
-public class SwipeEvent : UnityEvent<float> { }
+public class SwipeEvent : UnityEvent<float> {}
 
 public class SwipeDetector : MonoBehaviour, IPointerClickHandler, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
@@ -54,8 +54,7 @@ public class SwipeDetector : MonoBehaviour, IPointerClickHandler, IDragHandler, 
         //  Must have OnDrag() method for OnBeginDrag() and OnEndDrag() to work
     }
 
-    public void OnBeginDrag(PointerEventData pointerEventData)
-    {
+    public void OnBeginDrag(PointerEventData pointerEventData) {
         _dragging = true;
     }
 

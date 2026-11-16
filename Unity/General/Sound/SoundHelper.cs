@@ -39,9 +39,9 @@ public class SoundHelper : MonoBehaviour
     public static AudioSource Roll { get { return Instance.roll; } }
     public static AudioSource Beep { get { return Instance.beep; } }
 
-    public static void PlayClick(Callback callback = default)   { Play(Click, callback); }
-    public static void PlayRoll(Callback callback = default)    { Play(Roll, callback); }
-    public static void PlayBeep(Callback callback = default)    { Play(Beep, callback); }
+    public static void PlayClick(Callback callback = default) { Play(Click, callback); }
+    public static void PlayRoll(Callback callback = default) { Play(Roll, callback); }
+    public static void PlayBeep(Callback callback = default) { Play(Beep, callback); }
 
     // example cancel sound.  AudioSource audioSource = PlayDialTone(callback); ... audioSource.Stop();
     // public static AudioSource PlayDialTone(Callback callback = default) { return Play(DialTone, callback); }
@@ -56,7 +56,7 @@ public class SoundHelper : MonoBehaviour
         }
     }
 
-    public static bool IsAvalable {
+    public static bool IsAvailable {
         get { return _instance != default; }
 	}
 
@@ -121,7 +121,7 @@ public class SoundHelper : MonoBehaviour
 /*  should really be loading needed assets from the Assets folder at Start()
 void Start()
 {
-    // reading audio from Resurces folder
+    // reading audio from Resources folder
     myAudio = GetComponent<AudioSource>();
     myAudio.clip = Resources.Load<AudioClip>("mojo/gameover");
 }

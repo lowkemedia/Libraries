@@ -33,18 +33,18 @@ using CallbackTypes;
 // Reusable usage and integration instructions: README.md in this folder.
 public class Localizer : MonoBehaviour
 {
-    public const char KEY_PREFEX = '.';             // all keys begin with a '.'
-    public const char SEPERATOR = '+';              // compound keys are seperated by '+'
-    public const char BAR = '|';                    // varables passed into keys are separated by '|'
+    public const char KEY_PREFIX = '.';             // all keys begin with a '.'
+    public const char SEPARATOR = '+';              // compound keys are separated by '+'
+    public const char BAR = '|';                    // variables passed into keys are separated by '|'
     public const string BRACES = "{}";              // curly braces indicate a variable
-    public const char DELIMINATOR = ' ';            // deliminator added between keys, e.g. ".angry+.bees" returns "Angry Bees"
+    public const char DELIMITER = ' ';            // delimiter added between keys, e.g. ".angry+.bees" returns "Angry Bees"
     public const string TEST_RETURN = "*";          // when testing, all keys return "*"
 
     public static event Callback OnLanguageChangedEvent;
 
     // delegate allowing external modification of variables passed into keys
     public delegate string[] VariablesDelegate(string[] variables);
-    public static VariablesDelegate VariablesTinkerer;  // call to modify variables passed into keys
+    public static VariablesDelegate VariablesTinkerer { get; set; }  // call to modify variables passed into keys
 
     private static Dictionary<string, LocalizerValue> _keyValuePairs;
     private static List<string> _files;             // files used for localization
@@ -60,8 +60,7 @@ public class Localizer : MonoBehaviour
         get { return (LanguageType) (int) _languageCode; }
         set { Initialize((LanguageCode) (int) value); }
     }
-    public static LanguageType GetLanguageType(LanguageCode value)
-    {
+    public static LanguageType GetLanguageType(LanguageCode value) {
         return (LanguageType) (int) value;
     }
 
@@ -69,8 +68,7 @@ public class Localizer : MonoBehaviour
         get { return (LanguageName) (int) _languageCode; }
         set { Initialize((LanguageCode) (int) value); }
     }
-    public static LanguageName GetLanguageName(LanguageCode value)
-    {
+    public static LanguageName GetLanguageName(LanguageCode value) {
         return (LanguageName) (int) value;
     }
 
@@ -118,14 +116,12 @@ public class Localizer : MonoBehaviour
         OnLanguageChangedEvent?.Invoke();
     }
 
-    public static void SetStyle(string fileName, bool giveWarning = true)
-    {
+    public static void SetStyle(string fileName, bool giveWarning = true) {
         _styleFile = fileName;
         Stylizer.LoadStyle(fileName, true, giveWarning);
     }
 
-    public static void AddFile(string fileName, bool giveWarning = true)
-    {
+    public static void AddFile(string fileName, bool giveWarning = true) {
         _files.Add(fileName);
         LoadFile(fileName, giveWarning);
     }
@@ -196,7 +192,7 @@ public class Localizer : MonoBehaviour
     {
         //
         // check for compound key
-        if (key.IndexOf(SEPERATOR) > -1) {
+        if (key.IndexOf(SEPARATOR) > -1) {
             return CompoundKey(key, variables, giveWarning);
         }
 
@@ -278,7 +274,7 @@ public class Localizer : MonoBehaviour
         for (int i = 0; i < keylist.Length; ++i) {
             string thisKey = keylist[i];
             if (IsKey(previousKey) && IsKey(thisKey)) {
-                value += DELIMINATOR;
+                value += DELIMITER;
             }
             bool warn = giveWarning && IsKey(thisKey);     // compound keys warn only for embedded keys
             value += Value(thisKey, variables, warn);
@@ -305,14 +301,12 @@ public class Localizer : MonoBehaviour
         return null;
     }
 
-    public static bool IsKey(string value)
-    {
+    public static bool IsKey(string value) {
         // return true if value starts with '.'
-        return !string.IsNullOrEmpty(value) && value[0] == KEY_PREFEX;
+        return !string.IsNullOrEmpty(value) && value[0] == KEY_PREFIX;
     }
 
-    public static string JustKey(string key)
-    {
+    public static string JustKey(string key) {
         // remove any embedded variables from end of key
         return ExpandKey(key)[0];
     }
@@ -320,21 +314,20 @@ public class Localizer : MonoBehaviour
     public static string[] ExpandKey(string key)
     {
         // break key into key and variables
-        //  embedded variables seperated by '|'
-        char[] spearator = { BAR };
-        return key.Split(spearator);
+        //  embedded variables separated by '|'
+        char[] separator = { BAR };
+        return key.Split(separator);
     }
 
     public static string[] GetKeys(string key)
-	{
+    {
         // break compound key into individual keys
-        //  compound keys seperated by '+'
-        char[] seperator = { SEPERATOR };
-        return key.Split(seperator);
+        //  compound keys separated by '+'
+        char[] separator = { SEPARATOR };
+        return key.Split(separator);
 	}
 
-    public static string Citation(string key)
-    {
+    public static string Citation(string key) {
         return LocalizerValue(key).citation;
     }
 }

@@ -37,7 +37,7 @@ Unity's main thread in Play Mode with an AudioListener present. Click generates
 a short noise snap; Rollover is a softer, quieter tick; Beep generates a tone
 and limits repeated playback. These are
 Unity sounds, not native operating-system sounds. See the linked SystemUI guide
-for lifetime, volume/pause behaviour and integration checks.
+for lifetime, volume/pause behavior and integration checks.
 
 ## Assigning system sounds
 
@@ -65,7 +65,7 @@ on enable, ahead of scripts with default execution order. The generated clip is
 not a saved asset to drag into the Inspector; an existing assigned clip is
 replaced at runtime. Re-enabling the adapter reapplies its selection.
 
-Playback, mixer routing, volume, pause behaviour and completion callbacks remain
+Playback, mixer routing, volume, pause behavior and completion callbacks remain
 under the normal AudioSource/SoundHelper controls. In particular, using Beep's
 clip through an AudioSource does not apply the repeat guard from `Beep.Play()`;
 the adapter also leaves `ignoreListenerPause` unchanged. Shared clips survive

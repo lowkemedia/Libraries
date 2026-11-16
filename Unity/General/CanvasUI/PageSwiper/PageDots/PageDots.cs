@@ -36,12 +36,12 @@ public class PageDots : MonoBehaviour
 	public float padding = 14;				// px padding used between dots
 	public PageDot pageDotTemplate;         // template dot used for creating each page dot
 
-	// variables for use with IsLotsOfPages functionality
+	// variables for use with HasMorePagesThanDots functionality
 	private int _halfDots;                  // number of dots either side of the center dot
-	private int _dotIndex;                  // dot index displayed when IsLotsOfPages
+	private int _dotIndex;                  // dot index displayed when HasMorePagesThanDots
 	private bool _isFloatingDot;			// true if the dot is "floating" in the middle of lots of pages
 	private int _middleDotPageIndex;        // index of the page at the middle dot when not _isFloatingDot
-	private int _peviousPageIndex;          // page index of previous page prior to swipe
+	private int _previousPageIndex;          // page index of previous page prior to swipe
 
 	private PageSwiper _pageSwiper;
 	public PageSwiper PageSwiper {
@@ -51,7 +51,7 @@ public class PageDots : MonoBehaviour
 		}
 	}
 
-	private bool IsLotsOfPages {
+	private bool HasMorePagesThanDots {
 		get {
 			if (maxDots == -1 ||
 				maxDots >= PageSwiper.TotalPages) {
@@ -62,10 +62,9 @@ public class PageDots : MonoBehaviour
 		}
 	}
 
-	private int TotalDots
-	{
+	private int TotalDots {
 		get {
-			if (IsLotsOfPages) {
+			if (HasMorePagesThanDots) {
 				return maxDots;
 			} else {
 				return PageSwiper.TotalPages;
@@ -81,7 +80,7 @@ public class PageDots : MonoBehaviour
 		get { return _pageDots[maxDots - 1]; }
 	}
 
-	// Update is called once per frame
+	// Initialize dots and listen for page changes.
 	public void Start()
 	{
 		InitializePageDots();
@@ -92,10 +91,9 @@ public class PageDots : MonoBehaviour
 	
 	private void InitializePageDots()
 	{
-		_peviousPageIndex = PageSwiper.PageIndex;
+		_previousPageIndex = PageSwiper.PageIndex;
 
-		if (IsLotsOfPages)
-		{
+		if (HasMorePagesThanDots) {
 			if (maxDots%2 == 0) {
 				throw new Exception("maxDots must be an odd number.");
             }
@@ -122,8 +120,7 @@ public class PageDots : MonoBehaviour
 		float originX = pageDotTemplate.GetX() + pageDotTemplate.GetWidth();
 		float dotWidth = pageDotTemplate.GetWidth();
 		float dotsWidth = (dotWidth + padding) * TotalDots;
-		for (int i = 0; i < TotalDots; ++i)
-		{
+		for (int i = 0; i < TotalDots; ++i) {
 			PageDot pageDot = pageDots.MakeUiComponent(pageDotTemplate, "Page Dot " + (i + 1));
 			pageDot.pageDot = pageDotTemplate.pageDot;
 			pageDot.pageDotLight = pageDotTemplate.pageDotLight;
@@ -138,10 +135,9 @@ public class PageDots : MonoBehaviour
 	
 	private void OnPageChange(int pageIndex)
 	{
-		int difference = pageIndex - _peviousPageIndex;
+		int difference = pageIndex - _previousPageIndex;
 
-		if (IsLotsOfPages)
-		{
+		if (HasMorePagesThanDots) {
 			if (!_isFloatingDot) {
 
 				// find the middle dot page index
@@ -178,13 +174,13 @@ public class PageDots : MonoBehaviour
 		}
 
 		UpdatePageDots();
-		_peviousPageIndex = pageIndex;
+		_previousPageIndex = pageIndex;
 	}
 
 	private void UpdatePageDots()
 	{
-		if (!IsLotsOfPages) {
-			// when !IsLotsOfPages
+		if (!HasMorePagesThanDots) {
+			// when !HasMorePagesThanDots
 			//  show page dot according to PageIndex
 			for (int i = 0; i < TotalDots; ++i) {
 				PageDot pageDot = _pageDots[i];
@@ -193,16 +189,14 @@ public class PageDots : MonoBehaviour
 			return;
 		}
 
-		if (_isFloatingDot)
-		{
+		if (_isFloatingDot) {
 			//
 			// edge dots default as small
 			FirstDot.Small = true;
 			LastDot.Small = true;
 
 			// check if on the first two pages
-			if (PageSwiper.PageIndex < 2)
-			{
+			if (PageSwiper.PageIndex < 2) {
 				// cease floating and make the first dot big
 				_isFloatingDot = false;
 				FirstDot.Small = false;
@@ -214,8 +208,7 @@ public class PageDots : MonoBehaviour
 			}
 
 			// check if on the last two pages
-			if (PageSwiper.PageIndex >= PageSwiper.TotalPages - 2)
-			{
+			if (PageSwiper.PageIndex >= PageSwiper.TotalPages - 2) {
 				// cease floating and make the last dot big
 				_isFloatingDot = false;
 				LastDot.Small = false;
@@ -233,7 +226,7 @@ public class PageDots : MonoBehaviour
 			LastDot.Small = _middleDotPageIndex < PageSwiper.TotalPages - _halfDots - 1;
 		}
 
-		// when IsLotsOfPages
+		// when HasMorePagesThanDots
 		//  show page dot according to _dotIndex
 		for (int i = 0; i < TotalDots; ++i) {
 			PageDot pageDot = _pageDots[i];

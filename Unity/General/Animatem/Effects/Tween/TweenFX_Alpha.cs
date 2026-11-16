@@ -37,12 +37,10 @@ public class TweenFX_Alpha : TweenFX
                          float duration,
                          EasingFunct easingFunct = null,
                          EffectType type = EffectType.END) : 
-    base(start, end, duration, easingFunct, type, "TweenFX_Alpha") {}
+        base(start, end, duration, easingFunct, type, "TweenFX_Alpha") {}
 
-    public override float Value
-    {
-        set
-        {
+    public override float Value {
+        set {
             base.Value = value;
             // set all graphics in target
             Graphic[] graphics = _target.GetComponentsInChildren<Graphic>();

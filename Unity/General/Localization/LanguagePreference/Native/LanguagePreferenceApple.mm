@@ -38,7 +38,6 @@ extern "C" char* LowkeLanguagePreference_CopyLanguages()
     }
 }
 
-extern "C" void LowkeLanguagePreference_FreeLanguages(char* languages)
-{
+extern "C" void LowkeLanguagePreference_FreeLanguages(char* languages) {
     free(languages);
 }

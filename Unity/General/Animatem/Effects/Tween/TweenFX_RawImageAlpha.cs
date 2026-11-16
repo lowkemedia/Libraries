@@ -38,19 +38,16 @@ public class TweenFX_RawImageAlpha : TweenFX
                             float duration,
                             EasingFunct easingFunct = null,
                             EffectType type = EffectType.END) : 
-    base(start, end, duration, easingFunct, type, "TweenFX_RawImageAlpha") {}
+        base(start, end, duration, easingFunct, type, "TweenFX_RawImageAlpha") {}
 
-    protected override void Initialize()
-    {
+    protected override void Initialize() {
         _image = _target.GetComponent<RawImage>();
         base.Initialize();
     }
 
-    public override float Value
-    {
+    public override float Value {
         get { return _image.color.a; }
-        set
-        {
+        set {
             base.Value = value;
 
             Color color = _image.color;

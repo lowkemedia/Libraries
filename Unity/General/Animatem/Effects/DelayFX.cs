@@ -33,20 +33,18 @@ public class DelayFX : AnimatemEffect
     private float _triggerTime;              // time at which to trigger the function
 
     public DelayFX(float delay, EffectType type = EffectType.END) : 
-    base("DelayFX", type)
+        base("DelayFX", type)
     {
         _delay = delay;
     }
 
-    protected override void Initialize()
-    {
+    protected override void Initialize() {
         _triggerTime = _startTime + _delay;
     }
 
     protected override bool Update()
     {
-        if (_updateTime >= _triggerTime)
-        {
+        if (_updateTime >= _triggerTime) {
             // increment _triggerTime in case effect persists or similar
             _triggerTime += _delay;
             return true;
@@ -55,8 +53,7 @@ public class DelayFX : AnimatemEffect
         return false;
     }
 
-    protected override void SnapToEnd()
-    {
+    protected override void SnapToEnd() {
         _triggerTime = _updateTime;
     }
 }

@@ -49,19 +49,16 @@ public class SwipeCopier : MonoBehaviour, IPointerClickHandler, IDragHandler, IB
         }
     }
 
-    public void OnBeginDrag(PointerEventData pointerEventData)
-    {
+    public void OnBeginDrag(PointerEventData pointerEventData) {
         _dragging = true;
         // pageSwiper.OnBeginDrag(pointerEventData);
     }
 
-    public void OnDrag(PointerEventData pointerEventData)
-    {
+    public void OnDrag(PointerEventData pointerEventData) {
         pageSwiper.OnDrag(pointerEventData);
     }
 
-    public void OnEndDrag(PointerEventData pointerEventData)
-    {
+    public void OnEndDrag(PointerEventData pointerEventData) {
         _dragging = false;
         pageSwiper.OnEndDrag(pointerEventData);
     }

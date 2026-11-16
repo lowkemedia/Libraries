@@ -55,8 +55,7 @@ public static class Utils
         return gameObject;
     }
 
-    public static Transform GetTransform(this Object obj)
-    {
+    public static Transform GetTransform(this Object obj) {
         GameObject gameObject = obj.GetGameObject();
         return gameObject.transform;
     }
@@ -82,8 +81,7 @@ public static class Utils
         //  scale and rotation are modified such that the object keeps the same world space position
     }
 
-    public static GameObject GetParent(this Object obj)
-    {
+    public static GameObject GetParent(this Object obj) {
         Transform parent = obj.GetGameObject().transform.parent;
         return parent is null ? null : parent.gameObject;
     }
@@ -93,7 +91,7 @@ public static class Utils
     {
         Transform transform = obj.GetTransform();
 
-        // iterate through children loking for named child
+        // iterate through children looking for named child
         foreach(Transform childTransform in transform) {
             GameObject childGameObject = childTransform.GetGameObject();
             if (childGameObject.name == name) {
@@ -106,28 +104,24 @@ public static class Utils
 
     //
     // Move child to top of display list
-    public static void MoveToTop(this Object obj)
-    {
+    public static void MoveToTop(this Object obj) {
         Transform transform = obj.GetTransform();
         transform.SetAsLastSibling();
     }
 
     //
     // Move child to bottom of display list
-    public static void MoveToBottom(this Object obj)
-    {
+    public static void MoveToBottom(this Object obj) {
         Transform transform = obj.GetTransform();
         transform.SetAsFirstSibling();
     }
 
-    public static int GetLayer(this Object obj)
-    {
+    public static int GetLayer(this Object obj) {
         Transform transform = obj.GetTransform();
         return transform.GetSiblingIndex();
     }
 
-    public static void SetLayer(this Object obj, int index)
-    {
+    public static void SetLayer(this Object obj, int index) {
         Transform transform = obj.GetTransform();
         transform.SetSiblingIndex(index);
     }
@@ -135,8 +129,7 @@ public static class Utils
     //
     // set and get local position of UnityEngine Object
     //
-    public static void SetLocalPosition(this Object obj, Vector3 localPosition)
-    {
+    public static void SetLocalPosition(this Object obj, Vector3 localPosition) {
         obj.GetTransform().localPosition = localPosition;
     }
 
@@ -157,81 +150,69 @@ public static class Utils
         transform.localPosition = localPosition;
     }
 
-    public static Vector3 GetLocalPosition(this Object obj)
-    {
+    public static Vector3 GetLocalPosition(this Object obj) {
         return obj.GetTransform().localPosition;
     }
 
     // get local position of world Vector3
-    public static Vector3 GetLocalPosition(this Object obj, Vector3 worldPosition)
-    {
+    public static Vector3 GetLocalPosition(this Object obj, Vector3 worldPosition) {
         Transform transform = obj.GetTransform();
         return transform.InverseTransformPoint(worldPosition);
     }
 
     // get local position of a world object
-    public static Vector3 GetLocalPosition(this Object obj, Object worldObj)
-    {
+    public static Vector3 GetLocalPosition(this Object obj, Object worldObj) {
         Vector3 worldPosition = worldObj.GetTransform().position;
         return obj.GetLocalPosition(worldPosition);
     }
 
     // get world position of local Vector3
-    public static Vector3 GetWorldPosition(this Object obj, Vector3 localPosition)
-    {
+    public static Vector3 GetWorldPosition(this Object obj, Vector3 localPosition) {
         Transform transform = obj.GetTransform();
         return transform.TransformPoint(localPosition);
     }
 
-    public static void SetX(this Object obj, float x)
-    {
+    public static void SetX(this Object obj, float x) {
         obj.SetLocalPosition(x, float.NaN);
     }
 
-    public static void SetY(this Object obj, float y)
-    {
+    public static void SetY(this Object obj, float y) {
         obj.SetLocalPosition(float.NaN, y);
     }
 
-    public static float GetX(this Object obj)
-    {
+    public static float GetX(this Object obj) {
         return obj.GetLocalPosition().x;
     }
 
-    public static float GetY(this Object obj)
-    {
+    public static float GetY(this Object obj) {
         return obj.GetLocalPosition().y;
     }
 
     //
     // set and get scale of UnityEngine Object
     //
-    public static void SetScale(this Object obj, Vector3 scale)
-    {
+    public static void SetScale(this Object obj, Vector3 scale) {
         obj.GetTransform().localScale = scale;
     }
 
-    public static void SetScale(this Object obj, float scale)
-    {
+    public static void SetScale(this Object obj, float scale) {
         obj.SetScale(new Vector3(scale, scale, 1));
     }
 
-    public static float GetScale(this Transform transform, bool giveWarnig = true)
+    public static float GetScale(this Transform transform, bool giveWarning = true)
     {
         Vector3 localScale = transform.localScale;
-        if (giveWarnig && localScale.x != localScale.y) {
+        if (giveWarning && localScale.x != localScale.y) {
             Logger.Warning("localScale.x != localScale.y in GetScale()", WARNING_NONUNIFORM_SCALE_ID);
         }
         return localScale.x;
     }
 
-    public static float GetScale(this Object obj)
-    {
+    public static float GetScale(this Object obj) {
         return obj.GetTransform().GetScale();
     }
 
-    public static void SetRotation(this Object obj, float angle)
-    {
+    public static void SetRotation(this Object obj, float angle) {
         Transform transform = obj.GetTransform();
         transform.Rotate(new Vector3(0, 0, angle));
     }
@@ -278,8 +259,7 @@ public static class Utils
     //
     public static void CopyComponent<T>(this T target, T template, string[] ignore = null) where T : Component
     {
-        foreach (PropertyInfo propertyInfo in typeof(T).GetProperties())
-        {
+        foreach (PropertyInfo propertyInfo in typeof(T).GetProperties()) {
             if (propertyInfo.CanWrite && propertyInfo.CanRead) {
                 if (ignore != null && Array.IndexOf(ignore, propertyInfo.Name) != -1) {
                     // skip this property as it's on the ignore list
@@ -327,7 +307,7 @@ public static class Utils
 
     public static bool IsDestroyed(GameObject gameObject)
     {
-        // UnityEngine overloads the == opeator for the GameObject type
+        // UnityEngine overloads the == operator for the GameObject type
         // and returns null when the object has been destroyed, but 
         // actually the object is still there but has not been cleaned up yet
         // if we test both we can determine if the object has been destroyed.

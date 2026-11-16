@@ -60,7 +60,7 @@ linear motion. Positions use `Transform.localPosition`, not screen pixels or
 | --- | --- |
 | [Animatem](Animatem.cs) | Scene component; finds/creates an Anime per target and updates them in `FixedUpdate`. |
 | [Anime](Anime.cs) | Holds the effects for one GameObject; adds, finds, replaces and removes them. |
-| [AnimatemEffect](Effects/AnimatemEffect.cs) | Base class for timing, completion, callbacks and repeat behaviour. |
+| [AnimatemEffect](Effects/AnimatemEffect.cs) | Base class for timing, completion, callbacks and repeat behavior. |
 | [TweenFX](Effects/Tween/TweenFX.cs) | Changes a numeric value from start to end; subclasses apply it to a property. |
 | [MultiEffectFX](Effects/MultiEffectFX.cs) | Starts child effects together and waits for all their completion callbacks. |
 | [Parabola](Effects/Tween/Easing/Parabola.cs) | Fits a quadratic through the start, your chosen intermediate point and the end. |
@@ -97,8 +97,8 @@ Use positive, finite velocity and nonzero travel distance.
 ## Running effects together
 
 `MultiEffectFX` is a **parallel group**, not a sequence. Here scale and local Y
-change together, with one callback after both finish. This is the pattern used
-for enlarging and lifting a chess piece during dragging.
+change together, with one callback after both finish. This can enlarge and lift
+a draggable tile or icon.
 
 The following snippets belong inside a method on a MonoBehaviour, with
 `using System.Collections.Generic;` and `using AnimatemTypes;`.
@@ -137,7 +137,7 @@ a standalone `DelayFX` when no animated target is involved.
 
 Set the effect's type to choose what happens when it reaches its end:
 
-| `EffectType` | Behaviour |
+| `EffectType` | Behavior |
 | --- | --- |
 | `END` | Remove this effect. The default. |
 | `PERSIST` | Keep it registered after completion; this is not a pause. |
@@ -148,7 +148,7 @@ Set the effect's type to choose what happens when it reaches its end:
 
 A zero-duration scalar tween finishes once, even with CYCLE/REVERSE or a repeat
 count, reporting warning `ANI06` through Logger with `showOnlyOnce: true`.
-Zero-duration END tweens retain their normal instant-movement behaviour without
+Zero-duration END tweens retain their normal instant-movement behavior without
 this warning.
 
 For positive-duration scalar tweens, `Cycles = 0` leaves CYCLE/REVERSE unbounded.
@@ -183,7 +183,7 @@ An effect's default name identifies its type. Adding another with that name
 normally replaces the old one on the same Anime, without running its callback.
 That makes repeated movement requests replace the pending movement.
 
-| `AddEffect` name argument | Behaviour |
+| `AddEffect` name argument | Behavior |
 | --- | --- |
 | Omitted / `EffectString.REPLACE` | Replace an existing effect with the incoming effect's name. |
 | `EffectString.SNAP_REPLACE` | Snap the old effect to its end and run its callback, then replace it. |
@@ -218,12 +218,12 @@ Combine the effects above to build common interactions:
 | Interaction | Pattern |
 | --- | --- |
 | Move an object | XY movement with two fresh Parabola delegates; group with a 0.5-second delay for a minimum move duration. |
-| Snap an image back | Replace the current XY tween to move the piece image back into position. |
+| Snap an image back | Replace the current XY tween to move an image back into position. |
 | Spotlight an object | Reversing scale tween, a finite leg count and a parallel delay; restore visual state in the group callback. |
-| Remove with a fade | Fade an Image, then remove the piece in the callback. |
+| Remove with a fade | Fade an Image, then remove the object in the callback. |
 | Drag and drop | Group scale and Y movement for lift/drop feedback. |
 | Pulse a highlight | Reversing linear Image-alpha tween for a repeating highlight. |
-| Dismiss a curtain | Fade a curtain's graphics before destroying it and continuing the game. |
+| Dismiss a curtain | Fade a curtain's graphics before destroying it and continuing the next screen. |
 | Slide a graphic | X-position tween using `Sine.EaseOut`. |
 
 The [Parabola guide](README%20Parabola.md#example-settings) records
@@ -256,7 +256,7 @@ read/write that property. Call `base.Value = value` in the setter: the base twee
 uses its stored value to detect arrival at the endpoint.
 [TweenFX_ImageAlpha](Effects/Tween/TweenFX_ImageAlpha.cs) is a compact example.
 
-For non-tween behaviour, subclass `AnimatemEffect` and implement `Initialize`,
+For non-tween behavior, subclass `AnimatemEffect` and implement `Initialize`,
 `Update` (return true when resolved) and `SnapToEnd`. Override `Cleanup` if you
 own resources, and Cycle/Reverse only if supported. The base implementations of
 Cycle/Reverse log a warning. Keep callbacks under the base class's completion

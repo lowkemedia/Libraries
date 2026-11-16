@@ -37,7 +37,7 @@ public class ClickButtonStyle : ScriptableObject
     public Sprite selectedSprite;       // selected
     public Sprite disabledSprite;       // disabled
 
-    // text style for this utton
+    // text style for this button
     public TextButtonStyle textButtonStyle;
 
     // if true, omits drawing the Normal ("up") state after

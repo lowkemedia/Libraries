@@ -66,9 +66,9 @@ public class Animatem : MonoBehaviour
         if (GlobalState.IsHandheld) {
             Application.targetFrameRate = 60;
 
-            // change 0.2 into 1/60 ~ 0.01666667. 
-            Time.fixedDeltaTime = 0.01666666f;     // Sets to 60 fps
-            Time.maximumDeltaTime = 0.05f;           // Sets worse case to 20 fps
+            // Use a fixed timestep of approximately 1/60 second. 
+            Time.fixedDeltaTime = 0.01666666f;     // Sets fixed updates to 60 Hz
+            Time.maximumDeltaTime = 0.05f;           // Caps simulated time per frame at 0.05 seconds
                                                      // https://docs.unity3d.com/Manual/class-TimeManager.html
 
             // TODO: maintaining a framerate of 60 fps will drain the battery!
@@ -116,8 +116,8 @@ public class Animatem : MonoBehaviour
     }
     */
 
-    // FixedUpdate is a MonoBehaviour alternatuve to Update(),
-    //  and called once per frame
+    // FixedUpdate runs on a fixed timestep, with zero, one or multiple calls
+    //  per rendered frame.
     public void FixedUpdate()
     {
         // Update all Anime objects in Animatem, performing all effects attached to Animes.
@@ -142,7 +142,7 @@ public class Animatem : MonoBehaviour
     // Anime() is typically used to create and get Anime objects.
     //
     // Note: Anime instances without any Effects attached will automatically be removed on the next Update().
-    // To prevent this, set the Anime's _persist flag to true.</p>
+    // To prevent this, set the Anime's Persist property to true.
     //
     public Anime Anime(GameObject target)
     {
@@ -154,8 +154,7 @@ public class Animatem : MonoBehaviour
         Anime anime = GetAnime(target);
 
         // if no Anime found then create a new one
-        if (anime is null)
-        {
+        if (anime is null) {
             anime = new Anime(this, target);
             _animeDict[target] = anime;
             _animeList.Add(anime);
@@ -167,8 +166,7 @@ public class Animatem : MonoBehaviour
     //
     // Returns the Anime object linked to the target, if any.
     //
-    public Anime GetAnime(GameObject target)
-    {
+    public Anime GetAnime(GameObject target) {
         bool found = _animeDict.TryGetValue(target, out Anime anime);
         return anime;
     }
@@ -191,8 +189,7 @@ public class Animatem : MonoBehaviour
     public void Remove(GameObject target, bool snapToEnd = false)
     {
         Anime anime = GetAnime(target);
-        if (anime != null)
-        {
+        if (anime != null) {
             anime.ClearEffects(snapToEnd);
             _animeDict.Remove(target);
             _animeList.Remove(anime);
@@ -217,8 +214,7 @@ public class Animatem : MonoBehaviour
     }
 
 
-    public override string ToString()
-    {
+    public override string ToString() {
         return DumpAnime();
     }
 
@@ -232,13 +228,11 @@ public class Animatem : MonoBehaviour
         return str;
     }
 
-    public float UpdateTime
-    {
+    public float UpdateTime {
         get { return _updateTime; }
     }
 
-    public float TimePassed
-    {
+    public float TimePassed {
         get { return _timePassed; }
     }
 }

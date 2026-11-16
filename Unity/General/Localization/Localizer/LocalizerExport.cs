@@ -2,9 +2,12 @@ using LocalizerTypes;
 using System.IO;
 using System.Collections.Generic;
 
-// Export behaviour and host-specific configuration: see README.md in this folder.
+// Export behavior and host-specific configuration: see README.md in this folder.
 public static class LocalizerExport
 {
+    // Optional lines appended to proofreading text exports; null or empty omits the footer.
+    public static string[] PageFooterLines { get; set; }
+
     public static void ExportFile(string fileName)
     {
         // load original file
@@ -31,18 +34,15 @@ public static class LocalizerExport
         List<string> keysList = new List<string>();         // includes variables at end
         List<string> justKeysList = new List<string>();
         string[] expandedKeys;
-        foreach (string key in keys)
-        {
+        foreach (string key in keys) {
             // expand compound keys
             expandedKeys = Localizer.GetKeys(key);
             foreach (string expandedKey in expandedKeys) {
-                if (Localizer.IsKey(expandedKey))
-                {
+                if (Localizer.IsKey(expandedKey)) {
                     // prune duplicate keys
                     string justKey = Localizer.JustKey(expandedKey);
                     int index = justKeysList.IndexOf(justKey);
-                    if (index != -1)
-                    {
+                    if (index != -1) {
                         // skip duplicate key
                         if (keysList.IndexOf(expandedKey) == -1) {
                             // Warn that file must contain unique keys for all parameters
@@ -63,7 +63,7 @@ public static class LocalizerExport
 
     // Export localization string file with all variables removed from the key
     private static void CreateKeysFile(string fileName, string[] keys, bool variablesInKeys = false)
-	{
+    {
         // header
         string exportFileName = "JsonKeys/" + fileName + " " + Localizer.LanguageCode + ".json";
         StreamWriter streamWriter = File.CreateText(exportFileName);
@@ -72,8 +72,7 @@ public static class LocalizerExport
         bool isFirst = true;
 
         // body
-        foreach (string key in keys)
-        {
+        foreach (string key in keys) {
             LocalizerValue value = Localizer.LocalizerValue(key);
             if (value == null) {
                 continue;
@@ -101,7 +100,7 @@ public static class LocalizerExport
             if (string.IsNullOrEmpty(export)) {
                 Logger.Warning("key:" + key + " is empty value.", LocalizerID.WARNING_EXPORT_EMPTY_VALUE_ID);
             }
-            export = UtilsString.CorrectForQuotes(export);
+            export = UtilsString.CorrectForQuotes(export) ?? string.Empty;
             export = UtilsString.CorrectForTabs(export);
 
             // check for single quote
@@ -134,10 +133,9 @@ public static class LocalizerExport
 
         // body
         int page = 1;
-        foreach (string key in keys)
-        {
+        foreach (string key in keys) {
             string export = Localizer.Value(key);
-            export = UtilsString.CorrectForQuotes(export);
+            export = UtilsString.CorrectForQuotes(export) ?? string.Empty;
             export = UtilsString.CorrectForTabs(export);
             export = UtilsString.CorrectBreaks(export);                 // correct for <br> tags
             export = UtilsString.RemoveMarkup(export, "b");             // remove <b> bold
@@ -161,11 +159,12 @@ public static class LocalizerExport
         }
 
         // footer
-        streamWriter.WriteLine("");
-        streamWriter.WriteLine("Chess Origins");
-        streamWriter.WriteLine("© Copyright 2022");
-        streamWriter.WriteLine("Lowke Media Pty Ltd");
-        streamWriter.WriteLine("All Rights Reserved");
+        if (PageFooterLines != null && PageFooterLines.Length > 0) {
+            streamWriter.WriteLine("");
+            foreach (string line in PageFooterLines) {
+                streamWriter.WriteLine(line);
+            }
+        }
         streamWriter.Close();
 
         Logger.Print(">>> Exported file:" + exportFileName);

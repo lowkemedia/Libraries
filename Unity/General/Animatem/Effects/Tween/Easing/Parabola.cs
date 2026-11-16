@@ -54,7 +54,7 @@ public class Parabola
 
     private void Recalibrate(float begin,
                              float range,
-                             float duration) 
+                             float duration)
     {
         if (float.IsNaN(_ctrlValue)) {
             _ctrlValue = begin + range * _ctrlValuePerc;
@@ -82,7 +82,7 @@ public class Parabola
         }
 
         if (run == 0.0f) {
-            return rise;  // infinity
+            return rise;  // vertical-line convention
         }
 
         return rise / run;
@@ -91,7 +91,7 @@ public class Parabola
     public float Ease(float time,
                       float begin,
                       float range,
-                      float duration) 
+                      float duration)
     {
         if (float.IsNaN(_a) || time == 0) {
             Recalibrate(begin, range, duration);
@@ -118,7 +118,7 @@ public class Parabola
     }
 
     public static EasingFunct GetEasingCtrl(float ctrlValue,        // tween will be at ctrlValue value
-                                            float ctrlTime)         //  at ctrlTime specific time percentage
+                                            float ctrlTime)         //  at the specified control time in seconds
     {
         return new Parabola(float.NaN,float.NaN, ctrlValue, ctrlTime).Ease;
     }
@@ -127,22 +127,19 @@ public class Parabola
     // Example helper methods
     //
 
-    public static EasingFunct EaseIn
-    {
+    public static EasingFunct EaseIn {
         get {
             return GetEasing(0.25f, 0.5f);     // be 25% done at half time.
         }
     }
 
-    public static EasingFunct EaseOut
-    {
+    public static EasingFunct EaseOut {
         get {
             return GetEasing(0.75f, 0.5f);     // be 75% done at half time.
         }
     }
     
-    public static EasingFunct EaseBounce
-    {
+    public static EasingFunct EaseBounce {
         get {
             return GetEasing(0.35f, 0.7f);     // be 35% done at 70% time, this causes a "bounce" due to curve fitting.
         }

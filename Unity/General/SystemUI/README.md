@@ -36,15 +36,55 @@ Alert.Question("Apply these changes?", onAcknowledged: ApplyChanges, onCancel: K
 Alert.Question("Start again?", buttonText: "Yes", onAcknowledged: StartAgain,
     cancelButtonText: "No", onCancel: KeepPlaying);
 
-// Optional automatic alerts; false by default to preserve existing behaviour.
+// Optional automatic alerts; false by default to preserve existing behavior.
 Logger.ShowAlert = true;
 ```
 
-`Alert.Info`, `Alert.Warning`, `Alert.Severe` and `Alert.Error` forward the message, title, optional acknowledgement callback and button label to `Alert.Show` with the appropriate `Alert.Icon` value (`Error` uses Warning). `Show` retains its enum-based icon argument; the `*_ICON` string constants define the displayed symbols. Info/Question use blue circles (`0x6598FF`); Warning uses a yellow square (`0xFFFF99`); Error uses a red square (`0xCC6666`). Unknown icon values use a light-grey square (`0xEEEEEE`); `Icon.None` omits the icon.
+## Helper defaults and logging
 
-Explicit helpers always queue the alert regardless of `Logger.Level` or `Logger.ShowAlert`. `Info` and `Question` default to `log: false`; `Warning`, `Severe` and `Error` default to `log: true`. Logging respects Logger's level. The single-button helper parameter order is `message, title, buttonText, onAcknowledged, log, id`: `id` is only used for logging. Set `log: true` to log an Info message, or `log: false` to suppress a warning/error diagnostic. Alert calls the assembly-internal `Logger.LogNoAlert(level, message, id)` to prevent this diagnostic from generating a duplicate automatic alert, without changing the global setting. Public severity helpers offer no suppression flag; Logger.Log remains private. The body remains the caller's exact message and the default button is `OK`. `Error` is an alias for `Warning` with the title "Error", using the yellow warning icon and warning log output; other helper titles are "Information", "Warning" and "Severe". `Severe` uses the red error icon and Unity error logging, which can pause Editor Play Mode when Error Pause is enabled and the log is not filtered. OK does not unpause the Editor; standalone players are not paused by this. `Show` defaults to "System Alert" and does not log. `Question` adds `cancelButtonText, onCancel` between `onAcknowledged` and `log`. It defaults to title "Question", a blue question icon, OK on the right and Cancel on the left. Null/empty button labels fall back to OK/Cancel. Both callbacks are optional; either choice dismisses the question and invokes only its matching callback, at most once. State is cleared before invoking it, preserving FIFO ordering even during re-entry or callback exceptions. Logging is optional at Info level and does not create a duplicate automatic alert. `Show(..., icon: Alert.Icon.Question)` remains a single-button alert; only `Question` adds a second button.
+Every explicit helper queues a visible request regardless of Logger.Level or
+Logger.ShowAlert. Logging is a separate option and obeys the configured log level.
 
-When `ShowAlert` is enabled, ordinary Severe/Warning/Info calls display alerts only after the existing log-level and `showOnlyOnce` checks. Detail/Print/Debug remain console-only. Existing message-based suppression and logging output are unchanged. Automatic alerts stay opt-in; do not enable them globally without considering repeated diagnostics.
+| Helper | Default title | Icon | Logs by default |
+| --- | --- | --- | --- |
+| `Info` | Information | Blue information circle | No; optional Info log. |
+| `Question` | Question | Blue question circle | No; optional Info log. |
+| `Warning` | Warning | Yellow warning square | Yes, Warning. |
+| `Error` | Error | Yellow warning square | Yes, Warning; an alias for Warning with a different title. |
+| `Severe` | Severe | Red error square | Yes, Severe/Unity LogError. |
+| `Show` | System Alert | Info unless an enum icon is supplied | Never. |
+
+The single-button helpers take `message, title, buttonText, onAcknowledged, log,
+id`. Prefer named optional arguments. The default label is OK; the displayed
+body is the caller's message. `id` affects the diagnostic, not the explicit alert
+body. `log: false` suppresses that diagnostic, not the visible alert.
+
+Alert uses the assembly-internal Logger.LogNoAlert entry point for its own
+logging, so it does not generate another automatic alert or change ShowAlert.
+Ordinary Logger severity helpers have no per-call alert-suppression flag.
+Severe can trigger Editor Error Pause when its log is not filtered. Acknowledging
+the alert does not resume paused Play Mode; standalone players are not paused
+by that Editor setting.
+
+### Questions and icons
+
+Question adds `cancelButtonText, onCancel` between `onAcknowledged` and `log`.
+It puts OK on the right and Cancel on the left; empty labels fall back to those
+defaults. Either choice dismisses the question and invokes only its matching
+optional callback, at most once. State is cleared first, preserving FIFO ordering
+during callback re-entry or exceptions. `Show(icon: Alert.Icon.Question)` still
+has only one button: use Question for two choices.
+
+Show accepts the `Alert.Icon` enum. The `*_ICON` string constants hold its displayed
+symbols. Info/Question use blue circles (`0x6598FF`), Warning a yellow square
+(`0xFFFF99`), and the Error enum a red square (`0xCC6666`). Unknown enum values
+use light gray (`0xEEEEEE`); None omits the icon. The Error *helper* uses the
+Warning enum, as shown in the table.
+
+When ShowAlert is enabled, ordinary Severe/Warning/Info logs request automatic
+alerts only after level and once-only filtering. Detail/Print/Debug remain
+console-only. Automatic alerts are opt-in; consider repeated diagnostics before
+enabling the switch for normal use.
 
 ## Logger integration
 
@@ -70,7 +110,8 @@ include this bridge with SystemUI for automatic system alerts. Alert still uses
 Logger for its own optional logging.
 `Logger.cs` is required to compile Alert even when every call uses `log: false`.
 Alert and Logger must compile in the same assembly to use the internal
-`LogNoAlert` entry point; the current project places both in Assembly-CSharp.
+`LogNoAlert` entry point. Without assembly definitions, these runtime scripts
+normally share Assembly-CSharp; keep them together when introducing assemblies.
 
 ## Diagnostic IDs
 
@@ -101,13 +142,13 @@ ship in both portrait and landscape.
 ## Startup and lifetime
 
 - Unity runtime initialization installs a persistent host before the first scene's `Awake`. No scene/prefab changes are needed. Session initialization clears prior requests when entering Play Mode, including when domain reload is disabled.
-- `Alert.Show` only enqueues immutable request data under a lock, so workers can request alerts. The host builds UI and invokes acknowledgement callbacks on Unity's main thread.
+- `Alert.Show` only enqueues immutable request data under a lock, so workers can request alerts. The host builds UI and invokes acknowledgment callbacks on Unity's main thread.
 - Alerts are FIFO, one visible at a time. Identical text does not merge requests or lose callbacks. Acknowledgement removes the active request before invoking its callback; stale clicks, re-entry and exceptions cannot invoke it again. The next request is presented on a subsequent update, with a short unscaled input guard against accidental double clicks.
 - Rendering uses built-in IMGUI (separate from the gameplay Canvas), with screen-safe-area positioning and scrollable long text. The panel width is two-thirds of the shorter safe-area dimension in portrait or landscape. Text, icons, spacing and buttons scale together from the 400-unit layout; sizing is recalculated on each draw for rotation and window resizing, independently of DPI and CanvasScaler settings. A transparent, topmost runtime canvas blocks normal uGUI pointer raycasts behind the alert. It needs no EventSystem for its own controls and does not alter time scale or pause unrelated polling/game logic.
-- The acknowledgement button uses a black background with white text while pressed, starting on mouse-down. Standard `GUI.Button` handling acknowledges on release inside the button; releasing outside cancels the press. Alert explicitly clears its button capture after mouse-up, including releases filtered by the modal window, so later hover cannot retain a pressed highlight.
+- The acknowledgment button uses a black background with white text while pressed, starting on mouse-down. Standard `GUI.Button` handling acknowledges on release inside the button; releasing outside cancels the press. Alert explicitly clears its button capture after mouse-up, including releases filtered by the modal window, so later hover cannot retain a pressed highlight.
 - Entering an enabled OK or Cancel button with the mouse plays `Rollover.Play()` once. Staying over it does not repeat the sound; leaving and returning plays it again. Each new alert resets the hover state. Like ClickButton, Alert suppresses rollover sounds on handheld devices.
-- Clicking/tapping outside the panel beeps and flashes a thicker white border with a thin black outer outline for 180 ms without dismissing the alert. The black outline extends two layout units beyond each edge, scaled with the alert, preserving the full white border and making the panel appear to grow. Layout and input bounds stay unchanged. The flash uses unscaled time, restarts on each outside press, and resets for the next alert; text and button colours stay unchanged. Alert calls the reusable `Beep.Play()` helper described below; it owns no audio objects. Press detection uses the legacy Input API (enable Input Manager or Both in the consuming project) against the last rendered panel bounds, independently of IMGUI modal event filtering. Touch takes precedence over simulated mouse events. Holding/dragging/releasing does not repeat it; a 120 ms unscaled guard prevents overlap. A new alert or screen-size change waits for fresh rendered bounds. Beep playback does not acknowledge or dismiss the alert.
-- Destroying a host is never acknowledgement. The persistent host normally survives navigation; external destruction/presentation failure must not be used to skip a required response. Rendering failures are reported directly to Unity, once per displayed request, avoiding Logger recursion. A lost host requires restoration before its pending request can be displayed; it does not automatically resume startup.
+- Clicking/tapping outside the panel beeps and flashes a thicker white border with a thin black outer outline for 180 ms without dismissing the alert. The black outline extends two layout units beyond each edge, scaled with the alert, preserving the full white border and making the panel appear to grow. Layout and input bounds stay unchanged. The flash uses unscaled time, restarts on each outside press, and resets for the next alert; text and button colors stay unchanged. Alert calls the reusable `Beep.Play()` helper described below; it owns no audio objects. Press detection uses the legacy Input API (enable Input Manager or Both in the consuming project) against the last rendered panel bounds, independently of IMGUI modal event filtering. Touch takes precedence over simulated mouse events. Holding/dragging/releasing does not repeat it; a 120 ms unscaled guard prevents overlap. A new alert or screen-size change waits for fresh rendered bounds. Beep playback does not acknowledge or dismiss the alert.
+- Destroying a host is never acknowledgment. The persistent host normally survives navigation; external destruction/presentation failure must not be used to skip a required response. Rendering failures are reported directly to Unity, once per displayed request, avoiding Logger recursion. A lost host requires restoration before its pending request can be displayed; it does not automatically resume startup.
 - Direct `Alert.Show` in Edit Mode queues data but does not install a preview host. Use Play Mode to inspect presentation. This is runtime UI, not `UnityEditor.EditorUtility.DisplayDialog` or a native OS dialog.
 
 ## Reusable synthesized sounds
@@ -137,14 +178,14 @@ a short, roughly 15 ms decaying noise snap with no pitched tone and caches its o
 and AudioClip on first use. It has the same main-thread, Play Mode and listener
 requirements as Beep, respects volume/mute and ignores AudioListener pause.
 Each call plays a click, without Beep's repeat guard. Alert calls it only when a
-button release is accepted, before acknowledgement and any scene navigation;
-a cancelled press or hover makes no click.
+button release is accepted, before acknowledgment and any scene navigation;
+a canceled press or hover makes no click.
 
 [Rollover.cs](SystemSound/Rollover.cs) exposes `Rollover.Play()`: a 35 ms silent
 lead-in followed by a roughly 7.5 ms noise click. Its first millisecond fades in
 smoothly to soften the attack, retaining the short noise sound and decay.
 Call it when a pointer enters a control, not every frame while hovering. It has
-the same lifetime and listener behaviour as Click, with no repeat guard. Through
+the same lifetime and listener behavior as Click, with no repeat guard. Through
 SoundHelper's shared AudioSource, repeated Play calls restart the silent lead-in
 during rapid pointer sweeps. Direct Rollover.Play uses PlayOneShot and does not
 cancel earlier calls. Alert uses it for button entry on non-handheld devices;
@@ -178,9 +219,9 @@ SoundHelper and SystemSound are not required for its feedback.
 Beep, Click and Rollover can also be copied individually without Alert or Logger.
 
 The host owns startup, navigation and save recovery. For a blocking startup
-notice, wait for the acknowledgement callback before continuing. The alert does
+notice, wait for the acknowledgment callback before continuing. The alert does
 not pause other scripts or change time scale, and destroying it does not count
-as acknowledgement. Default titles and examples do not imply any save-recovery
+as acknowledgment. Default titles and examples do not imply any save-recovery
 policy in this library.
 
 ## Verification when integrating

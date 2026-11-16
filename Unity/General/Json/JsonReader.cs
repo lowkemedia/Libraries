@@ -5,23 +5,23 @@ public static class JsonReader
 {
 	public static T ReadJson<T>(string path)
 	{
-        // Logger.Print(">> Loading Json file:" + fileName);
+        // Logger.Print(">> Loading Json file:" + path);
 
-        T gameValue = default(T);
+        T result = default(T);
         TextAsset textJsonAsset = Resources.Load<TextAsset>(path);
         if (textJsonAsset is null) {
-            Logger.Warning("Coudn't load file \"" + path + "\".", JsonReaderID.WARNING_CANT_LOAD_FILE_ID);
+            Logger.Warning("Couldn't load file \"" + path + "\".", JsonReaderID.WARNING_CANT_LOAD_FILE_ID);
         } else {
             string jsonString = textJsonAsset.ToString();
             try {
-                gameValue = JsonUtility.FromJson<T>(jsonString);
+                result = JsonUtility.FromJson<T>(jsonString);
             } catch (Exception error) {
                 string errorMessage = error.Message;
                 string className = typeof(T).FullName;
-                Logger.Severe("Coudn't read JSON file \"" + path + "\" for class: " + className + " with error:" + errorMessage, JsonReaderID.SEVERE_CANT_LOAD_FILE_ID);
+                Logger.Severe("Couldn't read JSON file \"" + path + "\" for class: " + className + " with error:" + errorMessage, JsonReaderID.SEVERE_CANT_LOAD_FILE_ID);
             }
         }
-		return gameValue;
+		return result;
 	}
 }
 

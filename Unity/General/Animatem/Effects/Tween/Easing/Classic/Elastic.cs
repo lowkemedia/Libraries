@@ -50,8 +50,7 @@ public static class Elastic
         }
         
         float s;
-        if (amplitude == 0 || amplitude<Math.Abs(range))
-        {
+        if (amplitude == 0 || amplitude<Math.Abs(range)) {
             amplitude = range;
             s = period / 4;
         } else {
@@ -83,8 +82,7 @@ public static class Elastic
         }
         
         float s;
-        if (amplitude == 0 || amplitude<Math.Abs(range))
-        {
+        if (amplitude == 0 || amplitude<Math.Abs(range)) {
             amplitude = range;
             s = period / 4;
         } else {
@@ -117,8 +115,7 @@ public static class Elastic
         }
 
         float s;
-        if (amplitude == 0 || amplitude<Math.Abs(range))
-        {
+        if (amplitude == 0 || amplitude<Math.Abs(range)) {
             amplitude = range;
             s = period / 4;
         } else {

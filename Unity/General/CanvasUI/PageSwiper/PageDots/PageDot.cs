@@ -56,8 +56,7 @@ public class PageDot : MonoBehaviour
 		}
 	}
 
-	public void Start()
-	{
+	public void Start() {
 		UpdatePageDot();
 	}
 

@@ -186,7 +186,7 @@ Logger.ShowAlert = false;
 ```
 
 The hidden control and any saved preference belong to your application; Logger
-does not supply them. Ordinary logging calls honour the global switch. Detail,
+does not supply them. Ordinary logging calls honor the global switch. Detail,
 Print and Debug stay console-only, so routine diagnostic chatter need not become
 a series of dialogs.
 
@@ -224,8 +224,7 @@ try {
     // Call the code being investigated here; its Logger messages get the label too.
     Logger.Print(">> preview callback reached");
     Logger.Detail("Preview complete");
-}
-finally {
+} finally {
     Logger.ClearTestExpected(); // Clear even if the investigated code throws.
 }
 Logger.Detail("Outside the scenario"); // No test label.
@@ -266,7 +265,7 @@ an announcement. Prefer `ClearTestExpected()` when that is the intent.
 Let the outer scenario or test runner own setting and clearing the label; helper
 methods should simply log. If a runner already labels each test, do not set a
 second label inside the test. Finish related background work before clearing it,
-and avoid concurrent labelled scenarios: the label is shared across threads.
+and avoid concurrent labeled scenarios: the label is shared across threads.
 
 Despite the name, this is context, **not an assertion that an error is expected**.
 It does not suppress errors, change filtering, reset once-only messages or replace

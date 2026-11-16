@@ -71,8 +71,8 @@ includes this Objective-C++ source in the exported Xcode project; Foundation is
 already part of Unity's Apple players. There are no third-party packages.
 
 The consuming Unity project supplies these importer settings in its `.meta` file.
-Libraries does not distribute `.meta` files: check the Plugin Inspector when
-copying from Libraries into another project. Preserve an existing consumer's GUIDs.
+When copying source without `.meta` files, check the Plugin Inspector before
+building another project. Preserve an existing consumer's GUIDs.
 
 Apple's per-app language UI depends on the languages declared by the application.
 For translations stored outside `.lproj` folders, the app's build process should

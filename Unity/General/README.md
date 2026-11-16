@@ -53,12 +53,15 @@ framework to adopt or a Unity Package Manager package.
 | --- | --- | --- |
 | [Logger](Logger/README.md) | Severity, diagnostic IDs, filtering, optional stack traces and once-only messages. | Copy Logger.cs; no scene component or Alert required. |
 | [SystemUI](SystemUI/README.md) | Runtime alerts before normal UI is ready; synthesized Beep and Click. | Alert creates its host. Include Logger and CallbackTypes; sounds need an AudioListener. |
-| [Coroutine](Coroutine/) | Delayed callbacks, fades and movement. | Attach the selected component; include its helper dependencies. |
+| [Coroutine](Coroutine/README.md) | Delayed callbacks, fades and movement. | Attach the selected component; include its helper dependencies. |
 | [CanvasUI](CanvasUI/README.md) | Buttons, dialogs, popups, swiping and paging. | Supply Canvas/EventSystem, UI objects, styles and any required TextMesh Pro assets. |
 | [Localization](Localization/README.md) | Device preferences, startup-language matching, strings and text styles. | Supply supported locales, translations and font resolution; Apple device preferences use the included native bridge. |
 | [SoundHelper](Sound/README.md) | Playback of configured AudioSources, with optional completion callbacks. | Attach SoundHelper for its convenience methods/callbacks; include Logger and CallbackTypes. |
-| [Utils](Utils/), [Json](Json/), [ImageComposite](ImageComposite/), [Video](Video/) | Data/geometry helpers, resource JSON, image composition and video controls. | Dependencies vary by file; video controls need configured player/UI references. |
-| [Event and Delegate](<Event and Delegate/>) | Callback declarations and event examples. | Read the examples alongside the utility that uses the callbacks. |
+| [Utils](Utils/README.md) | Object/RectTransform helpers, arrays, colors, strings, gradients and number formatting. | Dependencies vary by file; the guide records native alternatives and legacy conventions. |
+| [JsonReader](Json/README.md) | Load Resources JSON into field-based data models. | Logger; no scene component. |
+| [ImageComposite](ImageComposite/README.md) | Layer root and child Images for icons, badges and highlights. | Canvas, sprites, Utils/UtilsRect and their companions. |
+| [Video](Video/README.md) | VideoPlayer playback/seek controls and a filled-Image progress bar. | Configured player/UI references; see the guide's lifecycle and Canvas limits. |
+| [Event and Delegate](<Event and Delegate/README.md>) | Callback declarations and event examples. | Read the examples alongside the utility that uses the callbacks. |
 
 ## Using the utilities
 
@@ -69,7 +72,8 @@ values; inspect that policy when integrating it into an application.
 Copy selected files under your project's `Assets` tree, retaining their source
 notices. Follow referenced class names as well as `using` directives: many types
 live in the global namespace. If updating an existing project, preserve its
-`.meta` files and GUIDs; the Libraries repository ignores `.meta` files. General does not supply
+`.meta` files and GUIDs. When copying source without metadata, configure native
+plugin import settings in the new consumer. General does not supply
 scenes, prefabs, fonts, translations, assembly definitions or project settings.
 
 Logger is a small starting point:
@@ -85,7 +89,7 @@ With SystemUI and its dependencies copied, a runtime caller can use:
 Alert.Info("Ready to begin.", "Welcome");
 Alert.Question("Apply these changes?",
     onAcknowledged: () => Logger.Detail("Changes accepted"),
-    onCancel: () => Logger.Detail("Changes cancelled"));
+    onCancel: () => Logger.Detail("Changes canceled"));
 ```
 
 Alert uses IMGUI and uGUI pointer blocking. Its outside-click handling uses legacy
@@ -93,14 +97,56 @@ Alert uses IMGUI and uGUI pointer blocking. Its outside-click handling uses lega
 consumer. It works in Play Mode, not as an Editor preview or native OS dialog.
 See the [SystemUI guide](SystemUI/README.md) for the exact copy list and lifecycle.
 
-General has no declared minimum Unity version or bundled standalone test suite. Compile and exercise the chosen subset in your Unity project, including
-UI and sound on the target device. TextMesh Pro, uGUI and video APIs are required
-only by the utilities that use them. Retain each file's copyright, permission and attribution notices when copying it.
+The examples target Unity 2022.3 LTS with TextMesh Pro 3 and uGUI. This is a
+reference environment, not a declared minimum version or a promise of compatibility
+with every Unity release. General has no bundled standalone test suite. Compile
+and exercise the chosen subset in your Unity project, including UI and sound on
+the target device. TextMesh Pro, uGUI and video APIs are required only by the
+utilities that use them. Retain each file's copyright, permission and attribution
+notices when copying it.
+
+The source includes learning examples and utilities with documented limitations;
+check each guide's setup before copying an isolated class. The Localizer page-text
+exporter accepts optional application-supplied `PageFooterLines`; by default it
+writes no footer. Export footer text is separate from the source license.
+See [export integration](Localization/Localizer/README.md#reusing-this-folder).
+
+## Shared drag and device state
+
+[GlobalState](GlobalState.cs) provides `IsHandheld` from SystemInfo.deviceType and
+an explicit `DragObject` reference. It does not detect arbitrary Unity drags.
+Set DragObject when your drag begins and call `ClearDragObject()` on completion
+or cancellation, including cleanup if the owner is destroyed. Assigning another
+nonnull object while a drag is active throws. Clear before starting another drag.
+ClickButton and ClickBlocker use `IsDragging` to suppress pointer actions during
+the host's drag operation. This is one shared drag slot, not per-pointer state.
+
+## Public properties and serialization
+
+Plain serialized data uses public camelCase fields, grouped together. This covers
+Unity Inspector configuration (component references, style data, configurable
+values and wired UnityEvents) and JSON data models.
+Examples include `textField`, `normalIcon` and `onClickEvent`. Code may access these
+fields directly. Inspector-only settings stay private and serialized when no
+public access is needed.
+
+Public runtime state and computed values use PascalCase properties, with
+shorthand accessors where appropriate. Accessors with validation, visual updates
+or lazy component lookup retain their custom logic. Keep existing serialized names
+stable; do not convert plain Inspector fields to auto-properties just for style.
+Inspector edits write fields directly and do not invoke property setters.
+
+The localization JSON classes use simple public fields whose names match the
+JSON keys (`keys`, `value`, `fontSize`, etc.). `JsonUtility` serializes these fields
+directly; no private backing fields or forwarding properties are needed.
+`LocalizerValue.FileName` and `Variables` remain runtime metadata properties and
+are not serialized into JSON. See Unity's
+[serialization rules](https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html).
 
 ## Logger
 
 Read the **[Logger guide](Logger/README.md)** for its practical debugging purpose,
-levels, once-only behaviour, searchable IDs, device alerts and old-school Print tracing.
+levels, once-only behavior, searchable IDs, device alerts and old-school Print tracing.
 
 Utilities that call `Logger` require [Logger.cs](Logger/Logger.cs). This includes
 Animatem, coroutine helpers, JsonReader, Localizer/Stylizer, parts of CanvasUI,
@@ -108,7 +154,7 @@ SoundHelper, VideoController, Utils/UtilsString and SystemUI's Alert. Use the
 existing `Logger.Debug`, `Detail`, `Info`, `Print`, `Warning` and `Severe` helpers for ordinary
 diagnostics; the shared `Logger.Log` pipeline is private. Logger owns filtering,
 formatting, once-only messages and stack traces. The public severity helpers
-always honour `ShowAlert`; they expose no suppression flag. The assembly-internal
+always honor `ShowAlert`; they expose no suppression flag. The assembly-internal
 `Logger.LogNoAlert(level, message, id)` is reserved for explicit Alert logging to
 prevent duplicate automatic alerts. It preserves console formatting and level
 filtering without changing the global setting.
@@ -131,7 +177,7 @@ for Unity console logging. Its optional `AlertRequested` event lets another clas
 supply presentation. [LoggerAlertBridge](SystemUI/Alert/LoggerAlertBridge.cs), kept
 with SystemUI, connects that event to Alert. Alert still depends
 on Logger for its own logging. See [SystemUI](SystemUI/README.md#logger-integration)
-for the connection and its startup behaviour.
+for the connection and its startup behavior.
 
 ## Unit-test log context
 
@@ -147,9 +193,9 @@ for each test; runner integration is supplied by the consuming project. Helpers
 should use Detail for progress messages without replacing the current test name.
 
 The label is shared, so finish background work before clearing it and avoid
-concurrent labelled scenarios. It identifies test output; it does not suppress
+concurrent labeled scenarios. It identifies test output; it does not suppress
 errors, reset once-only messages or change filtering. Keep normal log assertions
-and unexpected-error checks. Direct Unity logs are not labelled.
+and unexpected-error checks. Direct Unity logs are not labeled.
 
 ## Named diagnostic IDs
 

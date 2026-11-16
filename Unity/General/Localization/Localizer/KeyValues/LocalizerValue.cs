@@ -28,6 +28,7 @@
 [System.Serializable]
 public class LocalizerValue
 {
+    // JsonUtility uses these public field names as JSON keys.
     public string key;                  // key used to lookup string
     public string citation;             // any citation pertaining to string
     public string context;              // context of string, how it is used
@@ -35,6 +36,6 @@ public class LocalizerValue
     public string value;                // translated string
     public string note;                 // note about string added by translator or developer
 
-    public string FileName;             // (assigned) file name
-    public string[] Variables;          // (assigned) variables from when last called
+    public string FileName { get; set; }             // (assigned) file name
+    public string[] Variables { get; set; }          // (assigned) variables from when last called
 }

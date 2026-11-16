@@ -60,7 +60,7 @@ public class IconButton : MonoBehaviour
 	public Sprite SelectedIcon { get; private set; }			// selected    
 	public Sprite DisabledIcon { get; private set; }            // disabled
 
-	public ClickButtonEvent onClickEvent {
+	public ClickButtonEvent OnClickEvent {
 		get { return ClickButton.onClickEvent; }
 	}
 
@@ -123,7 +123,7 @@ public class IconButton : MonoBehaviour
 		}
 	}
 
-	// Update is called once per frame
+	// Display the icon for the current button state.
 	private void UpdateButton()
 	{
 		if (ClickButton.Selected) {

@@ -1,5 +1,5 @@
 ﻿//
-//  UnityEventExample - Event and Delegate package
+//  UnityEventExtendExample - Event and Delegate package
 //  Russell Lowke, June 23rd 2020
 //
 //  Copyright (c) 2020 Lowke Media
@@ -38,13 +38,11 @@ public class UnityEventExtendExample : MonoBehaviour
         }
     }
 
-    private void Awake()
-    {
+    private void Awake() {
         Example.onStartEvent.AddListener(OnMyCallback);
     }
 
-    private void OnMyCallback()
-    {
+    private void OnMyCallback() {
         Logger.Print(">>> Got Extended MyCallback()");
         Example.onStartEvent.RemoveListener(OnMyCallback);
     }

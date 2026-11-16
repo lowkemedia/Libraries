@@ -28,7 +28,8 @@
 [System.Serializable]
 public class LocalizerStyle
 {
-    public string style;                    // TODO: Rename "style" to "styleName" or "name"
+    // JsonUtility uses these public field names as JSON keys.
+    public string style;                    // style name
     public string font;
     public float fontSize;
     public float lineSpacing;

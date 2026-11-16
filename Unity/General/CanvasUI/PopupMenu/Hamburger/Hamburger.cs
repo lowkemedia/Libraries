@@ -1,5 +1,5 @@
 ﻿//
-//  Hamberger - PopupMenu package
+//  Hamburger - PopupMenu package
 //  Russell Lowke, March 11th 2021
 //
 //  Copyright (c) 2019-2021 Lowke Media
@@ -29,7 +29,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using PopupMenuTypes;
 
-public class Hamberger : Popup
+public class Hamburger : Popup
 {
 	public ClickButton iconButton;
 
@@ -44,7 +44,7 @@ public class Hamberger : Popup
 	}
 
 	protected override void UpdatePopupPosition()
-    {
+	{
 		// drop down menu always drops down
 		float yPos = -(_menuItems.Length) * (popupTextButton.GetHeight() + padding) - padding / 2;
 		_gameObjectMenu.SetY(yPos);
@@ -66,8 +66,7 @@ public class Hamberger : Popup
 		iconButton.Selected = true;
 	}
 
-	protected override void HidePopup()
-	{
+	protected override void HidePopup() {
 		iconButton.Selected = false;
 		_popupGameObject.SetActive(false);
 	}
@@ -80,7 +79,7 @@ public class Hamberger : Popup
 		popupTextButton.SetX(0);
 
 		// create popup menu
-		GameObject popupGameObject = gameObject.MakeUiObject("Hamberger");
+		GameObject popupGameObject = gameObject.MakeUiObject("Hamburger");
 
 		// create blocker
 		ClickBlocker clickBlocker = ClickBlocker.MakeClickBlocker(popupGameObject);
@@ -92,10 +91,10 @@ public class Hamberger : Popup
 		GameObject gameObjectBackground = _gameObjectMenu.MakeUiObject("Background");
 		Image backgroundImage = gameObjectBackground.AddComponent<Image>();
 		backgroundImage.sprite = popupBgSprite;
-		float btnWidth = popupTextButton.GetWidth() + padding * 2;
-		float btnHeight = popupTextButton.GetHeight() + padding * 2;
-		float bgHeight = (btnHeight - padding) * _menuItems.Length + padding;
-		backgroundImage.SetSize(btnWidth, bgHeight);
+		float buttonWidth = popupTextButton.GetWidth() + padding * 2;
+		float buttonHeight = popupTextButton.GetHeight() + padding * 2;
+		float backgroundHeight = (buttonHeight - padding) * _menuItems.Length + padding;
+		backgroundImage.SetSize(buttonWidth, backgroundHeight);
 		backgroundImage.SetY(backgroundImage.GetHeight()/2 - padding);
 		backgroundImage.SetX(backgroundImage.GetWidth()/2 - padding);
 

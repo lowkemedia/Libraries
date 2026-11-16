@@ -25,14 +25,11 @@
 //
 //
 
-// NOTE: Delegate Events use strong references while Unity Events use weak references.
-// With a strong reference the event publisher will keep the subscriber alive,
-// and the garbage collector cannot clear it from the memory. Failing to unsubscribe
-// from a Delegate event may cause a memory leak. Weak references will be automatically
-// cleaned up by the garbage collector when the subscriber is destroyed.
+// NOTE: Both C# events and UnityEvents hold references to their listener targets.
+// A long-lived publisher can keep a subscriber from being garbage collected.
+// Remove listeners when they are no longer needed; UnityEvents do not use weak references.
 
-// Delegate events are about 38.3 times faster then UnityEvent, though performance
-//  will vary on different platforms
+// Event performance depends on the workload and target platform; measure when it matters.
 
 // Delegate events are really just standard C# delegate functions with a few extra 
 //  features and restrictions. In particular, they can only be invoked from the class
@@ -71,14 +68,13 @@ public class DelegateEventExample : MonoBehaviour
     // example TODO:  CustomEvent(this, EventArgs.Empty); ... MyEvent += (sender, args) => { };
     // ... event Action<int> CustomEvent;  
 
-    // Start is called before the first frame update
-    private void Awake()
-    {
+    // Register event listeners before Start invokes the events.
+    private void Awake() {
         AddListeners();
     }
 
     private void AddListeners()
-	{
+    {
         OnStartEvent += OnMyCallback;                         // Note: NOT OnStart.AddListener(MyCallback);
         OnStartEvent += delegate { OnMyCallbackInt(0); };
         // OnStartEvent += () => MyCallbackB(0);            // Lambda Expression for delegate { MyCallbackB(0); };
@@ -111,13 +107,11 @@ public class DelegateEventExample : MonoBehaviour
         Logger.Print(">> Remove Listeners");
     }
 
-    private void OnMyCallback()
-	{
+    private void OnMyCallback() {
         Logger.Print(">> Got MyCallback()");
 	}
 
-    private void OnMyCallbackInt(int value)
-    {
+    private void OnMyCallbackInt(int value) {
         Logger.Print(">> Got MyCallbackInt(" + value + ")");
     }
 }

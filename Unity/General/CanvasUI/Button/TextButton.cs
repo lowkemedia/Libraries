@@ -32,7 +32,7 @@ using UnityEngine;
 public class TextButton : MonoBehaviour
 {
 	public TextMeshProUGUI textField;
-	public TextButtonStyle textStyle;       // if empty, textStyle is taken from ClickButton.style.textStyle
+	public TextButtonStyle textStyle;       // if empty, textStyle is taken from ClickButton.style.textButtonStyle
 
 	public string NormalColor { get; private set; }			// up          #FFFFFF7F is white with 50% alpha
 	public string HighlightedColor { get; private set; }	// over
@@ -40,7 +40,7 @@ public class TextButton : MonoBehaviour
 	public string SelectedColor { get; private set; }		// selected 
 	public string DisabledColor { get; private set; }		// disabled
 
-	public ClickButtonEvent onClickEvent {
+	public ClickButtonEvent OnClickEvent {
 		get { return ClickButton.onClickEvent; }
 	}
 
@@ -57,6 +57,8 @@ public class TextButton : MonoBehaviour
 	private Color _pressedColor;
 	private Color _selectedColor;
 	private Color _disabledColor;
+	private Vector2 _pressedOffset;
+	private Vector2 _appliedPressedOffset;
 
 	public bool Enabled {
 		get { return ClickButton.Enabled; }
@@ -87,6 +89,10 @@ public class TextButton : MonoBehaviour
 		SetStyle(textStyle);
 	}
 
+	private void OnDisable() {
+		ApplyPressedOffset(Vector2.zero);
+	}
+
 	public void SetStyle(TextButtonStyle style)
 	{
 		if (style != default) {
@@ -94,7 +100,8 @@ public class TextButton : MonoBehaviour
 				style.highlightedColor,
 				style.pressedColor,
 				style.selectedColor,
-				style.disabledColor);
+				style.disabledColor,
+				style.pressedOffset);
 		}
 	}
 
@@ -102,13 +109,15 @@ public class TextButton : MonoBehaviour
 						 string highlightedColor,
 						 string pressedColor,
 						 string selectedColor,
-						 string disabledColor)
+						 string disabledColor,
+						 Vector2 pressedOffset = default)
 	{
 		NormalColor = normalColor;
 		HighlightedColor = highlightedColor;
 		PressedColor = pressedColor;
 		SelectedColor = selectedColor;
 		DisabledColor = disabledColor;
+		_pressedOffset = pressedOffset;
 
 		// ensure Text Color
 		if (string.IsNullOrEmpty(NormalColor)) {
@@ -136,7 +145,7 @@ public class TextButton : MonoBehaviour
 		}
 
 		if (string.IsNullOrEmpty(DisabledColor)) {
-			// TODO: Use alpha? or Grey?
+			// TODO: Use alpha? or Gray?
 			_disabledColor = _normalColor;
 		} else {
 			_disabledColor = UtilsColor.ConvertColor(DisabledColor);
@@ -145,9 +154,13 @@ public class TextButton : MonoBehaviour
 		textField.raycastTarget = false;
 	}
 
-	// Update is called once per frame
+	// Called when ClickButton changes state.
 	private void UpdateButton()
 	{
+		bool showPressedOffset = isActiveAndEnabled && ClickButton.Enabled &&
+			ClickButton.Interactable && !ClickButton.Selected && ClickButton.Pressed;
+		ApplyPressedOffset(showPressedOffset ? _pressedOffset : Vector2.zero);
+
 		if (ClickButton.Selected) {
 			textField.color = _selectedColor;
 		} else if (!ClickButton.Enabled) {
@@ -162,5 +175,13 @@ public class TextButton : MonoBehaviour
 		} else {
 			textField.color = _normalColor;
 		}
+	}
+	private void ApplyPressedOffset(Vector2 offset)
+	{
+		if (offset == _appliedPressedOffset) { return; }
+
+		// Move only the label; keep the button hit area stationary.
+		textField.rectTransform.anchoredPosition += offset - _appliedPressedOffset;
+		_appliedPressedOffset = offset;
 	}
 }

@@ -25,11 +25,9 @@
 //
 //
 
-// NOTE: Native Events use strong references while Unity Events use weak references.
-// With a strong reference the event publisher will keep the subscriber alive,
-// and the garbage collector cannot clear it from the memory. Failing to unsubscribe
-// from a native event may cause a memory leak. Weak references will be automatically
-// cleaned up by the garbage collector when the subscriber is destroyed.
+// NOTE: Both C# events and UnityEvents hold references to their listener targets.
+// A long-lived publisher can keep a subscriber from being garbage collected.
+// Remove listeners when they are no longer needed; UnityEvents do not use weak references.
 
 // Unity events let you connect public interfaces in the editor, while Native events
 //  let one piece of code subscribe to events from other systems.
@@ -49,23 +47,23 @@ using UnityEngine.Events;
 // see https://docs.unity3d.com/ScriptReference/Events.UnityEvent.html
 
 [System.Serializable]
-public class MyIntEvent : UnityEvent<int> { }
+public class MyIntEvent : UnityEvent<int> {}
 
-// Note: You can't serialize a field with generics!
-public class MyUnityEventWrapper<T> : UnityEvent<T> { }
+// Generic wrapper used by the runtime-only OnMyEvent property below.
+public class MyUnityEventWrapper<T> : UnityEvent<T> {}
 
 public class UnityEventExample : MonoBehaviour
 {
-    public UnityEvent onStartEvent;                                 // Note: if public Unity will automatically create a new UnityEvent(); 
+    public UnityEvent onStartEvent;                                 // Inspector listeners are stored in this serialized field.
     public MyIntEvent onMyIntEvent;
-    public MyUnityEventWrapper<int> onMyEvent;                      // Note: generic class won't serialize!
+    public MyUnityEventWrapper<int> OnMyEvent { get; set; }                      // Runtime property; not serialized by Unity.
 
-    // Start is called before the first frame update
+    // Initialize the runtime event and register listeners before Start.
     private void Awake()
     {
         // Note: if private or not serializable you will need to create a new event
-        if (onMyEvent is null) {
-            onMyEvent = new MyUnityEventWrapper<int>();
+        if (OnMyEvent is null) {
+            OnMyEvent = new MyUnityEventWrapper<int>();
         }
 
         AddListeners();
@@ -73,12 +71,12 @@ public class UnityEventExample : MonoBehaviour
 
     private void AddListeners()
     {
-        onStartEvent.AddListener(OnMyCallback);                       // Note: NOT OnStartEvent += MyCallbackA;
+        onStartEvent.AddListener(OnMyCallback);                       // Note: NOT onStartEvent += MyCallbackA;
         onStartEvent.AddListener(delegate { OnMyCallbackInt(0); });
-        // OnStartEvent.AddListener(() => MyCallbackB(0));          // Lambda Expression for delegate { MyCallbackB(0); };
+        // onStartEvent.AddListener(() => MyCallbackB(0));          // Lambda Expression for delegate { MyCallbackB(0); };
 
         onMyIntEvent.AddListener(OnMyCallbackInt);
-        onMyEvent.AddListener(OnMyCallbackInt);
+        OnMyEvent.AddListener(OnMyCallbackInt);
     }
 
     // Start is called before the first frame update
@@ -86,37 +84,35 @@ public class UnityEventExample : MonoBehaviour
     {
         onStartEvent?.Invoke();
         onMyIntEvent?.Invoke(1);                                    // passing parameter into event
-        onMyEvent?.Invoke(2);
+        OnMyEvent?.Invoke(2);
 
         RemoveListeners();
 
         onStartEvent?.Invoke();
         onMyIntEvent?.Invoke(1);
-        onMyEvent?.Invoke(2);
+        OnMyEvent?.Invoke(2);
     }
 
     private void RemoveListeners()
     {
-        onStartEvent.RemoveListener(OnMyCallback);                    // Note: NOT OnStartEvent -= MyCallbackA;
-        // OnStartEvent.RemoveListener(MyCallbackInt);              // Note: issues removing anonymous function
+        onStartEvent.RemoveListener(OnMyCallback);                    // Note: NOT onStartEvent -= MyCallbackA;
+        // onStartEvent.RemoveListener(MyCallbackInt);              // Note: issues removing anonymous function
         onMyIntEvent.RemoveListener(OnMyCallbackInt);
-        onMyEvent.RemoveListener(OnMyCallbackInt);
+        OnMyEvent.RemoveListener(OnMyCallbackInt);
 
         // remove all listeners
-        // OnStartEvent.RemoveAllListeners();
-        // OnMyIntEvent.RemoveAllListeners();
-        // onMyEvent.RemoveAllListeners();
+        // onStartEvent.RemoveAllListeners();
+        // onMyIntEvent.RemoveAllListeners();
+        // OnMyEvent.RemoveAllListeners();
 
         Logger.Print(">>> Remove Listeners");
     }
 
-    private void OnMyCallback()
-    {
+    private void OnMyCallback() {
         Logger.Print(">>> Got MyCallback()");
     }
 
-    private void OnMyCallbackInt(int value)
-    {
+    private void OnMyCallbackInt(int value) {
         Logger.Print(">>> Got MyCallbackInt(" + value + ")");
     }
 }

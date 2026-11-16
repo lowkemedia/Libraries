@@ -34,8 +34,7 @@ public class PressButton : ClickButton
     private float _pressInvokeTime;                     // time of last invoke while pressed
     public float invokeInterval = 0.15f;                // interval between press invokes, in seconds
 
-    public override void OnPointerDown(PointerEventData pointerEventData = null)
-    {
+    public override void OnPointerDown(PointerEventData pointerEventData = null) {
         _pressTime = Time.time;
         base.OnPointerDown(pointerEventData);
     }

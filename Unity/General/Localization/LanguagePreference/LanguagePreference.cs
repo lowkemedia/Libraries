@@ -55,14 +55,12 @@ public static class LanguagePreference
     /// Call on Unity's main thread. Query again after returning from OS settings;
     /// the OS may require an app restart before its updated preferences are visible.
     /// </summary>
-    public static string[] GetPreferredLanguages()
-    {
+    public static string[] GetPreferredLanguages() {
         return ReadLanguages(GetPlatformLanguages);
     }
 
     /// <summary>Returns the first OS preference, or null when unavailable.</summary>
-    public static string GetPreferredLanguage()
-    {
+    public static string GetPreferredLanguage() {
         string[] languages = GetPreferredLanguages();
         return languages.Length == 0 ? null : languages[0];
     }
@@ -84,14 +82,12 @@ public static class LanguagePreference
 #endif
     }
 
-    private static string GetAndroidLanguages()
-    {
+    private static string GetAndroidLanguages() {
         // Extension point: read the app's effective LocaleList, honoring per-app languages.
         return null;
     }
 
-    private static string GetWebGLLanguages()
-    {
+    private static string GetWebGLLanguages() {
         // Extension point: read navigator.languages through a .jslib bridge.
         return null;
     }
@@ -100,8 +96,7 @@ public static class LanguagePreference
     {
         try {
             return ParseLanguages(read());
-        }
-        catch (Exception exception) when (exception is DllNotFoundException ||
+        } catch (Exception exception) when (exception is DllNotFoundException ||
                                            exception is EntryPointNotFoundException ||
                                            exception is BadImageFormatException) {
             if (!_reportedBindingFailure) {
@@ -182,8 +177,7 @@ public static class LanguagePreference
                 }
             }
             return string.Join("\n", languages);
-        }
-        finally {
+        } finally {
             CFRelease(preferences);
         }
     }
@@ -205,8 +199,7 @@ public static class LanguagePreference
         try {
             // Language tags contain ASCII characters only; native storage is UTF-8.
             return Marshal.PtrToStringAnsi(languages);
-        }
-        finally {
+        } finally {
             LowkeLanguagePreference_FreeLanguages(languages);
         }
     }

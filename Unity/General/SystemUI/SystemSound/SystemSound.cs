@@ -28,7 +28,8 @@ using UnityEngine;
 [DefaultExecutionOrder(-100)]
 public sealed class SystemSound : MonoBehaviour
 {
-    public enum Sound { Click, Rollover, Beep }
+    public enum Sound
+    { Click, Rollover, Beep }
 
     [SerializeField] private Sound _sound = Sound.Click;
 

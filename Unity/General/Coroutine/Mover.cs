@@ -1,5 +1,5 @@
 ﻿//
-//  SmoothMove
+//  Mover
 //  Russell Lowke, August 23rd 2020
 //
 //  Copyright (c) 2020 Lowke Media
@@ -53,25 +53,24 @@ public class Mover : MonoBehaviour
         }
     }
 
-    public static void SmoothMove(Transform transform, Vector3 endpos, float seconds, Callback callback)
-    {
-        Vector3 startpos = transform.localPosition;
-        Instance.DoSmoothMove(transform, startpos, endpos, seconds, callback);
+    public static void SmoothMove(Transform transform, Vector3 endPosition, float seconds, Callback callback) {
+        Vector3 startPosition = transform.localPosition;
+        Instance.DoSmoothMove(transform, startPosition, endPosition, seconds, callback);
     }
 
     // StartCoroutine() requires a MonoBehaviour instance
-    private void DoSmoothMove(Transform moveTransform, Vector3 startpos, Vector3 endpos, float seconds, Callback callback)
+    private void DoSmoothMove(Transform moveTransform, Vector3 startPosition, Vector3 endPosition, float seconds, Callback callback)
     {
-        IEnumerator coroutine = InvokeSmoothMove(moveTransform, startpos, endpos, seconds, callback);
+        IEnumerator coroutine = InvokeSmoothMove(moveTransform, startPosition, endPosition, seconds, callback);
         StartCoroutine(coroutine);
     }
 
-    IEnumerator InvokeSmoothMove(Transform moveTransform, Vector3 startpos, Vector3 endpos, float seconds, Callback callback)
+    IEnumerator InvokeSmoothMove(Transform moveTransform, Vector3 startPosition, Vector3 endPosition, float seconds, Callback callback)
     {
         float t = 0f;
         while (t <= 1.0) {
             t += Time.deltaTime / seconds;
-            moveTransform.localPosition = Vector3.Lerp(startpos, endpos, Mathf.SmoothStep(0f, 1f, t));
+            moveTransform.localPosition = Vector3.Lerp(startPosition, endPosition, Mathf.SmoothStep(0f, 1f, t));
             yield return null;
         }
 

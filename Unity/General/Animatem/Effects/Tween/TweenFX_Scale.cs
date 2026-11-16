@@ -30,30 +30,28 @@ using AnimatemTypes;
 
 public class TweenFX_Scale : TweenFX
 {
-    private Transform _trasform;
+    private Transform _transform;
 
     public TweenFX_Scale(float start,
                          float end,
                          float duration,
                          EasingFunct easingFunct = null,
                          EffectType type = EffectType.END) : 
-    base(start, end, duration, easingFunct, type, "TweenFX_Scale") {}
+        base(start, end, duration, easingFunct, type, "TweenFX_Scale") {}
 
-    protected override void Initialize()
-    {
-        _trasform = _target.GetComponent<Transform>();
+    protected override void Initialize() {
+        _transform = _target.GetComponent<Transform>();
         base.Initialize();
     }
 
-    public override float Value
-    {
+    public override float Value {
         get {
-            return _trasform.localScale.x;
+            return _transform.localScale.x;
         }
 
         set {
             base.Value = value;
-            _trasform.localScale = new Vector3(value, value, 1);
+            _transform.localScale = new Vector3(value, value, 1);
         }
     }
 }

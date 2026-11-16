@@ -53,13 +53,13 @@ public class VideoController : MonoBehaviour
 	public bool IsPaused { get; private set; }
 
 	//
-	// video frame as a percentage
-	private float VideoValue {
+	// video frame as normalized playback progress (0 to 1)
+	private float PlaybackProgress {
 		get { return (float)videoPlayer.frame / videoPlayer.frameCount; }
 	}
 
 	//
-	// slider percentage as a frame
+	// normalized slider value as a frame
 	private long SliderFrame {
 		get { return (long)(videoSeekSlider.value * videoPlayer.frameCount); }
 	}
@@ -101,7 +101,7 @@ public class VideoController : MonoBehaviour
 	{
 		if (videoPlayer.isPlaying &&
 			videoPlayer.frame != _pauseFrame) {         // fix for videoPlayer.frame latency lingers on old _pauseFrame
-			videoSeekSlider.value = VideoValue;         // update position of slider
+			videoSeekSlider.value = PlaybackProgress;         // update position of slider
 		}
 	}
 
@@ -125,8 +125,7 @@ public class VideoController : MonoBehaviour
 		Play();
 	}
 
-	public void Play()
-	{
+	public void Play() {
 		VideoPlayerPlay();
 		SetIsPaused(false);
 	}
@@ -174,14 +173,12 @@ public class VideoController : MonoBehaviour
 		VideoPlayerPlay();
 	}
 
-	private void OnVideoFinished(VideoPlayer value)
-	{
+	private void OnVideoFinished(VideoPlayer value) {
 		VideoFinishedCallback?.Invoke();
 		VideoFinishedCallback = null;
 	}
 
-	public void Pause()
-	{
+	public void Pause() {
 		VideoPlayerPause();
 		SetIsPaused(true);
 	}
@@ -193,15 +190,13 @@ public class VideoController : MonoBehaviour
 		playButton.gameObject.SetActive(isPaused);
 	}
 
-	private void VideoPlayerPause()
-	{
+	private void VideoPlayerPause() {
 		videoPlayer.Pause();
 		_pauseFrame = videoPlayer.frame;
 	}
 
-	public void Stop()
-	{
-		// stop causes videoPlayer.frame to revert to the begining
+	public void Stop() {
+		// stop causes videoPlayer.frame to revert to the beginning
 		videoPlayer.Stop();
 	}
 
@@ -222,8 +217,7 @@ public class VideoController : MonoBehaviour
 	}
 
 	// Note: Added via EventTrigger in Unity Editor
-	public void OnSliderBeginDrag()
-	{
+	public void OnSliderBeginDrag() {
 		VideoPlayerPause();
 	}
 
@@ -238,18 +232,15 @@ public class VideoController : MonoBehaviour
 		VideoPlayerPlay();
 	}
 
-	public void OnClickPlay(ClickButton button)
-	{
+	public void OnClickPlay(ClickButton button) {
 		Play();
 	}
 
-	public void OnClickPause(ClickButton button)
-	{
+	public void OnClickPause(ClickButton button) {
 		Pause();
 	}
 
-	public void OnClickToggleSound(ClickButton button)
-	{
+	public void OnClickToggleSound(ClickButton button) {
 		Mute(muteButton.gameObject.activeSelf);
 	}
 }

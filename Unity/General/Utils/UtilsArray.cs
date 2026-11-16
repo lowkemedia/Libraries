@@ -31,6 +31,7 @@ using System.Linq;
 
 public static class UtilsArray
 {
+    // Native equivalent: Array.Clear(array, 0, array.Length).
     public static void ResetArray<T>(this T[] array)
     {
         for (int i = 0; i < array.Length; ++i) {
@@ -40,6 +41,7 @@ public static class UtilsArray
         }
     }
 
+    // Native equivalent for non-null arrays: (T[])array.Clone(); both are shallow copies.
     public static T[] CloneArray<T>(T[] array)
     {
         if (array == default) {
@@ -48,6 +50,7 @@ public static class UtilsArray
         return (T[])array.Clone();
     }
 
+    // Native alternative: arrays.SelectMany(array => array).ToArray() (System.Linq).
     public static T[] Concat<T>(params T[][] arrays)
     {
         var result = new T[arrays.Sum(a => a.Length)];
@@ -59,6 +62,8 @@ public static class UtilsArray
         return result;
     }
 
+    // Native alternative for non-null arrays: array.Append(value).ToArray() (System.Linq).
+    // For repeated additions, prefer List<T>.Add to allocating an array each time.
     public static T[] AddTo<T>(T[] array, T value)
     {
         T[] updatedArray;
@@ -72,6 +77,8 @@ public static class UtilsArray
         return updatedArray;
     }
 
+    // Native alternative for a mutable collection: List<T>.Remove(value).
+    // This legacy array helper assumes exactly one matching element and non-null elements.
     public static T[] RemoveFrom<T>(T[] array, T value)
     {
         T[] updatedArray = new T[array.Length - 1];
@@ -84,16 +91,17 @@ public static class UtilsArray
         return updatedArray;
     }
 
-    public static bool IsNullOrEmpty<T>(T[] array)
-    {
+    // Native expression: array == null || array.Length == 0.
+    public static bool IsNullOrEmpty<T>(T[] array) {
         return array == null || array.Length == 0;
     }
 
-    public static int Length<T>(T[] array)
-    {
+    // Native expression: array?.Length ?? 0.
+    public static int Length<T>(T[] array) {
         return IsNullOrEmpty(array) ? 0 : array.Length;
     }
 
+    // Native building block: string.Join(", ", array); brackets and null/empty labels are custom.
     public static string Print<T>(T[] array)
     {
         if (array is null) { return "null"; }
@@ -110,12 +118,13 @@ public static class UtilsArray
 
     // using System.Linq;
     //
-    // convert an Array to a List
+    // convert a List to an Array
     // T[] array = list.ToArray();
     //
-    // convert List to an Array
+    // convert an Array to a List
     // List<T> list = array.ToList();
 
+    // Native building block: string.Join(", ", list); brackets and null/empty labels are custom.
     public static string Print<T>(List<T> list)
     {
         if (list == default) { return "default"; }
@@ -129,32 +138,28 @@ public static class UtilsArray
         return str;
     }
 
-    //
-    // Compares two arrays and returns a boolean indicating whether the arrays
-    // contain the same values at the same indexes.
-    //
-    // @param arr1 The first array that will be compared to the second.
-    // @param arr2 The second array that will be compared to the first.
-    // @return true if the arrays contains the same values at the same indexes.
-    //          False if they do not.
-    //
-    /*
-    public static function arraysAreEqual(arr1:Array, arr2:Array):Boolean
+    // Native equivalent: first.SequenceEqual(second) (System.Linq).
+    // Compares length, order and elements using C# default equality, including null elements.
+    // Unlike ActionScript strict equality, this honors T's equality implementation.
+    // Null arrays throw ArgumentNullException, as SequenceEqual does.
+    public static bool ArraysAreEqual<T>(T[] first, T[] second)
     {
-        if (arr1.length != arr2.length) {
+        if (first == null) {
+            throw new ArgumentNullException(nameof(first));
+        }
+        if (second == null) {
+            throw new ArgumentNullException(nameof(second));
+        }
+        if (first.Length != second.Length) {
             return false;
         }
 
-        var len:Number = arr1.length;
-
-        for (var i:Number = 0; i<len; i++) {
-            if (arr1[i] !== arr2[i]) {
+        EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+        for (int i = 0; i < first.Length; i++) {
+            if (!comparer.Equals(first[i], second[i])) {
                 return false;
             }
         }
-
         return true;
     }
-    */
-
 }

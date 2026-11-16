@@ -59,11 +59,6 @@ public class Delayer : MonoBehaviour
         }
     }
 
-    public void NoNext(Callback callback)
-    {
-        _doNextCallbacks.Enqueue(callback);
-    }
-
     private void Update()
     {
         if (_doNextCallbacks.Count > 0) {
@@ -79,16 +74,15 @@ public class Delayer : MonoBehaviour
 
     //
     // allow space for mouse clicks to flush, and updates be called
-    public static void DoNext(Callback callback)
-    {
-        Instance.NoNext(callback);
+    public static void DoNext(Callback callback) {
+        Instance._doNextCallbacks.Enqueue(callback);
     }
 
     public static void Delay(float seconds, Callback callback, bool giveWarning = true)
     {
         if (giveWarning) {
             if (seconds <= 0) {
-                Logger.Warning("Delay() called with an zero or negative seconds parameter", DelayerID.WARNING_NONPOSITIVE_DELAY_ID);
+                Logger.Warning("Delay() called with a zero or negative seconds parameter", DelayerID.WARNING_NONPOSITIVE_DELAY_ID);
             }
             if (callback is null) {
                 Logger.Warning("Delay() called with an empty callback parameter", DelayerID.WARNING_EMPTY_CALLBACK_ID);
@@ -104,14 +98,12 @@ public class Delayer : MonoBehaviour
     }
 
     // StartCoroutine() requires a MonoBehaviour instance
-    protected void DoDelay(float seconds, Callback callback)
-    {
+    protected void DoDelay(float seconds, Callback callback) {
         IEnumerator coroutine = InvokeWaitForSeconds(seconds, callback);
         StartCoroutine(coroutine);
     }
 
-    private IEnumerator InvokeWaitForSeconds(float seconds, Callback callback)
-    {
+    private IEnumerator InvokeWaitForSeconds(float seconds, Callback callback) {
         yield return new WaitForSeconds(seconds);
 
         callback?.Invoke();

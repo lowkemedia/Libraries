@@ -33,8 +33,8 @@ public static class ButtonFactory
     public static ClickButton MakeClickButton(this GameObject parent,
                                               ClickButton template)
     {
+        // Copy runtime state first; configure sounds and the click event explicitly below.
         ClickButton clickButton = parent.MakeUiComponent(template, "Button");
-        // TODO: Check this. CopyComponent() in MakeUiComponent() should copy these?
         clickButton.useDefaultSound = template.useDefaultSound;
         clickButton.clickSound = template.clickSound;
         clickButton.rollSound = template.rollSound;

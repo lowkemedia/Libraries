@@ -54,8 +54,7 @@ public class DropDown : Popup
 		popupTextButton.Selected = true;
 	}
 
-	protected override void HidePopup()
-	{
+	protected override void HidePopup() {
 		popupTextButton.Selected = false;
 		_popupGameObject.SetActive(false);
 	}
@@ -76,11 +75,11 @@ public class DropDown : Popup
 		GameObject gameObjectBackground = _gameObjectMenu.MakeUiObject("Background");
 		Image backgroundImage = gameObjectBackground.AddComponent<Image>();
 		backgroundImage.sprite = popupBgSprite;
-		float btnWidth = popupTextButton.GetWidth() + padding * 2;
-		float btnHeight = popupTextButton.GetHeight() + padding * 2;
-		float bgHeight = (btnHeight - padding) * (_menuItems.Length + 1) + padding * 1.5f;
-		backgroundImage.SetSize(btnWidth, bgHeight);
-		backgroundImage.SetY(backgroundImage.GetHeight() / 2 - btnHeight / 2);
+		float buttonWidth = popupTextButton.GetWidth() + padding * 2;
+		float buttonHeight = popupTextButton.GetHeight() + padding * 2;
+		float backgroundHeight = (buttonHeight - padding) * (_menuItems.Length + 1) + padding * 1.5f;
+		backgroundImage.SetSize(buttonWidth, backgroundHeight);
+		backgroundImage.SetY(backgroundImage.GetHeight() / 2 - buttonHeight / 2);
 
 		// set selected, this will move the background
 		Selected = selected;

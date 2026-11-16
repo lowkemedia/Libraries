@@ -76,7 +76,7 @@ The host owns the shared clip: consumers must not modify or destroy it. Generate
 clips are cleaned up with their hosts. Restart Play Mode after changing the
 synthesis code so cached clips are regenerated.
 
-## Rollover behaviour
+## Rollover behavior
 
 Play rollover once when the pointer enters a control, not every frame it stays
 there. Device suppression belongs to the caller: Alert and ClickButton suppress

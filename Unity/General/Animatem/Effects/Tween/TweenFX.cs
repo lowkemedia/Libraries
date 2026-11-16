@@ -47,7 +47,7 @@ public class TweenFX : AnimatemEffect
                    EasingFunct easingFunct = null,
                    EffectType type = EffectType.END, 
                    string effectName = "TweenFX") : 
-    base(effectName, type)
+        base(effectName, type)
     {
         _start = start;
         _end = end;
@@ -61,14 +61,12 @@ public class TweenFX : AnimatemEffect
 
     protected override void Initialize()
     {
-        if (float.IsNaN(_start))
-        {
+        if (float.IsNaN(_start)) {
             // when start is NaN, start at current value of target
             _start = Value;
         }
 
-        if (float.IsNaN(_end))
-        {
+        if (float.IsNaN(_end)) {
             // when end is NaN, end at current value of target
             _end = Value;
         }
@@ -83,7 +81,7 @@ public class TweenFX : AnimatemEffect
     private void Recalibrate(float start,
                              float end,
                              float duration,
-                             EasingFunct easingFunct) 
+                             EasingFunct easingFunct)
     {
         _startTime  = Time.time;
         _start      = start;
@@ -97,45 +95,38 @@ public class TweenFX : AnimatemEffect
 
     protected override bool Update()
     {
-        if (_updateTime >= _endTime)
-        {
-            if (_value == _end)
-            {
+        if (_updateTime >= _endTime) {
+            if (_value == _end) {
                 // Instant tweens finish once; restarting here can recurse without yielding.
                 if (_duration == 0f && (_type == EffectType.CYCLE || _type == EffectType.REVERSE)) {
                     _type = EffectType.END;
                     Logger.Warning("Cannot repeat a zero-duration tween. Completing once instead.",
                         LogID.WARNING_ZERO_DURATION_REPEAT_ID, showOnlyOnce: true);
                 }
-                // Intentionally wait a cycle efore returning true, allowing 
+                // Intentionally wait a cycle before returning true, allowing 
                 // tween to show as being at end, also helps multiple effects 
                 // timed together to update cleanly.
                 return true;
             }
             Value = _end;
-        }
-        else
-        {
+        } else {
             Value = _easingFunct(_updateTime - _startTime, _start, _range, _duration);
         }
 
         return false;
     }
 
-    protected override void SnapToEnd()
-    {
+    protected override void SnapToEnd() {
         _endTime = _updateTime;
         Value = _end;
     }
 
-    public override void Cycle() 
-    {
+    public override void Cycle() {
         // start the tween over
         Recalibrate(_start, _end, _duration, _easingFunct);
     }
 
-    public override void Reverse() 
-    {
+    public override void Reverse() {
         // reverse the tween
         Recalibrate(_end, _start, _duration, _easingFunct);
     }
@@ -144,37 +135,31 @@ public class TweenFX : AnimatemEffect
     // Getters and Setters
     //
 
-    public virtual float Value
-    {
+    public virtual float Value {
         get { return _value; }
         set { _value = value; }
     }
 
-    public float Start
-    {
+    public float Start {
         get { return _start; }
         set { Recalibrate(value, _end, _duration, _easingFunct); }
     }
 
-    public float End
-    {
+    public float End {
         get { return _end; }
         set { Recalibrate(_start, value, _duration, _easingFunct); }
     }
 
-    public float Duration
-    {
+    public float Duration {
         get { return _duration; }
         set { Recalibrate(_start, _end, value, _easingFunct); }
     }
 
-    public float Range
-    {
+    public float Range {
         get { return _range; }
     }
 
-    public float EndTime
-    {
+    public float EndTime {
         get { return _endTime; }
     }
 }

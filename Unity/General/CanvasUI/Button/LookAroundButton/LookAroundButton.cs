@@ -34,8 +34,8 @@ public class LookAroundButton : ClickButton, IDragHandler, IEndDragHandler, IPoi
 	// Speed depends on device resolution vs drag delta
 	private const float SPEED = 1.2f;
 
-	// Maximum change for transform, otherwise camera zips out of control on 1st press
-	private const float BREAK = 12.0f;
+	// Ignore rotation deltas at or above this limit to prevent jumps on the first press
+	private const float MAX_ROTATION_DELTA = 12.0f;
 
 	public Camera lookAroundCamera;
 
@@ -64,8 +64,7 @@ public class LookAroundButton : ClickButton, IDragHandler, IEndDragHandler, IPoi
 		VerticalRotation();
 	}
 
-	public void OnEndDrag(PointerEventData pointerEventData)
-	{
+	public void OnEndDrag(PointerEventData pointerEventData) {
 		_isDragging = false;
 	}
 
@@ -78,28 +77,26 @@ public class LookAroundButton : ClickButton, IDragHandler, IEndDragHandler, IPoi
 
 	protected virtual void HorizontalRotation()
 	{
-		float dMouseX = SPEED * Input.GetAxis("Mouse X");
-		if (Math.Abs(dMouseX) < BREAK) {
-			TurnCameraX(dMouseX);
+		float rotationDeltaX = SPEED * Input.GetAxis("Mouse X");
+		if (Math.Abs(rotationDeltaX) < MAX_ROTATION_DELTA) {
+			TurnCameraX(rotationDeltaX);
 		}
 	}
 
 	protected virtual void VerticalRotation()
 	{
-		float dMouseY = SPEED * Input.GetAxis("Mouse Y");
-		if (Math.Abs(dMouseY) < BREAK) {
-			TurnCameraY(dMouseY);
+		float rotationDeltaY = SPEED * Input.GetAxis("Mouse Y");
+		if (Math.Abs(rotationDeltaY) < MAX_ROTATION_DELTA) {
+			TurnCameraY(rotationDeltaY);
 		}
 	}
 
-	public void TurnCameraX(float angleX)
-	{
+	public void TurnCameraX(float angleX) {
 		Transform cameraTransform = _lookAroundContainer.transform;
 		cameraTransform.RotateAround(cameraTransform.position, -Vector3.up, angleX);
 	}
 
-	public void TurnCameraY(float angleY)
-	{
+	public void TurnCameraY(float angleY) {
 		Transform cameraTransform = _lookAroundContainer.transform;
 		cameraTransform.RotateAround(cameraTransform.position, cameraTransform.right, angleY);
 	}

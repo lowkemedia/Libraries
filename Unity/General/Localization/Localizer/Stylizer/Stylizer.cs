@@ -151,29 +151,25 @@ public static class Stylizer
         }
     }
 
-    public static void AddStyle(this TextMeshProUGUI textField,
-                                string text,
-                                string style)
-    {
-        textField.AddKey(text, default, style, false);
-    }
-
-	public static void AddKey(this TextMeshProUGUI textField,
-                              string key,
-                              string[] variables = default,
-                              string style = default,               // TODO: Put style before variables, no need for AddStyle()
-                              bool giveWarning = true)
+    public static LocalizedText AddKey(this TextMeshProUGUI textField,
+                                       string key,
+                                       string style = default,
+                                       string[] variables = default,
+                                       bool preventOrphans = false,
+                                       bool giveWarning = true)
     {
         GameObject gameObject = textField.gameObject;
         if (gameObject is null) {
             Logger.Severe("Could not add localization key:\"" + key + "\" to null TextField", LocalizerID.SEVERE_NULL_TEXT_FIELD_ID);
-            return;
+            return null;
         }
         LocalizedText localizedText;
         localizedText = gameObject.GetComponent<LocalizedText>();
         if (localizedText is null) {
             localizedText = gameObject.AddComponent<LocalizedText>();
         }
+        localizedText.PreventOrphans = preventOrphans;
         localizedText.SetKey(key, variables, style, giveWarning);
+        return localizedText;
     }
 }

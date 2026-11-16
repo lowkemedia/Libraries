@@ -53,23 +53,22 @@ public class Fader : MonoBehaviour
         }
     }
 
-    public static void FadeTextIn(Text text, Color color, float fadeOutTime = 0.333f)
-    {
-        Instance.DoFadeTextIn(text, color, fadeOutTime);
+    public static void FadeTextIn(Text text, Color color, float duration = 0.333f) {
+        Instance.DoFadeTextIn(text, color, duration);
     }
 
     // StartCoroutine() requires a MonoBehaviour instance
-    private void DoFadeTextIn(Text text, Color color, float fadeOutTime)
+    private void DoFadeTextIn(Text text, Color color, float duration)
     {
         text.color = color;
-        IEnumerator coroutine = InvokeFadeTextColor(text, Color.clear, text.color, fadeOutTime);
+        IEnumerator coroutine = InvokeFadeTextColor(text, Color.clear, text.color, duration);
         StartCoroutine(coroutine);
     }
 
-    private IEnumerator InvokeFadeTextColor(Text text, Color sourceColor, Color targetColor, float fadeOutTime)
+    private IEnumerator InvokeFadeTextColor(Text text, Color sourceColor, Color targetColor, float duration)
     {
-        for (float t = 0.01f; t < fadeOutTime; t += Time.deltaTime) {
-            text.color = Color.Lerp(sourceColor, targetColor, Mathf.Min(1, t / fadeOutTime));
+        for (float t = 0.01f; t < duration; t += Time.deltaTime) {
+            text.color = Color.Lerp(sourceColor, targetColor, Mathf.Min(1, t / duration));
             yield return null;
         }
     }
