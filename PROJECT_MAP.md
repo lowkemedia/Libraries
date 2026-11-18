@@ -63,6 +63,13 @@ Minimum toolchain versions and a target-platform verification matrix are not est
 
 ## Other reference material
 
+[Director / Lingo Animatem](Director/Animatem/README.md) preserves Animatem's
+original Lingo implementation. The [source index](Director/Animatem/source/README.md)
+links to all 30 scripts, including [ANIMATEM](Director/Animatem/source/ANIMATEM.lingo)
+and [Animatem ancestor](Director/Animatem/source/Animatem%20ancestor.lingo),
+for browsing without Director. The original movie is retained alongside the
+extracted text; the scripts depend on Director's movie and cast setup.
+
 [Legacy ActionScript 3 libraries](Adobe/src/com/lowke/) are retained for reference.
 They include animation, action queues, asset loading, sound and UI helpers. Use
 `Adobe/src` as the source root and keep imported companion classes and assets;
