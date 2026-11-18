@@ -6,7 +6,11 @@ Unity animation and focused C# utilities from Lowke Media, alongside a C++ teach
 
 ## Animatem — animation for Unity
 
-[Animatem](Unity/General/Animatem/README.md) brings movement, scaling, fades and delays together in code. Apply effects to GameObjects and UI elements, run them in parallel, repeat or reverse them, and use completion callbacks to start the next action.
+**[Animatem](Unity/General/Animatem/README.md) earns its place when you need consistent easing, replacement, cancellation, grouping and callbacks across many animations.** It coordinates small effects, each responsible for a particular change, so callers can compose movement and timing without rebuilding that coordination for every interaction.
+
+It grew out of synchronizing movement and timing in games. Carefully tuned motion is part of a game's feel: retaining familiar durations, easing parameters and sequences can matter as much as adding new effects. The ActionScript lineage also makes existing animation values a useful starting point when porting games; verify the resulting feel in Unity rather than assuming an exact match.
+
+Reuse existing FXs first and add small reusable effects for missing capabilities. Use timed effects for transitions and settling; keep pointer-driven movement tied directly to drag progress. Coroutines are not inherently smoother or faster: with the same values and update cadence, they can produce the same motion. Animatem's value is its shared coordination and control over that motion.
 
 Its distinctive **[Parabola easing](Unity/General/Animatem/README%20Parabola.md)** lets you specify a point along the motion: **“be 76.5% of the way there at half time.”** A quadratic curve through that point gives control over acceleration, anticipation and overshoot.
 

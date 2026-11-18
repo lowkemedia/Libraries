@@ -3,7 +3,20 @@
 A guide to the utilities, their dependencies and integration points. Start with the
 [Unity utilities guide](Unity/General/README.md) for setup and examples.
 
-## Unity/General
+## Animatem
+
+[Animatem](Unity/General/Animatem/README.md) provides code-driven movement, scaling,
+fades and delays for Unity. Each target's Anime holds composable effects that can
+run together, repeat, reverse and invoke completion callbacks.
+[Parabola easing](Unity/General/Animatem/README%20Parabola.md) fits a curve through
+a chosen time/value point for control over acceleration and overshoot.
+
+Attach one Animatem component to a scene. Include AnimatemTypes, CallbackTypes,
+Logger and GlobalState; the supplied UI effects also use uGUI. Its `Start()` sets
+application frame-rate and Unity timing values on handheld devices. See the
+[setup guide](Unity/General/Animatem/README.md#setup) for integration details.
+
+## General Unity utilities
 
 | Utility | Responsibility and important dependencies/setup |
 | --- | --- |
@@ -11,7 +24,6 @@ A guide to the utilities, their dependencies and integration points. Start with 
 | [Logger](Unity/General/Logger/README.md) | Static Unity logging utility for severity filtering, searchable diagnostic IDs, once-only messages, stack traces, Print tracing and shared diagnostic-scenario labels. Copy [Logger.cs](Unity/General/Logger/Logger.cs); no other General utility, scene component or initialization call is required. `ShowAlert` enables requests through `AlertRequested` for eligible messages; connect a presenter such as LoggerAlertBridge to display them. Logger itself has no dependency on Alert. |
 | [SoundHelper](Unity/General/Sound/README.md) | Plays configured AudioSources with optional completion callbacks. Uses CallbackTypes and Logger; attach the component and supply sources and an AudioListener. Sources can use audio assets or clips supplied by SystemSound. |
 | [SystemSound](Unity/General/SystemUI/SystemSound/README.md) | Independent Click, Beep and Rollover helpers provide direct playback and shared generated clips using only Unity/System APIs. Each creates a persistent host on demand; playback needs an AudioListener. The optional SystemSound component assigns a clip to an AudioSource and requires all three helpers. |
-| [Animatem](Unity/General/Animatem/README.md) | Animatem owns Anime objects and composable AnimatemEffect/tween effects. Uses AnimatemTypes, CallbackTypes, Logger and GlobalState; some effects use uGUI. Attach the component to a scene. Start changes application frame-rate and Unity timing settings on handheld devices. |
 | [Coroutine](Unity/General/Coroutine/README.md) | `Delayer` queues work for a later update or scaled-time delay; `Fader` fades uGUI Text; `Mover` moves transforms. Each requires its own attached component. Uses Logger, with `CallbackTypes` for Delayer/Mover. Do not assume work survives scene changes. |
 | [Button](Unity/General/CanvasUI/Button/README.md) | Pointer-driven `ClickButton` and variants/styles. TextButton supports a pressed label offset while keeping the hit area stationary. Uses uGUI/EventSystems, SoundHelper and Delayer; text variants/factory also use TextMeshPro and localization/styling helpers. Consumers supply UI objects and styles. |
 | [DialogManager](Unity/General/CanvasUI/DialogManager/README.md) | Scene-configured dialog stack with buttons, TextMeshPro, localization/styles, ClickBlocker and SoundHelper. Standard Dialog panels fit their height to rendered message text and prevent orphan lines. Keep messages top-anchored and buttons bottom-anchored; the authored height is the minimum. |
@@ -27,11 +39,15 @@ A guide to the utilities, their dependencies and integration points. Start with 
 
 Most C# classes live in the global namespace. Check name collisions and the full referenced helper set when copying a subset; folder boundaries are not assembly boundaries. Utilities that reference Logger require Logger.cs, but can omit SystemUI. Alert and Logger must share an assembly because explicit alerts use the internal LogNoAlert entry point.
 
-## Adobe and C++
+## C++ Teaching
 
-The ActionScript collection under `Adobe/src/com/lowke` includes `Animator`/effects, `ActionQueue`, `AssetLoader`, `AssetManager`, `SoundManager`, UI helpers and `util`. Keep imported event, loader and value-object classes with the selected utility. Source comments provide examples and historical runtime annotations (for example, the Adobe Animator says ActionScript 3.0 / Flash 10); these do not establish a tested minimum for the entire tree. FLA/SWC examples and bundled FZip/easing code retain their own provenance. Some imports refer to Flex or older package paths; a complete ActionScript build has not been verified here.
-
-The `C++` tree contains independent helpers and an OpenGL/GLUT animator. The separate root-level [C++ Teaching](C%2B%2B%20Teaching/README.md) collection contains the course notes, exercises and projects. The Mersenne Twister files depend on `ig*` headers not supplied here, and their permission status is unresolved; see [licensing](README.md#licensing-and-attribution).
+The root-level [C++ Teaching collection](C%2B%2B%20Teaching/README.md) covers
+Programming I and II through 34 topics, with PDF notes, source examples,
+homework and solutions, quizzes and final projects. Start with the course guide
+and [Getting Started](C%2B%2B%20Teaching/02%20Getting%20Started/README.md) for
+compilation instructions. The [eight-part chess exercise](C%2B%2B%20Teaching/_Chess%20Example/README.md)
+progresses through classes, inheritance and polymorphism. Examples are individual
+programs with their own setup; there is no single build for the collection.
 
 ## Boundaries for future work
 
@@ -43,4 +59,16 @@ The `C++` tree contains independent helpers and an OpenGL/GLUT animator. The sep
 
 ## Uncertainties
 
-Minimum toolchain versions and a target-platform verification matrix are not established. No tracked automated tests or runnable Unity fixture were found; delegate examples are demonstrations. Scene/resource setup for older UI utilities needs consumer validation. Root licence coverage for files without headers and the restrictive C++ notices need maintainer clarification. Compile and exercise selected utilities in the consuming project, including UI, audio and native plug-ins on target devices.
+Minimum toolchain versions and a target-platform verification matrix are not established. No tracked automated tests or runnable Unity fixture were found; delegate examples are demonstrations. Scene/resource setup for older UI utilities needs consumer validation. Root licence coverage for files without headers needs maintainer clarification. Compile and exercise selected utilities in the consuming project, including UI, audio and native plug-ins on target devices.
+
+## Other reference material
+
+[Legacy ActionScript 3 libraries](Adobe/src/com/lowke/) are retained for reference.
+They include animation, action queues, asset loading, sound and UI helpers. Use
+`Adobe/src` as the source root and keep imported companion classes and assets;
+some utilities depend on Flex. FLA/SWC examples and bundled FZip/easing code
+retain their own notices. A complete ActionScript build has not been verified here.
+
+[A few C++ helpers](C%2B%2B/C%2B%2B/src/) include matrix utilities and an
+OpenGL/GLUT sprite animator. Integrate individual sources with their required
+headers and libraries.
