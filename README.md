@@ -56,7 +56,7 @@ No automated test suite, CI workflow, Unity scenes/prefabs, assembly definitions
 
 The [historical SVN archive guide](README%20SVN%20Archives.md) provides links to the preserved Google Code projects and source downloads for earlier Lowke Media utilities.
 
-The original [Director / Lingo Animatem](Director/Animatem/README.md) is also preserved as a Director movie with its embedded source.
+The original [Director / Lingo Animatem](Director/Animatem/README.md) is preserved as a Director movie and [30 readable Lingo scripts](Director/Animatem/source/README.md). Browse the original code on GitHub without needing Director, with its spelling, comments and attribution intact.
 
 ## Licensing and attribution
 
