@@ -11,10 +11,9 @@ Small, useful libraries and examples from Lowke Media, primarily Unity/C# and Ad
 | Directory | Contents |
 | --- | --- |
 | [Unity/General](Unity/General/README.md) | C# utilities for alerts, logging, synthesized and configured audio, animation/tweening, coroutines, buttons, dialogs, localization, paging, pointer events, video and general helpers. |
-| [Adobe/src/com/lowke](Adobe/src/com/lowke/) | ActionScript 3 utilities for animation, action queues, asset loading/caching, sound, buttons, alerts, fonts, tooltips and display/data helpers; includes some FLA/SWC examples. |
-| [C++/C++/src](C%2B%2B/C%2B%2B/src/) | Matrix and other helpers, plus an OpenGL/GLUT sprite animator. |
 | [C++ Teaching](C%2B%2B%20Teaching/README.md) | C++ Programming I and II teaching materials: a linked course guide, PDF lessons, exercises, worked solutions, quizzes and projects. |
-| [C++/Mersenne Twister](C%2B%2B/Mersenne%20Twister/) | Historical random-number implementation with external `ig*` dependencies and unresolved licensing notices; see below before reuse. |
+| [Adobe/src/com/lowke](Adobe/src/com/lowke/) | Legacy ActionScript 3 utilities retained for reference: animation, action queues, asset loading/caching, sound, buttons, alerts, fonts, tooltips and display/data helpers; includes some FLA/SWC examples. |
+| [C++/C++/src](C%2B%2B/C%2B%2B/src/) | A few C++ helpers, including matrix utilities and an OpenGL/GLUT sprite animator. |
 
 ## Using the code
 
@@ -48,7 +47,7 @@ No automated test suite, CI workflow, Unity scenes/prefabs, assembly definitions
 
 Many Lowke Media source files carry an MIT permission notice in their headers. Preserve each file's copyright, permission and attribution text when copying or modifying it. There is no root licence file establishing uniform terms for every item, and some files have no licence header.
 
-Third-party material has its own notices, including [FZip](Adobe/src/com/lowke/loadZip/deng/fzip/FZip.as) (Claus Wahlers and Max Herkender) and [Adobe/Robert Penner easing equations](Adobe/src/com/lowke/animator/effect/tween/easing/adobe/easing_readme.txt). The [Mersenne Twister header](C%2B%2B/Mersenne%20Twister/igMersenneTwisterRandomNumber.h) and implementation contain restrictive Vicarious Visions proprietary notices; the header also mentions an Artistic-licensed upstream algorithm. Permission to redistribute/reuse this particular implementation needs clarification from the maintainer. Do not infer a blanket MIT grant from the other files.
+Third-party material has its own notices, including [FZip](Adobe/src/com/lowke/loadZip/deng/fzip/FZip.as) (Claus Wahlers and Max Herkender) and [Adobe/Robert Penner easing equations](Adobe/src/com/lowke/animator/effect/tween/easing/adobe/easing_readme.txt). Do not infer a blanket MIT grant from the other files.
 
 ## Development and manual copies
 
