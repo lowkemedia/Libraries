@@ -54,6 +54,10 @@ No automated test suite, CI workflow, Unity scenes/prefabs, assembly definitions
 
 [Legacy ActionScript 3 libraries](Adobe/src/com/lowke/) are retained for reference. Use `Adobe/src` as the source root and preserve package paths; dependencies include Flash APIs and, for some utilities, Flex. The repository also contains [a few C++ helpers](C%2B%2B/C%2B%2B/src/), including matrix utilities and an OpenGL/GLUT sprite animator.
 
+The [historical SVN archive guide](README%20SVN%20Archives.md) provides links to the preserved Google Code projects and source downloads for earlier Lowke Media utilities.
+
+The original [Director / Lingo Animatem](Director/Animatem/README.md) is also preserved as a Director movie with its embedded source.
+
 ## Licensing and attribution
 
 Many Lowke Media source files carry an MIT permission notice in their headers. Preserve each file's copyright, permission and attribution text when copying or modifying it. There is no root licence file establishing uniform terms for every item, and some files have no licence header.

@@ -51,3 +51,4 @@
 *.xlsx filter=lfs diff=lfs merge=lfs -text
 *.pages filter=lfs diff=lfs merge=lfs -text
 *.odt filter=lfs diff=lfs merge=lfs -text
+Director/Animatem/ANIMATEM_1_02.DIR filter=lfs diff=lfs merge=lfs -text
