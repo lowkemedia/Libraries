@@ -1,0 +1,63 @@
+-- Turn Cycle
+
+--  Note: For best results set the Tempo to 1 fps.
+
+-- Note: Turn Cycle is basically a 1 step walk cycle
+
+property pSpr_Mine                     --  Sprite used by this channel
+property pLst_Cycles                   --  Packages cast list
+property pCst_Start                    --  Cast to start at
+property pCst_End                      --  Cast to end at
+property pSmooth                       --  If TRUE then object turns smoothly
+
+global gObj_Animate
+
+
+on getBehaviorDescription me
+  
+  return("Sets a series of casts that change according to angle of movement.")
+  
+end
+
+
+on getPropertyDescriptionList me
+  
+  set description = [:]
+  
+  addProp(description, #pCst_Start, [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Start Cast Member:"])
+  
+  addProp(description, #pCst_End,   [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "End Cast Member:"])
+  
+  addProp(description, #pSmooth,    [#default: FALSE,¬
+                                      #format: #boolean,¬
+                                     #comment: "Smooth Turns:"])
+  
+  return(description)
+  
+end
+
+
+on beginSprite me
+  
+  set pSpr_Mine = the spriteNum of me
+  
+  -- Ensure that the animation engine is present, if not then make it.
+  if not gObj_Animate then set gObj_Animate = new(script "ancestor script for animate")
+  
+  set mCycles = packageCycleList(gObj_Animate, [[pCst_Start, pCst_End]])
+  
+  -- set property
+  setProperty(gObj_Animate, pSpr_Mine, [#active : #activate,¬
+                                     #cycleList : mCycles,¬
+                                    #smoothTurns: pSmooth])
+  
+end
+
+
+
+
+

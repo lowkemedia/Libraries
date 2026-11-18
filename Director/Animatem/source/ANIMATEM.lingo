@@ -1,0 +1,1150 @@
+-- 
+--  ANIMATEM.DIR © Copyright 1998 MOCAZ
+--  All rights reserved.
+--
+--  This software is licensed on an 'as is' basis.  The author provides no warranty of any sort.
+--  The user of this software assumes complete responsibility for any direct or indirect damages
+--  due to use or misuse of this software.
+--
+--  ANIMATE.DIR was written by Russell J Lowke, MOCAZ  (russ@mocaz.com)
+--
+--  MOCAZ can be contacted at:
+--  304 Newbury Street #202
+--  Boston, MA 02115
+--  www.mocaz.com
+
+property ancestor
+
+-- general
+property pUpdateTime         --  Time (the ticks) when prepareFrame was called
+property pUpdatePrev         --  Time (the ticks) of when the previous prepareFrame was called
+property pSprite             --  Sprite channel of this object
+property pActive             --  TRUE if object is animating
+property pStartLoc           --  Location of the object when initilized
+property pAngle              --  Angle the object is or was moving, in degrees
+property pLocH               --  Location horizontal, float
+property pLocV               --  Location vertical, float
+property pVelocityH          --  Horizontal velocity in pixels / 60th of a second. (float)
+property pVelocityV          --  Vertical velocity in pixels / 60th of a second. (float)
+property pAccelerationH      --  Horizontal acceleration in pixels / 60th of a second
+property pAccelerationV      --  Vertical acceleration in pixels / 60th of a second
+property pFriction           --  Friction
+property pMaxVelocity        --  Maximum velocity
+property pDestPt             --  Destination point of object
+property pRemove             --  If TRUE object is removed when deactivated
+
+-- guidence
+property pGuidance           --  Method control: #none, #cursor, #mouse, #keys, point(), sprite
+property pGuidenceModifier   --  the maximum velocity in pixels / 60th of a second. (float).
+
+-- cast cycles
+property pCycleList          --  List of cast members to cycle
+property pCycleSize          --  Number of cells in pCycleList
+property pCycleCell          --  Cell currently displayed
+property pCyclePlace         --  Position of displayed cast member in cycle list
+property pCycleDirection     --  Direction to cycle through cycle list (-1 BK, 0 PAUSE, +1 FWD)
+property pCycleLastUpdate    --  Time the cycle cast was last changed
+property pCycleTicksPerFrame --  Time between frame changes
+property pCycleType          --  At end of cycle #wrap, #reverse, #reverseEnd, #end, #deactivate
+property pStillCell          --  Cell to use while object is stationary, if -1 then pause
+property pSmoothTurns        --  If TRUE then sprites will turn smoothly
+
+-- display area
+property pWallType           --  Walls will do: #nothing, #reflect, #wrap, #deactivate, #block
+property pRct_Display        --  Area in which object animates
+
+-- collisions
+property pCollisionList      --  List of sprites that are checked for collision, default #empty
+property pCollisions         --  Corresponds with pCollisionList. TRUE if sprite now intersecting
+property pBehaviour          --  List of behaviours on a collide
+property pLag                --  Time lag (ticks) before a collision is cleared
+property pIgnoreCollision    --  If pIgnoreCollision TRUE furthur colisions are ignored until sprite is cleared
+
+-- Misc.
+property pObjectLabel        --  General label used for misc. information
+
+-- Globals
+global gObj_Animatem         --  Animatem object cointains all the general handlers
+
+
+on beginSprite me
+  
+  if not gObj_Animatem then
+    gObj_Animatem = new(script "Animatem ancestor")
+  end if
+  
+  ancestor = gObj_Animatem
+  
+  pSprite             = the spriteNum of me
+  
+  pActive             = TRUE
+  pVelocityH          = float(0.0)
+  pVelocityV          = float(0.0)
+  pAccelerationH      = float(0.0)
+  pAccelerationV      = float(0.0)
+  pMaxVelocity        = #none
+  pAngle              = 0
+  pFriction           = 0
+  pLocV               = float(the locV of sprite pSprite)
+  pLocH               = float(the locH of sprite pSprite)
+  pStartLoc           = point(pLocH, pLocV)
+  pDestPt             = FALSE
+  pCycleList          = FALSE
+  pCycleSize          = FALSE
+  pCycleCell          = FALSE
+  pCyclePlace         = 1
+  pCycleDirection     = +1
+  pCycleLastUpdate    = FALSE
+  pCycleTicksPerFrame = 2
+  pCycleType          = #wrap
+  pStillCell          = FALSE
+  pSmoothTurns        = FALSE
+  pGuidance           = #none
+  pGuidenceModifier   = #none
+  
+  pCollisionList      = #empty
+  pCollisions         = #empty
+  pBehaviour          = #empty
+  pObjectLabel        = #empty
+  pIgnoreCollision    = FALSE
+  
+  pVelocityH          = 1.5
+  pVelocityV          = 1.04
+  
+end
+
+
+on getBehaviorDescription me
+  
+  return("Animatem")
+  
+end
+
+
+on getPropertyDescriptionList me
+  
+  set description = [:]
+  
+  addProp (description, #pRemove,      [#default: TRUE,¬
+                                         #format: #boolean,¬
+                                        #comment: "Hide on deactivate:"])
+  
+  addProp (description, #pRct_Display, [#default: rect (001, 001,¬
+                                                        the stageRight - the stageLeft,¬
+                                                        the stageBottom - the stageTop),¬
+                                         #format: #rect,¬
+                                        #comment: "Display area:"])
+  
+  addProp (description, #pType,        [#default: #reflect,¬
+                                         #format: #symbol,¬
+                                        #comment: "Wall type:",¬
+                                          #range: [#Nothing, #Reflect, #Wrap, #Deactivate, #Block]])
+  
+  addProp (description, #pLag,         [#default: 8,¬
+                                         #format: #integer,¬
+                                        #comment: "Collision delay:"])
+  
+  return(description)
+  
+end
+
+
+on prepareFrame me
+  --
+  -- update objects position according to time
+  
+  set pUpdateTime = integer(the milliseconds / 16)
+  
+  -- pActive will be TRUE, FALSE or #pause
+  if pActive = TRUE and pUpdatePrev then
+    
+    set timePassed = pUpdateTime - pUpdatePrev
+    
+    -- friction
+    set friction = pFriction * timePassed
+    if friction <> 0 then doFriction me, friction
+    
+    -- add acceleration
+    set pVelocityH = pVelocityH + pAccelerationH * timePassed
+    set pVelocityV = pVelocityV + pAccelerationV * timePassed
+    
+    -- angle of movement
+    set direction  = tellAngle(ancestor, pVelocityV, pVelocityH)
+    if direction <> -1 then set pAngle = direction
+    
+    -- limit velocity
+    if pMaxVelocity <> #none then doMaxVelocity me
+    
+    -- add velocity
+    set pLocH      = pLocH + pVelocityH * timePassed
+    set pLocV      = pLocV + pVelocityV * timePassed
+    
+    -- misc.
+    if ilk(pDestPt, #list)            then doDestPt me
+    if ilk(pCycleList, #list)         then doCycles me
+    if pGuidance <> #none             then doGuidance me
+    if pWallType <> #nothing and¬
+     pActive = TRUE                   then doWalls me
+    if pCollisionList <> #empty       then doCollision me
+    
+    -- set final location
+    set the loc of sprite pSprite = point(pLocH, pLocV)
+    
+  end if
+  
+  set pUpdatePrev = pUpdateTime
+  
+end
+
+
+on resetUpdate me
+  --
+  -- Suspends movement until next prepareFrame is called
+  
+  set pUpdateTime = FALSE
+  set pUpdatePrev = FALSE
+  
+end
+
+
+on doFriction me, friction
+  
+  set theVelocityH = abs(pVelocityH) - friction
+  if theVelocityH <= 0 then
+    set pVelocityH = 0
+  else
+    set pVelocityH = theVelocityH * (pVelocityH / abs(pVelocityH))
+  end if
+  
+  set theVelocityV = abs(pVelocityV) - friction
+  if theVelocityV <= 0 then
+    set pVelocityV = 0
+  else
+    set pVelocityV = theVelocityV * (pVelocityV / abs(pVelocityV))
+  end if
+  
+end
+
+
+on doMaxVelocity me
+  
+  set maxVelocities = tellVelocity_Ang(ancestor, pAngle, pMaxVelocity)
+  
+  if abs(pVelocityH) > abs(getAt(maxVelocities, 1)) then set pVelocityH = getAt(maxVelocities, 1)
+  if abs(pVelocityV) > abs(getAt(maxVelocities, 2)) then set pVelocityV = getAt(maxVelocities, 2)
+  
+end
+
+
+
+on doDestPt me
+  
+  --
+  -- handle the destination pt (optional)
+  
+  -- ensure sprite does not pass destination pt
+  set destLocH = getAt(pDestPt, 1)
+  set destLocV = getAt(pDestPt, 2)
+  
+  -- constrain horiz
+  if (pVelocityH > 0 and pLocH > destLocH) or ¬
+     (pVelocityH < 0 and pLocH < destLocH) then
+    set pLocH = destLocH
+  end if
+  
+  -- constrain vert
+  if (pVelocityV > 0 and pLocV > destLocV) or ¬
+     (pVelocityV < 0 and pLocV < destLocV) then
+    set pLocV = destLocV
+  end if
+  
+  -- if object is at destination pt then send message
+  if tellAtDestPt(me) then
+    setVelocityH(me, 0)
+    setVelocityV(me, 0)
+    atDestination(pSprite)
+  end if
+  
+end
+
+
+on doCycles me
+  --
+  -- handle cycling cast members
+  
+  -- ensure pCycleCell has a value
+  if pCycleCell < 1 then set pCycleCell = getAt(pCycleList, pCyclePlace)
+  
+  -- time to change cells?
+  if (pCycleLastUpdate + pCycleTicksPerFrame < the ticks) and pCycleTicksPerFrame then
+    
+    if pVelocityH = 0 and pVelocityV = 0 and pStillCell <> FALSE then
+      
+      -- stationary object, use the pStillCell.
+      if pStillCell <> -1 then set pCycleCell = pStillCell
+      
+    else
+      
+      -- get the next cell
+      set pCyclePlace = pCyclePlace + pCycleDirection
+      
+      if (pCyclePlace > pCycleSize) or (pCyclePlace <= 0) then doEndOfCycle(me)
+      set pCycleCell  = getAt(pCycleList, pCyclePlace)
+      
+    end if
+    
+    set pCycleLastUpdate = the ticks
+    
+  end if
+  
+  if not ilk(pCycleCell, #list) then
+    
+    -- handle single cast cell
+    
+    if the castType of cast pCycleCell = #sound then
+      
+      doSound(ancestor, (the name of cast pCycleCell))
+      set pCycleLastUpdate = 0
+      
+      doCycles(me)
+    else
+      
+      -- set for single cast
+      set the castNum of sprite pSprite = pCycleCell
+      
+    end if
+    
+  else
+    
+    -- handle multiple cast cell, determine the cast by angle
+    
+    set destination = tellListPos(ancestor, pCycleCell, pAngle)
+    set totalCasts  = count(pCycleCell)
+    
+    if pSmoothTurns then
+      
+      set mCurrent     = getOne(pCycleCell, the castNum of sprite pSprite)
+      
+      if mCurrent < 1 then set mCurrent = destination
+      set direction   = findDirection(ancestor, mCurrent, destination, totalCasts)
+      set destination = mCurrent + direction
+      
+    end if
+    
+    if destination < 1 then set destination = totalCasts
+    if destination > totalCasts then set destination = 1
+    
+    -- set for multi cast
+    set the castNum of sprite pSprite = getAt(pCycleCell, destination)
+  end if
+  
+end
+
+
+on doEndOfCycle me
+  
+  case pCycleType of
+      
+    #wrap:
+      
+      if pCyclePlace > pCycleSize then
+        set pCyclePlace = pCyclePlace - pCycleSize
+      else if pCyclePlace <= 0 then
+        set pCyclePlace = pCyclePlace + pCycleSize
+      end if
+      
+    otherwise:
+      
+      -- ensure pCyclePlace does not exceed cycle end or start
+      if pCyclePlace > pCycleSize then
+        set pCyclePlace = pCycleSize
+      else if pCyclePlace <= 0 then
+        set pCyclePlace = 1
+      end if
+      
+      case pCycleType of
+          
+        #reverse:
+          set pCycleDirection = 0 - pCycleDirection
+          
+        #reverseEnd:
+          set pCycleDirection = 0 - pCycleDirection
+          set pCycleType      = #end
+          
+        #end:
+          set pCycleDirection = 0
+          endCycle(pSprite)
+          
+        #deactivate:
+          set pCycleDirection = 0
+          setActive(me, FALSE)
+          
+      end case
+  end case
+  
+end
+
+
+on doGuidance me
+  
+  if pGuidenceModifier = #none then
+    -- we must have a maximum velocity for guidence to work (set to 30)
+    set pGuidenceModifier = 2
+  end if
+  
+  
+  if ilk(pGuidance, #point) then
+    --
+    -- steer towards the point
+    
+    if pVelocityV = 0 and pVelocityH = 0 then
+      doToPtAtVel(ancestor, pSprite, pGuidance, pGuidenceModifier)
+    end if
+    
+  else if integerP(pGuidance) then
+    --
+    -- chase the sprite pGuidance
+    
+    set objectiveLoc = the loc of sprite pGuidance
+    
+    set rise = getAt(objectiveLoc, 2) - pLocV
+    set run  = getAt(objectiveLoc, 1) - pLocH
+    
+    set nVel = tellVelocity_Vel(ancestor, rise, run, pMaxVelocity)
+    
+    set pAccelerationH = getAt(nVel, 1) / float(pGuidenceModifier)
+    set pAccelerationV = getAt(nVel, 2) / float(pGuidenceModifier)
+    
+  else
+    
+    case pGuidance of
+      #cursor:
+        setLocation(me, point(the mouseH, the mouseV))
+        
+      #typeA:
+        -- Crystal Quest
+        
+        set difH = the mouseH - the locH of sprite pSprite
+        if difH > 0 then
+          set directionH = +1
+        else
+          set directionH = -1
+        end if
+        set difH = abs(difH)
+        set basicVelocity = difH / float(pGuidenceModifier)
+        setVelocityH(me, basicVelocity * directionH)
+        
+        set difV = the mouseV - the locV of sprite pSprite
+        if difV > 0 then
+          set directionV = +1
+        else
+          set directionV = -1
+        end if
+        set difV = abs(difV)
+        set basicVelocity = difV / float(pGuidenceModifier)
+        setVelocityV(me, basicVelocity * directionV)
+        
+      #typeB:
+        
+        -- Accelerates towards the mouse
+        -- pGuidenceModifier is the Acceleration speed
+        
+        set pointA         = point(the mouseH, the mouseV)
+        set pointB         = point(pLocH, pLocV)
+        set difference     = pointA - pointB
+        
+        set velocities     = tellVelocity_Vel(me,¬
+                               getAt(difference, 2),¬
+                               getAt(difference, 1),¬
+                               pGuidenceModifier)
+        
+        if tellDistance(ancestor, the loc of sprite pSprite,¬
+                                   point(the mouseH, the mouseV)) > 40 then
+          set pAccelerationH = getAt(velocities, 1)
+          set pAccelerationV = getAt(velocities, 2)
+        else
+          set pAccelerationH = 0
+          set pAccelerationV = 0
+        end if
+        
+    end case
+  end if
+  
+end
+
+
+on doWalls me
+  
+  set screenLeft   = getAt(pRct_Display, 1)
+  set screenTop    = getAt(pRct_Display, 2)
+  set screenRight  = getAt(pRct_Display, 3)
+  set screenBottom = getAt(pRct_Display, 4)
+  
+  case pWallType of
+      
+    #reflect:
+      
+      if pLocH > screenRight then
+        setVelocityH(me, 0 - pVelocityH)
+        setAccelerationH(me, 0 - pAccelerationH)
+        set pLocH = screenRight
+      else if pLocH < screenLeft then
+        setVelocityH(me, 0 - pVelocityH)
+        setAccelerationH(me, 0 - pAccelerationH)
+        set pLocH = screenLeft
+      end if
+      
+      if pLocV > screenBottom then
+        setVelocityV(me, 0 - pVelocityV)
+        setAccelerationV(me, 0 - pAccelerationV)
+        set pLocV = screenBottom
+      else if pLocV < screenTop then
+        setVelocityV(me, 0 - pVelocityV)
+        setAccelerationV(me, 0 - pAccelerationV)
+        set pLocV = screenTop
+      end if
+      
+    #wrap:
+      
+      if pLocH > screenRight then
+        set pLocH = screenLeft
+      else if pLocH < screenLeft then
+        set pLocH = screenRight
+      end if
+      
+      if pLocV > screenBottom then
+        set pLocV = screenTop
+      else if pLocV < screenTop then
+        set pLocV = screenBottom
+      end if
+      
+    #deactivate:
+      
+      if pLocH > screenRight or¬
+         pLocH < screenLeft or¬
+         pLocV > screenBottom or¬
+         pLocV < screenTop then
+        
+        setActive(me, FALSE)
+        
+      end if
+      
+    #block, #end:
+      
+      if pLocH > screenRight then
+        set pLocH = screenRight
+      else if pLocH < screenLeft then
+        set pLocH = screenLeft
+      end if
+      
+      if pLocV > screenBottom then
+        set pLocV = screenBottom
+      else if pLocV < screenTop then
+        set pLocV = screenTop
+      end if
+      
+  end case
+  
+end
+
+
+on doCollision me
+  
+  set counter = 0
+  
+  if pIgnoreCollision then
+    
+    repeat with otherSprite in pCollisionList
+      set counter     = counter + 1
+      set hasOccurred = getAt(pCollisions, counter)
+      
+      if sprite pSprite intersects otherSprite then
+        
+        if not hasOccurred then
+          -- collision
+          set behaviour = getAt(pBehaviour, counter)
+          setAt(pCollisions, counter, -1)
+          handleCollision(pSprite, otherSprite, behaviour)
+        end if
+        
+      else
+        
+        -- spriteCleared
+        if hasOccurred then
+          if hasOccurred = -1 then
+            set hasOccurred = pLag
+          else
+            set hasOccurred = hasOccurred - 1
+          end if
+        end if	
+        setAt(pCollisions, counter, hasOccurred)
+        
+      end if
+      
+    end repeat
+  else
+    
+    repeat with otherSprite in pCollisionList
+      set counter     = counter + 1
+      set hasOccurred = getAt(pCollisions, counter)
+      
+      if sprite pSprite intersects otherSprite then
+        
+        if not hasOccurred then
+          -- collision
+          set behaviour = getAt(pBehaviour, counter)
+          
+          setAt(pCollisions, counter, pLag)
+          
+          handleCollision(pSprite, otherSprite, behaviour)
+        else
+          
+          set hasOccurred = hasOccurred - 1
+          setAt(pCollisions, counter, hasOccurred)
+          
+        end if
+        
+      end if
+      
+    end repeat
+  end if
+  
+end
+
+
+
+--  Handlers used for setting properties
+--
+
+on setCollision me, newValue
+  --
+  --  set the collision list
+  --  default is: #empty
+  
+  set newCollisionList = getAt(newValue, 1)
+  set newBehaviourList = getAt(newValue, 2)
+  
+  -- split the newValue into two lists
+  if ilk(newCollisionList,#list) then
+    set pCollisionList = newCollisionList
+    if ilk(newBehaviourList,#list) then
+      set pBehaviour = newBehaviourList
+      set pCollisions = [FALSE]
+    else
+      -- error, clear the two lists
+      set pCollisionList = #empty
+      set pBehaviour     = #empty
+      set pCollisions    = #empty
+    end if
+  end if
+end
+
+
+on addCollision me, newValue
+  --
+  --
+  --  add a value to the collision list
+  
+  if pCollisionList = #empty then
+    set pCollisionList = []
+    set pBehaviour     = []
+    set pCollisions    = []
+  end if
+  
+  set newCollisionSprite = getAt(newValue, 1)
+  set newBehaviour       = getAt(newValue, 2)
+  
+  append(pCollisionList, newCollisionSprite)
+  append(pBehaviour, newBehaviour)
+  append(pCollisions, FALSE)
+end
+
+
+on clearCollisionLags me
+  --
+  -- clear the collisions list
+  
+  if ilk(pCollisions, #list) then
+    set countCollisions = count(pCollisions)
+    repeat with i = 1 to countCollisions
+      setAt(pCollisions, i, FALSE)
+    end repeat
+  end if
+  
+end
+
+
+on removeCollision me, newValue
+  --
+  --
+  -- remove a sprite from the collision list
+  
+  if pCollisionList <> #empty then
+    
+    set theSpritePlace = TRUE
+    
+    repeat while theSpritePlace > 0
+      set theSpritePlace = getOne(pCollisionList, newValue)
+      
+      -- found the sprite, remove it
+      deleteAt(pCollisionList, theSpritePlace)
+      deleteAt(pBehaviour,    theSpritePlace)
+      deleteAt(pCollisions,    theSpritePlace)
+    end repeat
+    
+    if pCollisionList = [] then
+      set pCollisionList = #empty
+      set pBehaviour     = #empty
+      set pCollisions    = #empty
+    end if
+    
+  end if
+  
+end
+
+
+on setSprite me, newValue
+  --
+  -- Set the sprite for this object
+  -- default is: the object number
+  
+  -- ensure that newValue is within 1 and 48 (number of director channels)
+  if newValue > 0 and newValue < 49 then
+    set pSprite = newValue
+  end if
+  
+end
+
+
+on setGuidance me, newValue
+  --
+  --  Set the sprite guidance system for simple movement
+  
+  -- default is #none
+  
+  case newValue of
+    #cursor:
+      set pVelocityH = 0
+      set pVelocityV = 0
+      set pGuidance = newValue
+    otherwise:
+      set pGuidance = newValue
+  end case
+  
+end
+
+
+on setActive me, newValue
+  --
+  -- Activate or Deactivate this object
+  
+  case newValue of
+      
+    #Deactivate, FALSE:
+      
+      if pRemove then
+        -- remove the cast member
+        setLocation(me, point(-1000 * pSprite, -1000 * pSprite))
+      end if
+      
+      set pActive = FALSE
+      killUpdate(ancestor, pSprite)
+      
+      deactivated(pSprite)
+      
+    #Activate, #soft, #Initialize, TRUE:
+      
+      if newValue = #Initialize or newValue = TRUE then
+        -- load default settings
+        initializeObject(me)
+      end if
+      
+      puppetSprite(pSprite, TRUE)
+      set pActive = TRUE
+      addUpdate(ancestor, pSprite)
+      
+    #Pause:
+      set pActive = #pause
+      
+  end case
+  
+end
+
+
+on setFriction me, newValue
+  set pFriction = newValue
+end
+
+
+on setVelocityH me, newValue
+  --
+  -- set objects horizontal velocity per tick
+  
+  set pVelocityH = newValue
+end
+
+
+on setAccelerationH me, newValue
+  set pAccelerationH = newValue
+end
+
+
+on setVelocity me, theValue
+  
+  set angle = getAt(theValue, 1)
+  set speed = getAt(theValue, 2)
+  
+  set velocities = tellVelocity_Ang(ancestor, angle, speed)
+  
+  set pVelocityH = getAt(velocities, 1)
+  set pVelocityV = getAt(velocities, 2)
+  
+end
+
+
+on setMaxVelocity me, newValue
+  set pMaxVelocity = abs(newValue)
+end
+
+
+on setVelocityV me, newValue
+  --
+  -- set objects vertical velocity per tick
+  
+  set pVelocityV = newValue
+end
+
+
+on setAccelerationV me, newValue
+  set pAccelerationV = newValue
+end
+
+
+on setDisplayArea me, newValue
+  --
+  -- Verify and set the display area
+  -- default is: the screen area
+  
+  if ilk(newValue, #rect) then
+    set pRct_Display = newValue
+  end if
+end
+
+
+on setStartLocation me, newValue
+  --
+  -- set objects screen location as a start position
+  -- default is: see LocH and LocV
+  
+  if ilk(newValue, #point) then
+    
+    setLocH(me, getAt(newValue, 1))
+    setLocV(me, getAt(newValue, 2))
+    
+    set pStartLoc = point(pLocH, pLocV)
+    
+    return(TRUE)
+  else
+    return(FALSE)
+  end if
+  
+end
+
+
+on setLocation me, newValue
+  --
+  -- set objects screen location
+  -- default is: location of sprite when initialized
+  -- passing #start to set location will return the object to its loc when it was initialized
+  
+  if newValue = #start then
+    -- set the object to its location when initialized
+    setLocH(me, getAt(pStartLoc, 1))
+    setLocV(me, getAt(pStartLoc, 2))
+    
+    set myReturn = TRUE
+    
+  else if ilk(newValue, #point) then
+    
+    setLocH(me, getAt(newValue, 1))
+    setLocV(me, getAt(newValue, 2))
+    
+    set myReturn = TRUE
+  else
+    set myReturn = FALSE
+  end if
+  
+  return(myReturn)
+end
+
+
+on setLocH me, theValue
+  --
+  -- set objects horizontal location
+  -- default is: float(0.0)
+  
+  set the locH of sprite pSprite = theValue
+  set pLocH = theValue
+  
+end
+
+
+on setLocV me, theValue
+  --
+  -- set objects vertical location
+  -- default is: float(0.0)
+  
+  set the locV of sprite pSprite = theValue
+  set pLocV = theValue
+  
+end
+
+
+on setCycleList me, cycleList
+  --
+  -- cycleList should be properly packaged using packageCycleList
+  
+  if not ilk(cycleList, #list) then set cycleList = packageCycleList(me, cycleList)
+  
+  if getAt(cycleList, count(cycleList)) <> #pkg then
+    set cycleList = packageCycleList(me, cycleList)
+  end if
+  
+  set pCycleList = duplicate(cycleList)
+  set pCycleSize = count(pCycleList)
+  
+  set pStillCell      = getAt(pCycleList, pCycleSize - 1)
+  set pCycleSize      = pCycleSize - 2
+  
+  deleteAt(pCycleList, pCycleSize + 1)    -- remove still cell
+  deleteAt(pCycleList, pCycleSize + 1)    -- remove #pkg tag
+  
+  set pCycleDirection = 1
+  setCyclePlace(me, #assign)
+  
+  return(cycleList)
+end
+
+
+on setCyclePlace me, newValue
+  
+  set pCyclePlace = 0
+  
+  if newValue = #assign then
+    set pCyclePlace = getOne(pCycleList, the castNum of sprite pSprite)
+  else if newValue = #start then
+    set pCyclePlace = 1
+    set pCycleDirection = +1
+  else if newValue = #end then
+    set pCyclePlace = count(pCycleList)
+    set pCycleDirection = -1
+  else if newValue = #stillCell then
+    set pCycleDirection = 0
+  else
+    set pCyclePlace = newValue
+  end if
+  
+  -- ensure valid cyclePlace
+  if pCyclePlace < 1 then set pCyclePlace = 1
+  if not pCycleDirection then set pCycleDirection = 1
+  
+  -- set cycleCell
+  set pCycleCell = getAt(pCycleList, pCyclePlace)
+  set pCycleLastUpdate = the ticks
+  
+  -- ensure valid cycle cell
+  if pCycleCell < 1 then
+    beep
+    put "invalid pCycleList set for sprite:" & pSprite & " of "&pCycleList
+  end if
+end
+
+
+on setFramesPerSec me, newValue
+  --
+  -- default is: 30 fps (2 cycle ticks per frame)
+  
+  set pCycleTicksPerFrame = convToTicks(ancestor, newValue)
+end
+
+
+on setCycleType me, newValue
+  --
+  -- default is: #wrap
+  -- possible types are: #wrap, #reverse, #end, #deactivate
+  
+  case newValue of
+    #wrap, #reverse, #end, #deactivate:
+      set pCycleType = newValue
+  end case
+  
+end
+
+
+on setCycleDirection me, newValue
+  --
+  -- Assigns the CycleDirection
+  --
+  -- default is: +1
+  -- usual settings: -1, 0 and +1, large positive and negitive values also work
+  
+  -- ensure abs(myDirection) is never greater than pCycleSize
+  if newValue > pCycleSize then
+    set newValue = pCycleSize
+  else if newValue < 0 - pCycleSize then
+    set newValue = 0 - pCycleSize
+  end if
+  
+  set pCycleDirection = newValue
+end
+
+
+on clearCycleUpdate me
+  set pCycleLastUpdate = 0
+end
+
+
+on setWallType me, newValue
+  --
+  -- Assigns the 'wall' / display area behaviour
+  --
+  -- default is: #nothing
+  -- possible types are: #nothing, #reflect, #wrap, #deactivate, #block
+  
+  set pWallType = newValue
+  
+end
+
+
+on setDestinationPt me, newValue
+  --
+  -- Set objects destination pt
+  -- default is: FALSE
+  
+  if ilk(newValue, #list) then
+    set pDestPt = newValue
+    
+    return(TRUE)
+  else
+    set pDestPt = FALSE
+    
+    return(FALSE)
+  end if
+end
+
+
+on setGuidenceModifier me, newValue
+  --
+  --  the maximum velocity for the sprite
+  
+  set pGuidenceModifier = newValue
+  
+end
+
+
+on setObjectLabel me, newValue
+  set pObjectLabel = newValue
+end
+
+
+on setDuration me, newValue
+  
+end
+
+
+on setRemove me, newValue
+  set pRemove = newValue
+end
+
+
+on setSmoothTurns me, newValue
+  set pSmoothTurns = newValue
+end
+
+
+--  Handlers for returning property
+--
+
+
+on soTellActive me
+  return(pActive)
+end
+
+
+on tellAtDestPt me
+  --
+  -- tell if object is at destination pt
+  
+  set myReturn = TRUE
+  
+  if ilk(pDestPt, #list) then
+    set myReturn = ([pLocH, pLocV] = [getAt(pDestPt, 1), getAt(pDestPt, 2)])
+  end if
+  
+  return(myReturn)
+end
+
+
+on tellDestPt me
+  return(pDestPt)
+end
+
+
+on tellLocation me
+  return(point(pLocH, pLocV))
+end
+
+
+on tellVelocityH me
+  return(pVelocityH)
+end
+
+
+on tellVelocityV me
+  return(pVelocityV)
+end
+
+
+on tellObjectLabel me
+  return(pObjectLabel)
+end
+
+
+on tellObjectDirection me
+  return(pAngle)
+end
+
+
+on tellObjectAccH me, object
+  return(pAccelerationH)
+end
+
+
+on tellObjectAccV me, object
+  return(pAccelerationV)
+end
+
+
+on tellObjCollision me
+  -- returns TRUE if any collision objects are still overlapping
+  
+  set myReturn = FALSE
+  repeat with collide in pCollisions
+    if collide = -1 then
+      set myReturn = TRUE
+      exit repeat
+    end if
+  end repeat
+  
+  return(myReturn)
+end
+
+
+on tellDisplayArea me
+  return(pRct_Display)
+end
+
+
+on tellStillCell me
+  return(pStillCell)
+end

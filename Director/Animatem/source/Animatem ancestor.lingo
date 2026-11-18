@@ -1,0 +1,904 @@
+-- 
+--  ANIMATEM.DIR © Copyright 1998 MOCAZ
+--  All rights reserved.
+--
+--  This software is licensed on an 'as is' basis.  The author provides no warranty of any sort.
+--  The user of this software assumes complete responsibility for any direct or indirect damages
+--  due to use or misuse of this software.
+--
+--  ANIMATE.DIR was written by Russell J Lowke, MOCAZ  (russ@mocaz.com)
+--
+--  MOCAZ can be contacted at:
+--  304 Newbury Street #202
+--  Boston, MA 02115
+--  www.mocaz.com
+
+property pSoundChannels       --  The number of sound channels available on this machine
+
+on new me
+  
+  if the platform contains "Macintosh" then
+    -- Mac
+    set pSoundChannels = 8
+    
+  else
+    -- PC
+    set pSoundChannels = 4
+    
+  end if
+  
+  resetUpdate(me)
+  
+  return(me)
+end
+
+
+on packageCycleList me, mLst_Raw, stillCell
+  
+  set cycleList = mLst_Raw
+  
+  if mLst_Raw <> -1 then
+    
+    -- 1. package the cycleList, pCycleList
+    
+    if ilk(mLst_Raw, #list) then
+      -- expand lists
+      
+      set cycleList = duplicate(mLst_Raw)
+      
+      -- expand any nested lists
+      set listSize = count(cycleList)
+      repeat with i = 1 to listSize
+        set thisItem = getAt(cycleList, i)
+        if ilk(thisItem, #list) then
+          set nestedList = expandList(me, thisItem)
+          setAt(cycleList, i, nestedList)
+        end if
+      end repeat
+      
+      -- expand list
+      set cycleList = expandList(me, cycleList)
+    end if
+    
+    set cycleList = convertCast(me, cycleList)
+    
+    -- force cycleList as a list
+    if not ilk(cycleList, #list) then set cycleList = [cycleList]
+    
+    
+    -- 2.  package the still cell, pStillCell
+    
+    if ilk(stillCell, #list) then
+      set theCell = duplicate(stillCell)
+    else
+      set theCell = stillCell
+    end if
+    
+    if theCell <> FALSE then
+      -- expand theCell
+      set theCell = convertCast(me, expandList(me, theCell))
+    end if
+    
+    -- append the stillCell to cycleList
+    append(cycleList, theCell)
+    
+    
+    -- 3. add a tag to declare that this list has been packaged
+    append(cycleList, #pkg)
+    
+  end if
+  
+  return(cycleList)
+end
+
+
+on doShowCells me, object, cycleList, fps, activate
+  
+  if activate then
+    setProperty(me, object, [#active:TRUE])
+  end if
+  
+  setProperty(me, object, [#cycleList : cycleList,¬
+                           #cyclePlace:1,¬
+                           #framesPerSec:fps,¬
+                           #cycleType:#deactivate,¬
+                           #cycleDirection:+1])
+end
+
+
+on doToPtByTime me, spriteNum, myDestPt, myDuration
+  
+  set velocities = tellVelocity_Pts(me, the loc of sprite spriteNum, myDestPt, myDuration)
+  
+  setProperty(me, spriteNum,   [#velocityH: getAt(velocities ,1),¬
+                                #velocityV: getAt(velocities ,2),¬
+                                #destinationPt: myDestPt])
+end
+
+
+on doToPtAtVel me, spriteNum, myDestPt, velocity
+  
+  set myLocH   = the locH of sprite spriteNum
+  set myLocV   = the locV of sprite spriteNum
+  set destLocH = getAt(myDestPt, 1)
+  set destLocV = getAt(myDestPt, 2)
+  
+  set velocityH = (destLocH - myLocH) / float (1)
+  set velocityV = (destLocV - myLocV) / float (1)
+  
+  -- get the true velocity of the sprite
+  set velocities = tellVelocity_Vel(me, velocityV, velocityH, velocity)
+  
+  set endH = getAt(velocities, 1)
+  set endV = getAt(velocities, 2)
+  setProperty(me, spriteNum,   [#velocityH: endH,¬
+                                #velocityV: endV,¬
+                            #destinationPt: myDestPt])
+end
+
+
+--  'Stand Alone' Handlers
+--
+
+
+on toPtByTime me, spriteNum, myDestPt, myDuration
+  --
+  -- animate a specific sprite to a point in a time duration
+  
+  resetUpdate(me)
+  setProperty(me, spriteNum,   [#active: TRUE])
+  doToPtByTime(me, spriteNum, myDestPt, myDuration)
+  resetUpdate(me)
+  
+  loopWhileActive(me, spriteNum, FALSE)
+end
+
+
+on toPtAtVel me, spriteNum, myDestPt, velocity
+  --
+  -- animate a specific sprite to a point at a velocity
+  
+  resetUpdate(me)
+  setProperty(me, spriteNum, [#active:TRUE])
+  doToPtAtVel(me, spriteNum, myDestPt, velocity)
+  
+  loopWhileActive(me, spriteNum, FALSE)
+end
+
+
+on showCells me, object, cycleList, fps, allowClick
+  --  
+  -- display a series of cells
+  
+  resetUpdate(me)
+  
+  doShowCells(me, object, cycleList, fps, TRUE)
+  
+  loopWhileActive(me, object, allowClick)
+end
+
+
+on loopWhileActive me, object, exitIfMouseDwn
+  --
+  -- Animate until an object deactivates (finishes animating)
+  
+  repeat while soTellActive(me, object))
+    prepareFrame(me)
+    
+    if exitIfMouseDwn and the mouseDown then
+      exit repeat
+    end if
+    
+  end repeat
+  
+end
+
+
+--
+-- Math handlers
+
+
+on maxHeightWidth me, castList
+  
+  set numberOfItems = count(castList)
+  if getAt(castList, numberOfItems) = #pkg then
+    set numberOfItems = numberOfItems - 2
+  else
+    set castList = expandList(me, duplicate(castList))
+    set numberOfItems = count(castList)
+  end if
+  
+  set maxHeight = 0
+  set maxWidth  = 0
+  repeat with i = 1 to numberOfItems
+    set theCast = getAt(castList, i)
+    if ilk(theCast, #List) then
+      repeat with myCast in theCast
+        set castHeight = the height of cast myCast
+        set castWidth  = the width of  cast myCast
+        if castHeight  > maxHeight then set maxHeight = castHeight
+        if castWidth   > maxWidth then  set maxWidth  = castWidth
+      end repeat
+    else
+      set castHeight = the height of cast theCast
+      set castWidth  = the width of  cast theCast
+      if castHeight  > maxHeight then set maxHeight = castHeight
+      if castWidth   > maxWidth then  set maxWidth  = castWidth
+    end if
+  end repeat
+  
+  return([maxHeight, maxWidth])
+  
+end
+
+
+on convToTicks me, framesPerSec
+  --
+  -- converts frames/second to ticks/frame
+  
+  if framesPerSec = 0 then
+    -- aviod divide by zero
+    set myReturn = 0
+  else
+    set myReturn = 60 / float(framesPerSec)
+  end if
+  
+  return (myReturn)
+end
+
+
+on joinLists me, listOne, listTwo
+  --
+  --  joins list one to list two
+  
+  set endList = duplicate(listOne)
+  
+  if not ilk(listOne, #list) then
+    set listOne = []
+  end if
+  
+  if not ilk(listTwo, #list) then
+    set listTwo = []
+  end if
+  
+  repeat with i in listTwo
+    append(endList, i)
+  end repeat
+  
+  return(endList)
+end
+
+
+on reverseList me, theList
+  --
+  -- simply reverse the list
+  
+  set newList = []
+  
+  if ilk(theList, #List) then
+    set numberOfItems = count(theList)
+    repeat with i = numberOfItems down to 1
+      append(newList, getAt(theList, i))
+    end repeat
+  end if
+  
+  return(newList)
+end
+
+
+on expandList me, theList
+  --
+  -- if a list contains two casts, start and end
+  -- expand the list to include all casts inbetween
+  
+  if ilk(theList, #List) then
+    
+    set myList = []
+    
+    if count(theList) = 2 then
+      -- expand the list
+      
+      set firstValue  = getAt(theList, 1)
+      set secondValue = getAt(theList, 2)
+      
+      if not ilk(firstValue, #List) and not ilk(secondValue, #List) then
+        
+        set listStart = the number of cast (firstValue)
+        set listEnd   = the number of cast (secondValue)
+        
+        if listEnd > listStart then
+          repeat with i = listStart to listEnd
+            append(myList, i)
+          end repeat
+        else
+          repeat with i = listStart down to listEnd
+            append(myList, i)
+          end repeat
+        end if
+        
+        return(myList)
+        
+      end if
+    end if
+  end if
+  
+  return(theList)
+end
+
+
+on tellCastNumbers me, theList
+  --
+  -- take a list of cast names and switch them to cast numbers
+  
+  if ilk(theList, #List) then
+    set myList = []
+    
+    repeat with thisItem in theList
+      append(myList, convertCast(me, thisItem))
+    end repeat
+    
+    return(myList)
+  else
+    return(theList)
+  end if
+  
+end
+
+
+on convertCast me, thisItem
+  if integerP(thisItem) then
+    -- the cast has been passed as a integer castNum
+    return(thisItem)
+  else if ilk(thisItem, #List) then
+    -- convert nested list
+    return(tellCastNumbers(me, thisItem))
+  else
+    -- assume we have a string
+    return(the number of cast thisItem)
+  end if
+end
+
+
+on radiansToDegree me, rad
+  return((rad * 360) / float(2 * pi()))
+end
+
+
+on degreesToRadians me, deg
+  return((2 * pi() * deg) / 360)
+end
+
+
+on tellGradient me, rise, run
+  --
+  -- gradient (rise / run)
+  
+  if rise = 0 then
+    set m = 0
+  else if run = 0 then
+    -- infinity
+    set m = rise
+  else
+    set m = rise / float(run)
+  end if
+  
+  return (m)
+  
+end
+
+
+on tellGradient_Pts me, pointA, pointB
+  
+  -- returns the gradient of a line joining two points
+  -- 
+  
+  set x1 = getAt(pointA, 1)
+  set y1 = getAt(pointA, 2)
+  
+  set x2 = getAt(pointB, 1)
+  set y2 = getAt(pointB, 2)
+  
+  set rise = y2 - y1
+  set run  = x2 - x1
+  
+  return (tellGradient(me, rise, run))
+end
+
+
+on tellVelocity_Pts me, startPt, endPt, myDuration
+  
+  set myLocH   = getAt(startPt, 1)
+  set myLocV   = getAt(startPt, 2)
+  set destLocH = getAt(endPt, 1)
+  set destLocV = getAt(endPt, 2)
+  
+  set run = (destLocH - myLocH) / float (myDuration)
+  set rise = (destLocV - myLocV) / float (myDuration)
+  
+  return([run, rise])
+  
+end
+
+
+on tellVelocity_Vel me, rise, run, velocity
+  --
+  --  take a rise and a run plus desired velocity
+  --  convert to x and y velocities
+  
+  set m = tellGradient(me, rise, run)
+  
+  set theAngle = aTan(m)
+  
+  if run > 0 and rise < 0 then
+    set myX = cos(theAngle) * velocity
+    set myY = sin(theAngle) * velocity
+  else if (run < 0 and rise < 0) or (run < 0 and rise > 0) then
+    set myX = 0 - cos(theAngle) * velocity
+    set myY = 0 - sin(theAngle) * velocity
+  else if run > 0 and rise > 0 then
+    set myX = cos(theAngle) * velocity
+    set myY = sin(theAngle) * velocity
+  end if
+  
+  if voidp(myX) then set myX = 0
+  
+  if voidp(myY) then set myY = 0
+  
+  return([myX, myY])
+  
+end
+
+
+on tellVelocity_Ang me, degrees, velocity
+  --
+  -- Return the vertical and horizontal velocity
+  -- given angle and an overall velocity
+  
+  set run  = tellRun(me, degrees, velocity)
+  
+  -- reverse y for computer geometry.  0,0 being top left, not bottom left
+  set rise = 0 - tellRise(me, degrees, velocity)
+  
+  return([run, rise])
+  
+end
+
+
+on tellRise me, angle, hypot
+  --
+  -- return y given angle and the hypotenuse
+  
+  set radians = degreesToRadians(me, angle)
+  set rise    = hypot * sin(radians)
+  
+  return (rise)
+end
+
+
+on tellRun me, angle, hypot
+  --
+  -- return x given angle and the hypotenuse
+  
+  set radians = degreesToRadians(me, angle)
+  set run     = hypot * cos(radians)
+  
+  return (run)
+end
+
+
+on tellHypot_Y me, rise, angle
+  --
+  -- tell the hypotenuse given the rise and angle
+  
+  set hypot = 0
+  
+  set radians = degreesToRadians(me, angle)
+  
+  if radians <> 0 and sin(radians) <> 0 then
+    set hypot = rise / sin(radians)
+  end if
+  
+  return(hypot)
+end
+
+
+on tellHypot_X me, run, angle
+  --
+  -- tell the hypotenuse given the run and angle
+  
+  set radians = degreesToRadians(me, angle)
+  
+  if radians <> 0 then
+    set hypot = run / cos(radians)
+  else
+    set hypot = 0
+  end if
+  
+  return(hypot)
+end
+
+
+on tellHypot_YX me, rise, run
+  --
+  -- tell the hypotenuse given the rise and the run
+  
+  set angle = tellAngle(me, rise, run)
+  set hypot = tellHypot_Y(me, rise, angle)
+  
+  return(hypot)
+end
+
+
+on tellAngle me, rise, run
+  
+  if run = 0 then
+    
+    -- avoid a divide by zero
+    
+    if rise < 0 then
+      set theAngle = 90
+    else if rise > 0 then
+      set theAngle = 270
+    else
+      set theAngle = -1
+    end if
+    
+  else if rise = 0 then
+    
+    -- ensure horizontals are correct
+    
+    if run < 0 then
+      set theAngle = 180
+    else if run > 0 then
+      set theAngle = 0
+    end if
+    
+  else
+    
+    set basicAngleRadians = abs(atan( rise / float(run) ))
+    set basicAngle        = (basicAngleRadians * 360) / float(2 * pi())
+    
+    if run > 0 and rise > 0 then
+      set theAngle = 360 - basicAngle
+    else if run < 0 and rise > 0 then
+      set theAngle = 180 + basicAngle
+    else if run < 0 and rise < 0 then
+      set theAngle = 180 - basicAngle
+    else if run > 0 and rise < 0 then
+      set theAngle = basicAngle
+    end if
+    
+  end if
+  
+  return(theAngle)
+  
+end
+
+
+on tellAngle_m me, m, direction
+  
+  set run  = direction
+  set rise = m * run
+  
+  return(tellAngle(me, rise, run))
+end
+
+
+on tellDistance me, pointA, pointB
+  
+  -- returns the distance between pointA and pointB
+  
+  set x1 = getAt(pointA, 1)
+  set y1 = getAt(pointA, 2)
+  
+  set x2 = getAt(pointB, 1)
+  set y2 = getAt(pointB, 2)
+  
+  set run  = power((x2 - x1), 2)
+  set rise = power((y2 - y1), 2)
+  set pq   = sqrt(run + rise)
+  
+  return(pq)
+  
+end
+
+
+on tellYOnALine me, x, myPoint, m
+  
+  -- returns y, given x through the point myPoint with gradient m
+  
+  set x1 = getAt(myPoint, 1)
+  set y1 = getAt(myPoint, 2)
+  
+  set y = m * (x - x1) + y1
+  
+  return (y)
+  
+end
+
+
+on tellXOnALine me, y, myPoint, m
+  
+  -- returns x, given y through the point myPoint with gradient m
+  
+  set x1 = getAt(myPoint, 1)
+  set y1 = getAt(myPoint, 2)
+  
+  if m = 0 then
+    -- avoid divide by zero
+    set x = 0
+  else
+    set x = x1 + (y - y1) / m
+  end if
+  
+  return (x)
+  
+end
+
+
+on tellYOnACurve me, x, pointA, pointB, pointC
+  
+  set x1 = getAt(pointA, 1)
+  set y1 = getAt(pointA, 2)
+  
+  set x2 = getAt(pointB, 1)
+  set y2 = getAt(pointB, 2)
+  
+  set x3 = getAt(pointC, 1)
+  set y3 = getAt(pointC, 2)
+  
+  set m2 = tellGradient_Pts(me, pointA, pointB)
+  set m3 = tellGradient_Pts(me, pointA, pointC)
+  
+  set a = float(m2-m3) / float(x2-x3)
+  set b = m2 - a * (x2-x1)
+  set y = b*(x-x1) + y1 + a*power((x-x1),2)
+  
+  return (y)
+  
+end
+
+
+on findDirection me, mCurrent, mDest, mMax
+  
+  -- Remove loops
+  if mCurrent > mMax then set mCurrent = mMax
+  if mDest    > mMax then set mDest    = mMax
+  
+  if mCurrent = mDest then
+    return(FALSE)
+    
+  else
+    
+    set testcurrent = mCurrent
+    set leftCount = 0 
+    repeat while testcurrent <> mDest
+      set testcurrent = testcurrent - 1
+      if testcurrent < 1 then set testcurrent = mMax
+      set leftCount = leftCount + 1
+    end repeat
+    
+    set testcurrent = mCurrent
+    set rightCount = 0 
+    repeat while testcurrent <> mDest
+      set testcurrent = testcurrent + 1
+      if testcurrent > mMax then set testcurrent = 1
+      set rightCount = rightCount + 1
+    end repeat
+    
+    if leftCount < rightCount then
+      return(-1)
+    else
+      return(+1)
+    end if
+  end if
+  
+end
+
+
+on tellCaseSize me, theChar
+  set asci = charToNum(theChar)
+  
+  set myReturn = #symbol
+  if asci >= 65 and asci <= 90 then
+    set myReturn = #upperCase
+  else if asci >= 97 and asci <= 122 then
+    set myReturn = #lowerCase
+  end if
+  
+  return(myReturn)
+  
+end
+
+
+on tellListPos me, theList, theAngle
+  --
+  -- calc the target given an angle and a list
+  -- where the first value represents 0 degree's and the last 360.
+  
+  set totalCasts    = count(theList)
+  set increments    = integer(360 / totalCasts)
+  
+  set adjustedAngle = integer(theAngle + (increments / 2))
+  
+  if adjustedAngle > 360 then set adjustedAngle = adjustedAngle - 360
+  
+  set target = (adjustedAngle - 1) / increments + 1
+  
+  return(target)
+  
+end
+
+
+on tellOddOrEven me, mNumber
+  --
+  -- returns TRUE if mNumber is even, FALSE if odd
+  
+  return(not(mNumber mod 2))
+  
+end
+
+
+on removeIllegalChars me, theString
+  
+  set removeChars = [".", ",", "“", "”"]
+  repeat with killChar in removeChars
+    
+    set wordLength = the length of theString
+    repeat with j = wordLength down to 1
+      if char j of theString = killChar then
+        delete char j of theString
+      end if
+    end repeat
+  end repeat
+  
+  return(theString)
+end
+
+
+on replaceWord me, myString, wordOld, wordNew
+  --
+  --  search a string for a word and replace it with a new word
+  
+  set stringLength = the length of myString
+  set identifyStr  = ""
+  set theStart     = 0
+  set theEnd       = 0
+  repeat with i = 1 to stringLength
+    set thisChar = char i of myString
+    if thisChar = char (the length of identifyStr+1) of wordOld then
+      set identifyStr = identifyStr & thisChar
+      if the length of identifyStr = 1 then
+        set startAt = i
+      end if
+    else
+      if identifyStr = wordOld then
+        set theStart = startAt
+        set theEnd   = i-1
+        set identifyStr = ""
+      else
+        set startAt = 0
+        set identifyStr = ""
+      end if
+    end if
+  end repeat
+  
+  -- finalTest for word
+  if identifyStr = wordOld then
+    set theStart = startAt
+    set theEnd   = i-1
+    set identifyStr = ""
+  else
+    set startAt = 0
+    set identifyStr = ""
+  end if
+  
+  set firstHalf  = char 1 to theStart-1 of myString
+  set secondHalf = char theEnd+1 to stringLength of myString
+  if theStart = 1 then set firstHalf = ""
+  set myString = firstHalf & wordNew & secondHalf
+  
+  return (myString)
+  
+end
+
+
+on tellCastRect me, myCastNum, drawLocation
+  --
+  -- return the rect of a cast if it was drawn at a location
+  
+  set myRect     = the rect     of cast myCastNum
+  set myRegPoint = the regPoint of cast myCastNum
+  
+  set Xshift     = getAt(drawLocation, 1)
+  set Yshift     = getAt(drawLocation, 2)
+  
+  set myRect     = myRect + rect (Xshift, Yshift, Xshift, Yshift)
+  
+  set Xshift     = getAt(myRegPoint, 1)
+  set Yshift     = getAt(myRegPoint, 2)
+  
+  set myRect     = myRect - rect (Xshift, Yshift, Xshift, Yshift)
+  
+  return(myRect)
+  
+end
+
+
+on sortByLength me, unsortedList
+  set sortedList = []
+  
+  -- get the longest length
+  set longestStr = 0
+  repeat with theWord in unsortedList
+    set wordLength = the length of theWord
+    if wordLength > longestStr then set longestStr = wordLength
+  end repeat
+  
+  repeat with i = longestStr down to 1
+    repeat with theWord in unsortedList
+      if the length of theWord = i then
+        append(sortedList, theWord)
+      end if
+    end repeat
+  end repeat
+  
+  return(sortedList)
+  
+end
+
+
+on convertToUpperCase me, myString
+  
+  set stringLength = the length of myString
+  set endString = ""
+  repeat with i = 1 to stringLength
+    set thisChar = char i of myString
+    set asciVal = charToNum(thisChar)
+    if asciVal >= charToNum("a") and asciVal <= charToNum("z") then
+      set thisChar = numToChar(asciVal - 32)
+    end if
+    set endString = endString & thisChar
+  end repeat
+  
+  return(endString)
+end
+
+
+-- sound
+
+on doSound me, soundName, mChannel
+  --
+  -- handle sounds
+  
+  if not mChannel then set mChannel = tellEmptySoundChan(me)
+  
+  if pSoundChannels > 0 then
+    
+    if mChannel = #last then set mChannel = pSoundChannels
+    
+    puppetSound(mChannel, 0)
+    puppetSound(mChannel, soundName)
+    
+  end if
+  
+  return(mChannel)
+end
+
+
+on tellEmptySoundChan me
+  
+  set mChannel = FALSE
+  
+  repeat with i = 1 to pSoundChannels
+    if not soundBusy(i) then
+      set mChannel = i
+      exit repeat
+    end if
+  end repeat
+  
+  if not mChannel then set mChannel = 1
+  
+  return(mChannel)
+  
+end

@@ -6,6 +6,16 @@ J Lowke. It is an unchanged copy of the standalone file preserved alongside the
 Crusades Director prototype, including its original spelling, comments and
 attribution.
 
+## Read the Lingo
+
+Browse the [30 original scripts](source/README.md) directly on GitHub, including
+[ANIMATEM](source/ANIMATEM.lingo),
+[Animatem ancestor](source/Animatem%20ancestor.lingo) and the supporting
+behaviours. These files contain the embedded source text, with encoding and line
+endings adapted for browsing; the original code, spelling and comments are
+preserved. The [source guide](source/README.md) lists every script and explains
+the extraction.
+
 ## The file
 
 This is an actual Director movie, not a ZIP or self-extracting archive. Its
@@ -18,8 +28,8 @@ meaning of `conv` has not been established.
 The embedded source includes `Ancestor script for animate`, `Parent script for
 animate`, `External animator calls`, `ANIMATEM` and `Animatem ancestor`, along
 with behaviours for velocity, acceleration, positioning, animation cycles,
-boundaries and collisions. The source can be inspected inside the movie; loose
-Lingo files are not required for it to survive.
+boundaries and collisions. The readable exports correspond to the source stored
+inside this movie.
 
 The binary is stored with Git LFS. Obtain the actual file through Git LFS or
 GitHub's download control, rather than an LFS pointer. Playback and editing in

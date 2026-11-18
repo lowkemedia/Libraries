@@ -1,0 +1,84 @@
+-- Walk Cycle
+
+--  Note: For best results set the Tempo to 1 fps.
+
+
+property pSpr_Mine                     --  Sprite used by this channel
+property pLst_Cycles                   --  Packages cast list
+property pCst_AStart                   --  Turn cycle 'A' cast to start at
+property pCst_AEnd                     --  Turn cycle 'A' cast to end at
+property pCst_BStart                   --  Turn cycle 'B' cast to start at
+property pCst_BEnd                     --  Turn cycle 'B' cast to end at
+property pCst_CStart                   --  Turn cycle 'C' cast to start at
+property pCst_CEnd                     --  Turn cycle 'C' cast to end at
+property pFps                          --  'Frames' per second to animate at
+
+global gObj_Animate
+
+
+on getBehaviorDescription me
+  
+  return("Sets a series of casts that change according to angle of movement and fps.")
+  
+end
+
+
+on getPropertyDescriptionList me
+  
+  set description = [:]
+  
+  addProp(description, #pCst_AStart, [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle A - Start Member:"])
+  
+  addProp(description, #pCst_AEnd,   [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle A - End Member:"])
+  
+  addProp(description, #pCst_BStart, [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle B - Start Member:"])
+  
+  addProp(description, #pCst_BEnd,   [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle B - End Member:"])
+  
+  addProp(description, #pCst_CStart, [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle C - Start Member:"])
+  
+  addProp(description, #pCst_CEnd,   [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle C - End Member:"])
+  
+  addProp(description, #pFps,       [#default: 15,¬
+                                      #format: #integer,¬
+                                     #comment: "Frames Per Second:"])
+  
+  return(description)
+  
+end
+
+
+on beginSprite me
+  
+  set pSpr_Mine = the spriteNum of me
+  
+  -- Ensure that the animation engine is present, if not then make it.
+  if not gObj_Animate then set gObj_Animate = new(script "ancestor script for animate")
+  
+  set mCycles = packageCycleList(gObj_Animate, [[pCst_AStart, pCst_AEnd],¬
+                                                [pCst_BStart, pCst_BEnd],¬
+                                                [pCst_CStart, pCst_CEnd]])
+  
+  -- set property
+  setProperty(gObj_Animate, pSpr_Mine, [#active : #Activate,¬
+                                     #cycleList : mCycles,¬
+                                            #fps: pFps])
+  
+end
+
+
+
+
+

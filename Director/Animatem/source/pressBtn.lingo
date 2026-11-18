@@ -1,0 +1,306 @@
+property pSpr_Mine                        --  the sprite used for this button
+property pSnd_Click                       --  the soud used for btn click
+property pFrameOrHandles                  --  number of frames used in button animation
+property pfps                             --  frames per second to animate button
+property pPuppetState                     --  PuppetState of this button
+property pCst_Up                          --  The up state of this button
+property pCst_Dwn                         --  The down state of this button
+property pCst_Roll                        --  The roll state of this button
+property pRollover                        --  TRUE if rollovers are used
+property pCsr_Roll                        --  Cursor used for rollover
+property pFrameOrHandle                   --  Frame to jump to
+property pUnpuppet                        --  If TRUE all sprites are unpuppeted
+property pCst_Blank                       --  The blabk cast member
+property pSoundChannels                   --  The number of sound channels in use
+
+on getBehaviorDescription me
+  
+  return("press button")
+  
+end
+
+
+on getPropertyDescriptionList me
+  
+  set description = [:]
+  
+  addProp (description, #pFrameOrHandle,   [#default: "Start",¬
+                                        #format: #String,¬
+                                       #comment: "Frame or Handle:"])
+  
+  addProp (description, #pRollover,   [#default: FALSE,¬
+                                        #format: #boolean,¬
+                                       #comment: "Rollover:"])
+  
+  addProp (description, #pSnd_Click,  [#default: "clickSnd",¬
+                                        #format: #string,¬
+                                       #comment: "Click Sound:"])
+  
+  addProp (description, #pUnpuppet,   [#default: TRUE,¬
+                                        #format: #boolean,¬
+                                       #comment: "Unpuppet sprites:"])
+  
+  addProp (description, #pFrameOrHandles,     [#default: 1,¬
+                                        #format: #integer,¬
+                                       #comment: "Number of Frames:"])
+  
+  addProp (description, #pfps,        [#default: 30,¬
+                                        #format: #integer,¬
+                                       #comment: "Frames per second:"])
+  
+  return(description)
+  
+end
+
+
+on beginSprite me
+  
+  if the platform contains "Macintosh" then
+    -- Mac
+    set pSoundChannels = 8
+    
+  else
+    -- PC
+    set pSoundChannels = 4
+    
+  end if
+  
+  set pSpr_Mine  = the spriteNum of me
+  set pCst_Up    = the castNum of sprite pSpr_Mine
+  set pCst_Dwn   = pCst_Up + pFrameOrHandles
+  set pCst_Roll  = pCst_Up
+  set pCsr_Roll  = -1
+  set pCst_Blank = the number of cast "blank"
+  
+  if pRollover then
+    set pCst_Roll = pCst_Dwn + 1
+    set pCsr_Roll = [the number of cast "pointyHand", the number of cast "pointyHand.Mask"]
+  end if
+  
+end
+
+
+on removeBtn me
+  --
+  -- remove this button
+  
+  set the castNum of sprite pSpr_Mine = pCst_Blank
+  set pCst_Up    = pCst_Blank
+  set pCst_Dwn   = pCst_Blank
+  set pCst_Roll  = pCst_Blank
+  updateStage
+  
+end
+
+
+on mouseDown me
+  
+  -- setup and lock in the sprite
+  set pPuppetState = the puppet of sprite pSpr_Mine
+  puppetSprite(pSpr_Mine, TRUE)
+  set the castNum of sprite pSpr_Mine = pCst_Up
+  updateStage
+  
+  set btnSelected = FALSE
+  set btnHotSpot  = the rect of sprite pSpr_Mine
+  
+  repeat while the mouseDown
+    set theMousePt = point(the mouseH, the mouseV)
+    if inside(theMousePt, btnHotSpot) then
+      if the castNum of sprite pSpr_Mine = pCst_Up then
+        changeSprite(me, pSpr_Mine, pCst_Up, pCst_Dwn, pfps)
+        
+        if the number of cast ((pSnd_Click)) > 0 then
+          doSound(me, pSnd_Click)
+          updateStage
+        end if
+        
+        if the mouseUp then set btnSelected = TRUE
+      end if
+    else
+      if the castNum of sprite pSpr_Mine = pCst_Dwn then
+        changeSprite(me, pSpr_Mine, pCst_Dwn, pCst_Up, pfps)
+        set the castNum of sprite pSpr_Mine to pCst_Up
+      end if
+    end if
+    
+    updateStage
+  end repeat
+  
+  if rollover(pSpr_Mine) or btnSelected then
+    if the castNum of sprite pSpr_Mine = pCst_Up then
+      changeSprite(me, pSpr_Mine, pCst_Up, pCst_Dwn, pfps)
+      
+      if the number of cast ((pSnd_Click)) > 0 then
+        doSound(me, pSnd_Click)
+      end if
+      
+      updateStage
+    end if
+    
+    timePause(me, 10)
+    
+    set returnFlag = TRUE
+    
+  else
+    
+    set returnFlag = FALSE
+    
+  end if
+  
+  if the castNum of sprite pSpr_Mine = pCst_Dwn then
+    changeSprite(me, pSpr_Mine, pCst_Dwn, pCst_Up, pfps)
+  end if
+  
+  puppetSprite(pSpr_Mine,pPuppetState)
+  updateStage
+  
+  -- Was the button pressed?
+  if returnFlag then
+    
+    -- Shall we unpuppet all the sprites?
+    if pUnpuppet then
+      repeat with i = 1 to 120
+        puppetSprite(i, FALSE)
+      end repeat
+    end if
+    
+    -- check if this is an existing frame label
+    if the labelList contains pFrameOrHandle then
+      
+      -- go to the frame
+      go to frame pFrameOrHandle
+      cursor -1
+      
+    else
+      
+      -- call the handle
+      do (""&pFrameOrHandle)
+      
+    end if
+    
+    updateStage
+    
+  end if
+  
+end
+
+
+
+-- general handlers
+
+on changeSprite me, spriteChannel, startCast, endCast, framesPerSec
+  
+  set pauseTime = convToTicks(me, framesPerSec)
+  
+  set spriteState = the puppet of sprite spriteChannel
+  puppetSprite (spriteChannel, TRUE)
+  
+  if startCast > endCast then
+    
+    -- animate backwards
+    repeat with i = startCast down to endCast
+      set the castNum of sprite spriteChannel = i
+      updateStage
+      timePause(me, pauseTime)
+    end repeat
+    
+  else
+    
+    -- animate forward
+    repeat with i = startCast to endCast
+      set the castNum of sprite spriteChannel = i
+      updateStage
+      timePause(me, pauseTime)
+    end repeat
+    
+  end if
+  
+  puppetSprite (spriteChannel, spriteState)
+  
+end
+
+
+on convToTicks me, framesPerSec
+  --
+  -- converts frames/second to ticks/frame
+  
+  if framesPerSec = 0 then
+    -- aviod divide by zero
+    set myReturn = 0
+  else
+    set myReturn = 60 / float(framesPerSec)
+  end if
+  
+  return (myReturn)
+end
+
+
+on mouseWithin me
+  cursor pCsr_Roll
+  set the castNum of sprite pSpr_Mine = pCst_Roll
+  
+end
+
+
+on mouseLeave me
+  cursor -1
+  set the castNum of sprite pSpr_Mine = pCst_Up
+  
+end
+
+
+on timePause me, theTime
+  
+  --
+  -- This procedure will pause Director for 'theTime' number of ticks
+  --
+  
+  -- set the clock
+  set theTime = the ticks + theTime
+  
+  -- Loop
+  repeat while the ticks <= theTime
+    updateStage
+  end repeat
+  
+end
+
+-- sound
+
+
+on doSound me, soundName, mChannel
+  --
+  -- handle sounds
+  
+  if not mChannel then set mChannel = tellEmptySoundChan(me)
+  
+  if pSoundChannels > 0 then
+    
+    if mChannel = #last then set mChannel = pSoundChannels
+    
+    puppetSound(mChannel, 0)
+    puppetSound(mChannel, soundName)
+    
+  end if
+  
+  return(mChannel)
+end
+
+
+on tellEmptySoundChan me
+  
+  set mChannel = FALSE
+  
+  repeat with i = 1 to pSoundChannels
+    if not soundBusy(i) then
+      set mChannel = i
+      exit repeat
+    end if
+  end repeat
+  
+  if not mChannel then set mChannel = 1
+  
+  return(mChannel)
+  
+end

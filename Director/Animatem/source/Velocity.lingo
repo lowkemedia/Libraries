@@ -1,0 +1,55 @@
+-- Velocity
+
+--  Note: For best results set the Tempo to 1 fps.
+
+
+property pSpr_Mine                     --  Sprite used by this channel
+property pAngle                        --  Angle to move the sprite
+property pSpeed                        --  Speed to move the sprite
+
+global gObj_Animate
+
+
+on getBehaviorDescription me
+  
+  return("Set velocity at angle and speed.")
+  
+end
+
+
+on getPropertyDescriptionList me
+  
+  set description = [:]
+  
+  addProp(description, #pAngle, [#default: 90,¬
+                                  #format: #Integer,¬
+                                 #comment:"Angle to move sprite:"])
+  
+  addProp(description, #pSpeed, [#default: 1.0,¬
+                                  #format: #float,¬
+                                 #comment: "Speed to move:"])
+  
+  return(description)
+  
+end
+
+
+on beginSprite me
+  
+  set pSpr_Mine = the spriteNum of me
+  
+  -- Ensure that the animation engine is present, if not then make it.
+  if not gObj_Animate then set gObj_Animate = new(script "ancestor script for animate")
+  
+  -- set property
+  setProperty(gObj_Animate, pSpr_Mine, [#active : #Activate,¬
+                                      #velocity : [pAngle, pSpeed]])
+  
+end
+
+
+
+
+
+
+

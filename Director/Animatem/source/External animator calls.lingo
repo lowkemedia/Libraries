@@ -1,0 +1,59 @@
+-- 
+--  ANIMATEM.DIR © Copyright 1998 MOCAZ
+--  All rights reserved.
+--
+--  This software is licensed on an 'as is' basis.  The author provides no warranty of any sort.
+--  The user of this software assumes complete responsibility for any direct or indirect damages
+--  due to use or misuse of this software.
+--
+--  ANIMATE.DIR was written by Russell J Lowke, MOCAZ  (russ@mocaz.com)
+--
+--  MOCAZ can be contacted at:
+--  304 Newbury Street #202
+--  Boston, MA 02115
+--  www.mocaz.com
+
+
+global gObj_Animate
+
+
+on deactivated mSprite
+  --
+  -- called automatically when 'mSprite' is deactivated
+  
+end
+
+
+on endCycle mSprite
+  --
+  -- called automatically when 'mSprite' finishes a cycle type #end
+  
+end
+
+
+on atDestination mSprite
+  --
+  -- called when sprite reaches its destination
+  
+  setProperty(gObj_Animate, mSprite, [#active: FALSE])
+  
+end
+
+
+on handleCollision sourceSprite, targetSprite, sourceBehaviour
+  --
+  -- called when sourceSprite has collided with targetSprite
+  -- a sourceBehaviour is passed also
+  
+  case sourceBehaviour of
+      
+      -- YOUR CALLS HERE!
+      
+    #warp:
+      set x = random(640)
+      set y = random(480)
+      setProperty(gObj_Animate, targetSprite, [#location : point (x,y)])
+
+  end case
+  
+end

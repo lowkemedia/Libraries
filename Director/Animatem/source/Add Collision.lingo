@@ -1,0 +1,50 @@
+-- Add Collision
+
+--  Note: For best results set the Tempo to 1 fps.
+
+
+property pOtherSprite, pBehaviour
+
+global gObj_Animate
+
+
+on getBehaviorDescription me
+  
+  return("Add collision")
+  
+end
+
+
+on getPropertyDescriptionList me
+  
+  set description = [:]
+  
+  addProp(description, #pOtherSprite,  [#default: 100,¬
+                                      #format: #integer,¬
+                                     #comment: "Other Sprite:"])
+  
+  addProp(description, #pBehaviour,  [#default: #yourCollisionBehaveName,¬
+                                       #format: #symbol,¬
+                                      #comment: "Behaviour Name:"])
+  
+  return(description)
+  
+end
+
+
+on beginSprite me
+  
+  set pSpr_Mine = the spriteNum of me
+  
+  -- Ensure that the animation engine is present, if not then make it.
+  if not gObj_Animate then set gObj_Animate = new(script "ancestor script for animate")
+  
+  -- set property
+  setProperty(gObj_Animate, pSpr_Mine, [#addCollision: [pOtherSprite, pBehaviour]])
+  
+end
+
+
+
+
+

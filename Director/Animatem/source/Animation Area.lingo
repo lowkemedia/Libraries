@@ -1,0 +1,48 @@
+-- Animation Area
+
+--  Note: For best results set the Tempo to 1 fps.
+
+
+property pSpr_Mine                     --  Sprite used by this channel
+property pRct_Display                  --  The display area in which the sprite may animate in
+
+global gObj_Animate
+
+
+on getBehaviorDescription me
+  
+  return("Set the animation area that the sprite moves within.")
+  
+end
+
+
+on getPropertyDescriptionList me
+  
+  set description = [:]
+  
+  addProp(description, #pRct_Display, [#default: rect(0, 0, 640, 480),¬
+                                        #format: #rect,¬
+                                       #comment: "Animation Area:"])
+  
+  return(description)
+  
+end
+
+
+on beginSprite me
+  
+  set pSpr_Mine = the spriteNum of me
+  
+  -- Ensure that the animation engine is present, if not then make it.
+  if not gObj_Animate then set gObj_Animate = new(script "ancestor script for animate")
+  
+  -- set property
+  setProperty(gObj_Animate, pSpr_Mine, [#active : #Activate,¬
+                                   #displayArea : pRct_Display])
+  
+end
+
+
+
+
+

@@ -1,0 +1,36 @@
+on startMovie
+  
+  global gObj_Animate
+  
+  -- Stop multiple cases of gObj_Animate appearing in the actorList.
+  set the actorList = []
+  
+  if not gObj_Animate then
+    
+    -- gObj_Animate not in memory
+    
+  else
+    
+    -- clear previous version of gObj_Animate
+    
+    washEngine(gObj_Animate)
+    set gObj_Animate = FALSE
+    
+    -- WARNING: if washEngine(gObj_Animate) is not called before
+    -- setting gObj_Animate = FALSE then memory fragmentation will occur!
+    
+  end if
+  
+  set the cpuHogTicks = the maxInteger
+  
+end
+
+
+
+on stopMovie
+  
+  -- Stop multiple cases of gObj_Animate appearing in the actorList.
+  set the actorList = []
+  
+end
+

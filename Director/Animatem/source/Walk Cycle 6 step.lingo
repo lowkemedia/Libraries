@@ -1,0 +1,117 @@
+-- Walk Cycle
+
+--  Note: For best results set the Tempo to 1 fps.
+
+
+property pSpr_Mine                     --  Sprite used by this channel
+property pLst_Cycles                   --  Packages cast list
+property pCst_AStart                   --  Turn cycle 'A' cast to start at
+property pCst_AEnd                     --  Turn cycle 'A' cast to end at
+property pCst_BStart                   --  Turn cycle 'B' cast to start at
+property pCst_BEnd                     --  Turn cycle 'B' cast to end at
+property pCst_CStart                   --  Turn cycle 'C' cast to start at
+property pCst_CEnd                     --  Turn cycle 'C' cast to end at
+property pCst_DStart                   --  Turn cycle 'D' cast to start at
+property pCst_DEnd                     --  Turn cycle 'D' cast to end at
+property pCst_EStart                   --  Turn cycle 'E' cast to start at
+property pCst_EEnd                     --  Turn cycle 'E' cast to end at
+property pCst_FStart                   --  Turn cycle 'F' cast to start at
+property pCst_FEnd                     --  Turn cycle 'F' cast to end at
+property pFps                          --  'Frames' per second to animate at
+
+global gObj_Animate
+
+
+on getBehaviorDescription me
+  
+  return("Sets a series of casts that change according to angle of movement and fps.")
+  
+end
+
+
+on getPropertyDescriptionList me
+  
+  set description = [:]
+  
+  addProp(description, #pCst_AStart, [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle A - Start Member:"])
+  
+  addProp(description, #pCst_AEnd,   [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle A - End Member:"])
+  
+  addProp(description, #pCst_BStart, [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle B - Start Member:"])
+  
+  addProp(description, #pCst_BEnd,   [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle B - End Member:"])
+  
+  addProp(description, #pCst_CStart, [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle C - Start Member:"])
+  
+  addProp(description, #pCst_CEnd,   [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle C - End Member:"])
+  
+  addProp(description, #pCst_DStart, [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle D - Start Member:"])
+  
+  addProp(description, #pCst_DEnd,   [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle D - End Member:"])
+  
+  addProp(description, #pCst_EStart, [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle E - Start Member:"])
+  
+  addProp(description, #pCst_EEnd,   [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle E - End Member:"])
+  
+  addProp(description, #pCst_FStart, [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle F - Start Member:"])
+  
+  addProp(description, #pCst_FEnd,   [#default: 0,¬
+                                      #format: #graphic,¬
+                                     #comment: "Cycle F - End Member:"])
+  
+  addProp(description, #pFps,       [#default: 15,¬
+                                      #format: #integer,¬
+                                     #comment: "Frames Per Second:"])
+  
+  return(description)
+  
+end
+
+
+on beginSprite me
+  
+  set pSpr_Mine = the spriteNum of me
+  
+  -- Ensure that the animation engine is present, if not then make it.
+  if not gObj_Animate then set gObj_Animate = new(script "ancestor script for animate")
+  
+  set mCycles = packageCycleList(gObj_Animate, [[pCst_AStart, pCst_AEnd],¬
+                                                [pCst_BStart, pCst_BEnd],¬
+                                                [pCst_CStart, pCst_CEnd],¬
+                                                [pCst_DStart, pCst_DEnd],¬
+                                                [pCst_EStart, pCst_EEnd],¬
+                                                [pCst_FStart, pCst_FEnd]])
+  
+  -- set property
+  setProperty(gObj_Animate, pSpr_Mine, [#active : #Activate,¬
+                                     #cycleList : mCycles,¬
+                                            #fps: pFps])
+  
+end
+
+
+
+
+

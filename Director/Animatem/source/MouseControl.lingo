@@ -1,0 +1,47 @@
+-- MouseControl
+
+--  Note: For best results set the Tempo to 1 fps.
+
+
+property pModifier
+
+global gObj_Animate
+
+
+on getBehaviorDescription me
+  
+  return("Mouse Control")
+  
+end
+
+
+on getPropertyDescriptionList me
+  
+  set description = [:]
+  
+  addProp(description, #pModifier,  [#default: 28,¬
+                                      #format: #integer,¬
+                                     #comment: "Mouse Modifier:"])
+  
+  return(description)
+  
+end
+
+
+on beginSprite me
+  
+  set pSpr_Mine = the spriteNum of me
+  
+  -- Ensure that the animation engine is present, if not then make it.
+  if not gObj_Animate then set gObj_Animate = new(script "ancestor script for animate")
+  
+  -- set property
+  setProperty(gObj_Animate, pSpr_Mine, [#guidance: #typeA,¬
+                                #guidenceModifier: pModifier])
+  
+end
+
+
+
+
+

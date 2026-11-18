@@ -1,0 +1,242 @@
+-- DESCRIPTION --
+
+on getBehaviorDescription me
+  return "¬
+FRAME-BASED CONTINUOUS ROTATION"&RETURN&RETURN&"¬
+Rotates a sprite through a given number of degrees per frame."&RETURN&RETURN&"¬
+PERMITTED MEMBER TYPES:"&RETURN&PermittedMemberTypes (me)&RETURN&"¬
+The scroll bar of scrolling Text members does not rotate.  If attached to a ¬
+sprite with a scrolling Text member, this behavior will convert the member to ¬
+one with a fixed box size."&RETURN&RETURN&"¬
+PARAMETERS:"&RETURN&"¬
+• Number of degress to turn between each frame"&RETURN&"¬
+• Turn clockwise | anticlockwise"&RETURN&"¬
+• Initial rotation angle of sprite."
+end getBehaviorDescription
+
+
+on getBehaviorTooltip me
+  return "¬
+Use with Bitmap, Flash, Text and"&RETURN&"¬
+Vector Shape members."&RETURN&RETURN&"¬
+Rotates the sprite continuously"&RETURN&"¬
+through a given number of degrees"&RETURN&"¬
+per frame."
+end getBehaviorTooltip
+
+
+
+-- NOTES FOR DEVELOPERS --
+
+-- This behavior simply calls the Turn me handler on each prepareFrame to
+-- increment the sprite's angle by the amount chosen in the Behaviors
+-- Paramater dialog.
+
+-- The myRotateAngle parameter is deliberately fixed between 0° and 180°.
+-- An angle of more than 180° per frame would make the sprite appear to turn in
+-- the opposite direction, like wagon wheels in westerns.
+
+-- I have preferred to ask explicitly if the rotation is to be clockwise.
+-- I could have allowed myRotateAngle to be either positive or negative, but
+-- it might be unclear which direction is which.  Asking if the sprite should
+-- "Turn clockwise?" avoids any ambiguity.
+
+
+
+-- HISTORY --
+
+-- 14 September 1998: written for the D7 Behaviors Palette by James Newton
+-- 3 November 1998:   treatment of Text members revised.  Notes improved.
+
+
+
+-- PROPERTIES --
+
+property mySprite
+-- error checking
+property getPDLError
+-- author-defined parameters
+property myRotateAngle
+property myClockwise
+property myInitialAngle
+
+
+
+-- EVENT HANDLERS --
+
+on beginSprite me
+  Initialize me
+end beginSprite
+
+
+on prepareFrame me
+  Turn me
+end prepareFrame
+
+
+
+-- CUSTOM HANDLERS --
+
+on Initialize me -- sent by beginSprite
+  mySprite = sprite(me.spriteNum)
+  theMember  = mySprite.member
+  memberType = theMember.type
+  
+  -- Error checking
+  if PermittedMemberTypes(me).getPos(memberType) then
+    if memberType = #text then 
+      if theMember.boxType = #scroll then
+        ErrorAlert (me, #scrollingText, theMember)
+        theMember.boxType = #fixed
+      end if
+    end if
+  else
+    ErrorAlert (me, #invalidMemberType, memberType)
+  end if
+  -- End of error checking
+  
+  case memberType of
+    #vectorShape: mySprite.scaleMode = #autoSize
+  end case
+  
+  mySprite.rotation = myInitialAngle
+  if not myClockwise then
+    myRotateAngle = -myRotateAngle
+  end if
+end Initialize
+
+
+
+on Turn me -- sent by prepareFrame
+  newRotation = mySprite.rotation + myRotateAngle
+  
+  if newRotation > 360 then
+    newRotation = newRotation - 360
+  end if
+  if newRotation < -360 then
+    newRotation = newRotation + 360
+  end if
+  
+  mySprite.rotation = newRotation 
+end Turn 
+
+
+
+-- ERROR CHECKING --
+
+on ErrorAlert me, theError, data
+  -- sent by getPropertyDescriptionList, Initialize
+  
+  case theError of
+    #getPDLError:
+      alert "¬
+Error: This behavior works only with the following members types:   "&¬
+permittedMemberTypes(me)&RETURN&RETURN&"¬
+Hit OK and then delete this behavior from the sprite."&RETURN&"¬
+For more information on deleting Behaviors, see the Help system."
+      if the optionDown then
+        return ¬
+ [ ¬
+ #getPDLError: ¬
+ [ ¬
+  #comment: "ERROR:  Wrong member type.  Click 'Cancel'.", ¬
+  #format:  #string, ¬
+  #range:   [""], ¬
+  #default:  "" ¬
+ ] ¬
+]
+      end if
+      
+    otherwise
+      -- Determine the behavior's name
+      behaviorName = string (me)
+      delete word 1 of behaviorName
+      delete the last word of behaviorName
+      delete the last word of behaviorName
+      -- Convert #data to useful value
+      case data.ilk of
+        #void: data = "<void>"
+        #symbol: data = "#"&data
+      end case
+      
+      case theError of
+        #invalidMemberType:
+          alert "¬
+BEHAVIOR ERROR: Frame "&the frame&", Sprite "&me.spriteNum&RETURN&RETURN&"¬
+Behavior "&behaviorName&" only functions with the following member types:"&¬
+RETURN&permittedMemberTypes()&RETURN&RETURN&¬
+"Current type = "&data
+          halt
+          
+        #scrollingText:
+          if the runMode = "Author" then
+            memberName = data.name
+            if memberName = "" then
+              memberName = string (data)
+              delete memberName.word [1]
+              delete the last char of memberName
+            else
+              memberName = QUOTE&memberName&QUOTE
+            end if     
+            alert "¬
+BEHAVIOR ERROR: Frame "&the frame&", Sprite "&me.spriteNum&RETURN&"¬
+Behavior "&behaviorName&RETURN&RETURN&"¬
+Scroll bars of Text members cannot be rotated.  The boxType of the member "&¬
+memberName&" has been set to #fixed."
+          end if
+          
+      end case
+  end case
+end ErrorAlert
+
+
+
+-- AUTHOR-DEFINED PARAMETERS --
+
+on getPropertyDescriptionList me
+  
+  if not the currentSpriteNum then exit
+  
+  -- Error check: does current sprite contain appropriate member type?
+  theMember = sprite(the currentSpriteNum).member
+  memberType = theMember.type
+  permittedTypes = PermittedMemberTypes(me)
+  if not permittedTypes.getPos(memberType) then
+    return errorAlert (me, #getPDLError, permittedTypes)
+  end if
+  
+  -- No errors detected: continue as usual ...
+  
+  return ¬
+[ ¬
+ #myRotateAngle: ¬
+ [ ¬
+  #comment: "Rotate degrees per frame:", ¬
+  #format:  #float, ¬
+  #range:  [#min: 0, #max: 180], ¬
+  #default:  10.0 ¬
+ ], ¬
+ #myClockwise: ¬
+  [ ¬
+  #comment: "Turn clockwise?", ¬
+  #format:  #boolean, ¬
+  #default:  TRUE ¬
+ ], ¬
+ #myInitialAngle: ¬
+ [ ¬
+  #comment: "Initial rotation:", ¬
+  #format:  #float, ¬
+  #range:  [#min: 0, #max: 360], ¬
+  #default:  sprite(the currentSpriteNum).rotation ¬
+ ] ¬
+]
+end getPropertyDescriptionList
+
+
+on PermittedMemberTypes me
+  -- sent by:
+  -- getBehaviorDescription
+  -- getPropertyDescriptionList
+  -- Initialize
+  return [#bitmap, #flash, #text, #vectorShape]
+end PermittedMemberTypes

@@ -1,0 +1,50 @@
+-- Location
+
+--  Note: For best results set the Tempo to 1 fps.
+
+
+property pSpr_Mine                     --  Sprite used by this channel
+property pPnt_location                 --  Location to be set to
+
+global gObj_Animate
+
+
+on getBehaviorDescription me
+  
+  return("Set the location.")
+  
+end
+
+
+on getPropertyDescriptionList me
+  
+  set description = [:]
+  
+  addProp(description, #pPnt_location, [#default: point(320, 240),¬
+                                         #format: #point,¬
+                                        #comment: "Point Location:"])
+  
+  return(description)
+  
+end
+
+
+on beginSprite me
+  
+  set pSpr_Mine = the spriteNum of me
+  
+  -- Ensure that the animation engine is present, if not then make it.
+  if not gObj_Animate then set gObj_Animate = new(script "ancestor script for animate")
+  
+  -- set property
+  setProperty(gObj_Animate, pSpr_Mine, [#active : #Activate,¬
+                                      #location : pPnt_location])
+  
+end
+
+
+
+
+
+
+
